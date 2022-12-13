@@ -7,18 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5D2C73C72947FB7300E9EF49 /* AUSScoreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2C73C62947FB7300E9EF49 /* AUSScoreApp.swift */; };
+		5D2C73C72947FB7300E9EF49 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2C73C62947FB7300E9EF49 /* App.swift */; };
 		5D2C73C92947FB7300E9EF49 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2C73C82947FB7300E9EF49 /* ContentView.swift */; };
 		5D2C73CB2947FB7400E9EF49 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D2C73CA2947FB7400E9EF49 /* Assets.xcassets */; };
-		5D2C73CE2947FB7400E9EF49 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D2C73CD2947FB7400E9EF49 /* Preview Assets.xcassets */; };
+		5D2C73DC2947FEEB00E9EF49 /* AUSScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5D2C73DB2947FEEB00E9EF49 /* AUSScoreCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		5D2C73C32947FB7300E9EF49 /* AUSScore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AUSScore.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		5D2C73C62947FB7300E9EF49 /* AUSScoreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUSScoreApp.swift; sourceTree = "<group>"; };
+		5D2C73C62947FB7300E9EF49 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		5D2C73C82947FB7300E9EF49 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5D2C73CA2947FB7400E9EF49 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		5D2C73CD2947FB7400E9EF49 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		5D2C73D72947FE0A00E9EF49 /* AUSScoreCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = AUSScoreCore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +26,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D2C73DC2947FEEB00E9EF49 /* AUSScoreCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -35,8 +36,10 @@
 		5D2C73BA2947FB7300E9EF49 = {
 			isa = PBXGroup;
 			children = (
-				5D2C73C52947FB7300E9EF49 /* AUSScore */,
+				5D2C73C52947FB7300E9EF49 /* AUSScoreApp */,
+				5D2C73D72947FE0A00E9EF49 /* AUSScoreCore */,
 				5D2C73C42947FB7300E9EF49 /* Products */,
+				5D2C73D82947FE3700E9EF49 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -48,23 +51,37 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		5D2C73C52947FB7300E9EF49 /* AUSScore */ = {
+		5D2C73C52947FB7300E9EF49 /* AUSScoreApp */ = {
 			isa = PBXGroup;
 			children = (
-				5D2C73C62947FB7300E9EF49 /* AUSScoreApp.swift */,
-				5D2C73C82947FB7300E9EF49 /* ContentView.swift */,
-				5D2C73CA2947FB7400E9EF49 /* Assets.xcassets */,
-				5D2C73CC2947FB7400E9EF49 /* Preview Content */,
+				5D2C73D42947FC1D00E9EF49 /* App */,
+				5D2C73D52947FC2700E9EF49 /* Resources */,
 			);
-			path = AUSScore;
+			path = AUSScoreApp;
 			sourceTree = "<group>";
 		};
-		5D2C73CC2947FB7400E9EF49 /* Preview Content */ = {
+		5D2C73D42947FC1D00E9EF49 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				5D2C73CD2947FB7400E9EF49 /* Preview Assets.xcassets */,
+				5D2C73C62947FB7300E9EF49 /* App.swift */,
+				5D2C73C82947FB7300E9EF49 /* ContentView.swift */,
 			);
-			path = "Preview Content";
+			path = App;
+			sourceTree = "<group>";
+		};
+		5D2C73D52947FC2700E9EF49 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5D2C73CA2947FB7400E9EF49 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		5D2C73D82947FE3700E9EF49 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -83,6 +100,9 @@
 			dependencies = (
 			);
 			name = AUSScore;
+			packageProductDependencies = (
+				5D2C73DB2947FEEB00E9EF49 /* AUSScoreCore */,
+			);
 			productName = AUSScore;
 			productReference = 5D2C73C32947FB7300E9EF49 /* AUSScore.app */;
 			productType = "com.apple.product-type.application";
@@ -125,7 +145,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D2C73CE2947FB7400E9EF49 /* Preview Assets.xcassets in Resources */,
 				5D2C73CB2947FB7400E9EF49 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -138,7 +157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D2C73C92947FB7300E9EF49 /* ContentView.swift in Sources */,
-				5D2C73C72947FB7300E9EF49 /* AUSScoreApp.swift in Sources */,
+				5D2C73C72947FB7300E9EF49 /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,7 +285,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"AUSScore/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -294,7 +312,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"AUSScore/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -337,6 +354,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5D2C73DB2947FEEB00E9EF49 /* AUSScoreCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AUSScoreCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5D2C73BB2947FB7300E9EF49 /* Project object */;
 }

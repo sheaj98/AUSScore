@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AUSScoreCore
 
 @main
 struct AUSScoreApp: App {
