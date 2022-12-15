@@ -10,6 +10,42 @@
       }
     },
     {
+      "identity" : "get",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kean/Get",
+      "state" : {
+        "revision" : "7209fdb015686fd90918b2037cb2039206405bd3",
+        "version" : "2.1.5"
+      }
+    },
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift.git",
+      "state" : {
+        "revision" : "7b63ddf54232db97943759e2b022cf61c5d9e745",
+        "version" : "6.5.0"
+      }
+    },
+    {
+      "identity" : "nuke",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kean/Nuke",
+      "state" : {
+        "revision" : "afe8637d7592accfa6af7cf3653a98d0fe85f0de",
+        "version" : "11.4.0"
+      }
+    },
+    {
+      "identity" : "sorteddifference",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/SortedDifference",
+      "state" : {
+        "revision" : "8c90b977a70e6236574fa85610e897666bb9644a",
+        "version" : "1.1.0"
+      }
+    },
+    {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
