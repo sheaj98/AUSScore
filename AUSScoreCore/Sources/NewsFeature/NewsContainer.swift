@@ -61,7 +61,7 @@ public struct NewsFeature: ReducerProtocol {
       case .newsFeedResponse(.failure(let error)):
         print("Could not fetch news feeds \(error.localizedDescription)")
         return .none
-      case .newsCategory(let id, let action):
+      case .newsCategory(_, _):
         return .none
       }
     }
