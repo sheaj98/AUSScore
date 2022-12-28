@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - NewsItem
 
-public struct NewsFeed: Equatable, Identifiable {
+public struct NewsFeed: Equatable, Identifiable, Codable {
   
   public let id: String
   public let displayName: String
@@ -28,6 +28,4 @@ extension NewsFeed {
     return .init(id: id, displayName: displayName, url: url)
   }
 }
-
-extension NewsFeed: Decodable {}
 

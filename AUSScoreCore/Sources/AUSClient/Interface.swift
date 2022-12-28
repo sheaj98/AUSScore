@@ -9,14 +9,14 @@ import Models
 public struct AUSClient {
   public init(
     newsFeeds: @escaping @Sendable () async throws -> [NewsFeed],
-    newsItems: @escaping @Sendable () async throws -> [NewsItem])
+    newsItems: @escaping @Sendable (_ newsFeedUrl: String) async throws -> [NewsItem])
   {
     self.newsFeeds = newsFeeds
     self.newsItems = newsItems
   }
 
   public var newsFeeds: @Sendable () async throws -> [NewsFeed]
-  public var newsItems: @Sendable () async throws -> [NewsItem]
+  public var newsItems: @Sendable (_ newsFeedUrl: String) async throws -> [NewsItem]
 }
 
 extension DependencyValues {

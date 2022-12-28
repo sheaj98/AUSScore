@@ -41,7 +41,7 @@ struct PageHeader: View {
                 .padding(.bottom)
                 .coordinateSpace(name: "container")
                 .overlay(underline, alignment: .bottomLeading)
-                .animation(.spring())
+                .animation(.default, value: width)
                 .onChange(of: selected, perform: { value in
                     withAnimation {
                         scrollProxy.scrollTo(value, anchor: .center)

@@ -64,6 +64,7 @@ let package = Package(
       dependencies: [
         "Models",
         "AUSClient",
+        "AUSClientLive",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]),
     .target(
