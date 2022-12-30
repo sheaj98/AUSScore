@@ -11,36 +11,58 @@ import SwiftUI
 public struct NewsList: ReducerProtocol {
   // MARK: Lifecycle
 
-  public init() {}
+  public init() { }
 
   // MARK: Public
 
   public struct State: Equatable, Identifiable {
-    public var id: String
-    public var index: Int
-    public var url: String
-    public var displayName: String
-    //    public var destination: Destination?
+    // MARK: Lifecycle
 
-    public var newsItems: IdentifiedArrayOf<News.State>
-
-    public init(id: String, index: Int, url: String, displayName: String, newsItems: IdentifiedArrayOf<News.State> = []) {
+    public init(
+      id: String,
+      index: Int,
+      url: String,
+      displayName: String,
+      destination: Destination? = nil,
+      newsItems: IdentifiedArrayOf<News.State> = [])
+    {
       self.id = id
       self.index = index
       self.url = url
       self.displayName = displayName
+      self.destination = destination
       self.newsItems = newsItems
+    }
+
+    // MARK: Public
+
+    public var id: String
+    public var index: Int
+    public var url: String
+    public var displayName: String
+    public var destination: Destination?
+    public var newsItems: IdentifiedArrayOf<News.State>
+
+    public enum Destination: Equatable {
+      case article(ArticleFeature.State)
     }
   }
 
-  public enum Destination {
-    case art(URL)
-  }
 
   public enum Action: Equatable {
     case task
     case newsItemResponse(TaskResult<[News.State]>)
     case newsItem(id: News.State.ID, action: News.Action)
+    case articleDismissed
+    case destination(Destination)
+
+    public enum Destination: Equatable {
+      case article(ArticleFeature.Action)
+      // Crash workaround (CasePath Library doesn't seem to handle a nested enum with only one case)
+      // Likely related to https://github.com/pointfreeco/swift-case-paths/issues/71
+      case noop
+    }
+
   }
 
   public var body: some ReducerProtocol<State, Action> {
@@ -61,10 +83,22 @@ public struct NewsList: ReducerProtocol {
       case .newsItemResponse(.failure(let error)):
         print("Could not fetch news items \(error.localizedDescription)")
         return .none
-      case .newsItem:
-        print("Tapped")
+      case .newsItem(let id, action: .tapped):
+        guard let news = state.newsItems[id: id] else { return .none }
+        state.destination = .article(.init(url: news.link))
+        return .none
+      case .articleDismissed:
+        state.destination = nil
+        return .none
+      case .destination:
         return .none
       }
+    }
+    .ifLet(\.destination, action: /Action.destination) {
+      EmptyReducer()
+        .ifCaseLet(/State.Destination.article, action: /Action.Destination.article) {
+          ArticleFeature()
+        }
     }
   }
 
@@ -76,14 +110,17 @@ public struct NewsList: ReducerProtocol {
 // MARK: - NewsListView
 
 struct NewsListView: View {
-  private let store: StoreOf<NewsList>
-  @ObservedObject var viewStore: ViewStoreOf<NewsList>
-  @Environment(\.colorScheme) var colorScheme
+  // MARK: Lifecycle
 
   public init(store: StoreOf<NewsList>) {
     self.store = store
     viewStore = ViewStore(store, observe: { $0 })
   }
+
+  // MARK: Internal
+
+  @ObservedObject var viewStore: ViewStoreOf<NewsList>
+  @Environment(\.colorScheme) var colorScheme
 
   var body: some View {
     ScrollView {
@@ -99,8 +136,32 @@ struct NewsListView: View {
       await viewStore.send(.task).finish()
     }
     .tag(viewStore.index)
+    .sheet(isPresented: viewStore.binding(get: { _ in
+      viewStore.destination.flatMap(/NewsList.State.Destination.article) != nil
+    }, send: .articleDismissed)) {
+      IfLetStore(self.store.scope(state: { $0.destination.flatMap(/NewsList.State.Destination.article)},
+                                  action: { NewsList.Action.destination(.article($0)) })) { articleStore in
+        NavigationStack{
+          ArticleView(store: articleStore)
+            .navigationBarTitle("News", displayMode: .inline)
+            .toolbar(content: {
+              ToolbarItem(placement: .navigationBarLeading) {
+                Button("Done") {
+                  viewStore.send(.articleDismissed)
+                }
+              }
+            })
+        }
+      }
+    }
   }
+
+  // MARK: Private
+
+  private let store: StoreOf<NewsList>
 }
+
+// MARK: - NewsListView_Preview
 
 struct NewsListView_Preview: PreviewProvider {
   static var previews: some View {
@@ -110,6 +171,10 @@ struct NewsListView_Preview: PreviewProvider {
 
 extension Store where State == NewsList.State, Action == NewsList.Action {
   static let items = Store(
-    initialState: .init(id: "TestId", index: 0, url: "https://www.atlanticuniversitysport.com/landing/headlines-featured?feed=rss_2.0", displayName: "Featured"),
+    initialState: .init(
+      id: "TestId",
+      index: 0,
+      url: "https://www.atlanticuniversitysport.com/landing/headlines-featured?feed=rss_2.0",
+      displayName: "Featured"),
     reducer: NewsList())
 }
