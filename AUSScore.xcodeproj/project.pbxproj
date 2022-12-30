@@ -8,15 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		5D2C73C72947FB7300E9EF49 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2C73C62947FB7300E9EF49 /* App.swift */; };
-		5D2C73C92947FB7300E9EF49 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2C73C82947FB7300E9EF49 /* ContentView.swift */; };
 		5D2C73CB2947FB7400E9EF49 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D2C73CA2947FB7400E9EF49 /* Assets.xcassets */; };
-		5D2C73DC2947FEEB00E9EF49 /* AUSScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5D2C73DB2947FEEB00E9EF49 /* AUSScoreCore */; };
+		5D9FE3EA294E680F002A0D9B /* AppCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5D9FE3E9294E680F002A0D9B /* AppCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		5D2C73C32947FB7300E9EF49 /* AUSScore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AUSScore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D2C73C62947FB7300E9EF49 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
-		5D2C73C82947FB7300E9EF49 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5D2C73CA2947FB7400E9EF49 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5D2C73D72947FE0A00E9EF49 /* AUSScoreCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = AUSScoreCore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -26,7 +24,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D2C73DC2947FEEB00E9EF49 /* AUSScoreCore in Frameworks */,
+				5D9FE3EA294E680F002A0D9B /* AppCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,7 +62,6 @@
 			isa = PBXGroup;
 			children = (
 				5D2C73C62947FB7300E9EF49 /* App.swift */,
-				5D2C73C82947FB7300E9EF49 /* ContentView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -101,7 +98,7 @@
 			);
 			name = AUSScore;
 			packageProductDependencies = (
-				5D2C73DB2947FEEB00E9EF49 /* AUSScoreCore */,
+				5D9FE3E9294E680F002A0D9B /* AppCore */,
 			);
 			productName = AUSScore;
 			productReference = 5D2C73C32947FB7300E9EF49 /* AUSScore.app */;
@@ -156,7 +153,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D2C73C92947FB7300E9EF49 /* ContentView.swift in Sources */,
 				5D2C73C72947FB7300E9EF49 /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -285,6 +281,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CAAG829CQR;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
@@ -314,6 +311,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CAAG829CQR;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
@@ -360,9 +358,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		5D2C73DB2947FEEB00E9EF49 /* AUSScoreCore */ = {
+		5D9FE3E9294E680F002A0D9B /* AppCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = AUSScoreCore;
+			productName = AppCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

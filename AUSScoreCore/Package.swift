@@ -8,11 +8,11 @@ let package = Package(
   platforms: [.iOS(.v16), .macOS(.v13)],
   products: [
     .library(
-      name: "APIClient",
-      targets: ["APIClient"]),
+      name: "AUSClient",
+      targets: ["AUSClient"]),
     .library(
-      name: "APIClientLive",
-      targets: ["APIClientLive"]),
+      name: "AUSClientLive",
+      targets: ["AUSClientLive"]),
     .library(
       name: "AppCore",
       targets: ["AppCore"]),
@@ -39,17 +39,18 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "APIClient",
+      name: "AUSClient",
       dependencies: [
         .product(name: "Dependencies", package: "swift-composable-architecture"),
         "Models",
       ]),
     .target(
-      name: "APIClientLive",
+      name: "AUSClientLive",
       dependencies: [
-        "APIClient",
+        "AUSClient",
         .product(name: "Dependencies", package: "swift-composable-architecture"),
         "Models",
+        "Get",
       ]),
 
     .target(
@@ -61,9 +62,12 @@ let package = Package(
     .target(
       name: "NewsFeature",
       dependencies: [
+        "Utilities",
         "Models",
-        "APIClient",
+        "AUSClient",
+        "AUSClientLive",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "NukeUI", package: "Nuke"),
       ]),
     .target(
       name: "Models",
@@ -81,4 +85,7 @@ let package = Package(
         "Models",
         .product(name: "Dependencies", package: "swift-composable-architecture"),
       ]),
+    .target(
+      name: "Utilities",
+      dependencies: []),
   ])
