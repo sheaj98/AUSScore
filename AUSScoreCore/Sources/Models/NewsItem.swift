@@ -42,11 +42,12 @@ public struct NewsItem: Equatable, Identifiable, Codable {
   }
 }
 
-extension NewsItem {
-  public static var mock = Self(
-    title: "Twenty two players. One goal.",
-    link: URL(string: "http://www.atlanticuniversitysport.com/sports/wice/2022-23/releases/20221213i6o7s1")!,
-    content: "Five AUS players named as U SPORTS announces roster for 2023 FISU Winter World University Games.",
-    imageUrl: URL(string: "http://www.atlanticuniversitysport.com/sports/wice/2022-23/photos/WHCK_FISU_1040x680-1040x_mp.jpg")!,
-    date: .now)
+public extension NewsItem {
+  static func mock(title: String, link: URL = URL(string: "http://www.atlanticuniversitysport.com/sports/wice/2022-23/releases/20221213i6o7s1")!,
+                   content: String = "Five AUS players named as U SPORTS announces roster for 2023 FISU Winter World University Games.",
+                   imageUrl: URL = URL(string: "http://www.atlanticuniversitysport.com/sports/wice/2022-23/photos/WHCK_FISU_1040x680-1040x_mp.jpg")!,
+                   date: Date = .now) -> Self
+  {
+    return .init(title: title, link: link, content: content, imageUrl: imageUrl, date: date)
+  }
 }

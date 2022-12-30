@@ -10,6 +10,6 @@ extension AUSClient: TestDependencyKey {
   public static let previewValue = Self(newsFeeds: { () in
     [.mock(id: "123"), .mock(id: "1234"), .mock(id: "12345")]
   }, newsItems: { _ in
-    [.mock]
+    [.mock(title: "Title1"), .mock(title: "Title2"), .mock(title: "Title3")]
   })
 }

@@ -50,7 +50,7 @@ let package = Package(
         "AUSClient",
         .product(name: "Dependencies", package: "swift-composable-architecture"),
         "Models",
-        "Get"
+        "Get",
       ]),
 
     .target(
@@ -62,10 +62,12 @@ let package = Package(
     .target(
       name: "NewsFeature",
       dependencies: [
+        "Utilities",
         "Models",
         "AUSClient",
         "AUSClientLive",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "NukeUI", package: "Nuke"),
       ]),
     .target(
       name: "Models",
@@ -83,4 +85,7 @@ let package = Package(
         "Models",
         .product(name: "Dependencies", package: "swift-composable-architecture"),
       ]),
+    .target(
+      name: "Utilities",
+      dependencies: []),
   ])
