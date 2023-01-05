@@ -1,0 +1,47 @@
+:root {
+  color-scheme: light dark;
+  --link-color: blue;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --link-color: #93d5ff;
+  }
+}
+
+body {
+    font: -apple-system-body;
+    padding: 32px;
+    font-size: 25px;
+}
+
+span {
+  font-size: 1em;
+}
+
+p {
+  font: -apple-system-body;
+  font-size: 1em;
+}
+
+h1 {
+    font: -apple-system-title0;
+    font-size: 2em;
+}
+
+body h3 {
+    font: -apple-system-title1;
+    font-size: 1.5em;
+}
+
+footer {
+    font: -apple-system-footnote;
+}
+
+a {
+    color: var(--link-color);
+}
+
+img {
+    width: 100%;
+}

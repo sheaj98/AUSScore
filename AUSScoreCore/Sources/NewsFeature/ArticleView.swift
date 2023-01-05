@@ -14,7 +14,7 @@ import WebKit
 public struct ArticleFeature: ReducerProtocol {
   // MARK: Lifecycle
 
-  public init() { }
+  public init() {}
 
   // MARK: Public
 
@@ -54,8 +54,49 @@ struct ArticleView: UIViewRepresentable {
       isLoading: viewStore.binding(\.$isLoading))
   }
 
+  // MARK: - Reading contents of files
+
+  func readFileBy(name: String, type: String) -> String {
+    guard let path = Bundle.main.path(forResource: name, ofType: type) else {
+      return "Failed to find path"
+    }
+
+    do {
+      return try String(contentsOfFile: path, encoding: .utf8)
+    } catch {
+      return "Unkown Error"
+    }
+  }
+
   func makeUIView(context: Context) -> WKWebView {
-    let webView = WKWebView()
+    guard let path = Bundle.main.path(forResource: "article", ofType: "css"),
+          let cssString = try? String(contentsOfFile: path).components(separatedBy: .newlines).joined()
+    else {
+      let webView = WKWebView()
+      webView.navigationDelegate = context.coordinator
+      return webView
+    }
+
+    let source = """
+    var style = document.createElement('style');
+    style.innerHTML = '\(cssString)';
+    document.head.appendChild(style);
+    """
+
+    let preferences = WKPreferences()
+    preferences.setValue(true, forKey: "developerExtrasEnabled")
+    let userScript = WKUserScript(source: source,
+                                  injectionTime: .atDocumentEnd,
+                                  forMainFrameOnly: true)
+
+    let userContentController = WKUserContentController()
+    userContentController.addUserScript(userScript)
+
+    let configuration = WKWebViewConfiguration()
+    configuration.userContentController = userContentController
+    configuration.preferences = preferences
+
+    let webView = WKWebView(frame: .zero, configuration: configuration)
     webView.navigationDelegate = context.coordinator
     return webView
   }
