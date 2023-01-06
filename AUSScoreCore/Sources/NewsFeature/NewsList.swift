@@ -131,7 +131,8 @@ struct NewsListView: View {
       }
       .padding()
     }
-    .background(Color(uiColor: colorScheme == .dark ? .systemBackground : .secondarySystemBackground))
+    .dynamicTypeSize(...DynamicTypeSize.xLarge)
+    .background(Color(uiColor: .systemGroupedBackground))
     .task {
       await viewStore.send(.task).finish()
     }
@@ -143,7 +144,6 @@ struct NewsListView: View {
                                   action: { NewsList.Action.destination(.article($0)) })) { articleStore in
         NavigationStack{
           ArticleView(store: articleStore)
-            .navigationBarTitle("News", displayMode: .inline)
             .toolbar(content: {
               ToolbarItem(placement: .navigationBarLeading) {
                 Button("Done") {

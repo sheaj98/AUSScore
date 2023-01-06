@@ -89,11 +89,13 @@ public struct NewsContainer: View {
   }
 
   // MARK: Public
+  @Environment(\.colorScheme) var colorScheme
+
 
   public var body: some View {
-    VStack {
+    VStack(spacing: 0) {
       Text("News").font(.title2)
-
+      Spacer()
       PageHeader(
         selected: viewStore.binding(
           get: \.selectIndex,
@@ -112,6 +114,7 @@ public struct NewsContainer: View {
       }
       .tabViewStyle(.page(indexDisplayMode: .never))
     }
+    .background(Color(uiColor: colorScheme == .light ? .systemBackground : .secondarySystemBackground))
     .task {
       await viewStore.send(.task).finish()
     }

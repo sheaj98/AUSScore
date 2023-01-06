@@ -54,28 +54,33 @@ struct ArticleView: UIViewRepresentable {
       isLoading: viewStore.binding(\.$isLoading))
   }
 
-  // MARK: - Reading contents of files
+  // MARK: - Inject additional properties
 
-  func readFileBy(name: String, type: String) -> String {
-    guard let path = Bundle.main.path(forResource: name, ofType: type) else {
-      return "Failed to find path"
+  func createStyleScript(size: CGFloat = UIFont.preferredFont(forTextStyle: .body).pointSize,
+                         fontFamily: String = "-apple-system") -> WKUserScript
+  {
+    let cssString = """
+    :root {
+      color-scheme: light dark;
+      --link-color: blue;
     }
-
-    do {
-      return try String(contentsOfFile: path, encoding: .utf8)
-    } catch {
-      return "Unkown Error"
+    @media screen and (prefers-color-scheme: dark) {
+      :root {
+        --link-color: #93d5ff;
+      }
     }
-  }
-
-  func makeUIView(context: Context) -> WKWebView {
-    guard let path = Bundle.main.path(forResource: "article", ofType: "css"),
-          let cssString = try? String(contentsOfFile: path).components(separatedBy: .newlines).joined()
-    else {
-      let webView = WKWebView()
-      webView.navigationDelegate = context.coordinator
-      return webView
+    body {
+      font-family: \(fontFamily);
+      font-size: \(size)px;
+      padding: 16px;
     }
+    img {
+      width: 100%;
+    }
+    a {
+      color: var(--link-color);
+    }
+    """.components(separatedBy: .newlines).joined()
 
     let source = """
     var style = document.createElement('style');
@@ -83,14 +88,29 @@ struct ArticleView: UIViewRepresentable {
     document.head.appendChild(style);
     """
 
+    return WKUserScript(source: source,
+                        injectionTime: .atDocumentEnd,
+                        forMainFrameOnly: true)
+  }
+  
+  func createMetaScript() -> WKUserScript {
+    let viewportScriptString = "var meta = document.createElement('meta'); meta.setAttribute('name', 'viewport'); meta.setAttribute('content', 'width=device-width'); meta.setAttribute('initial-scale', '1.0'); meta.setAttribute('maximum-scale', '1.0'); meta.setAttribute('minimum-scale', '1.0'); meta.setAttribute('user-scalable', 'no'); document.getElementsByTagName('head')[0].appendChild(meta);"
+    
+    return WKUserScript(source: viewportScriptString,
+                        injectionTime: .atDocumentEnd,
+                        forMainFrameOnly: true)
+  }
+
+  func makeUIView(context: Context) -> WKWebView {
+    let userScript = createStyleScript()
+    let metaScript = createMetaScript()
+
     let preferences = WKPreferences()
     preferences.setValue(true, forKey: "developerExtrasEnabled")
-    let userScript = WKUserScript(source: source,
-                                  injectionTime: .atDocumentEnd,
-                                  forMainFrameOnly: true)
 
     let userContentController = WKUserContentController()
     userContentController.addUserScript(userScript)
+    userContentController.addUserScript(metaScript)
 
     let configuration = WKWebViewConfiguration()
     configuration.userContentController = userContentController
