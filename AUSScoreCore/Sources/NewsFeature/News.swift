@@ -98,7 +98,6 @@ public struct NewsView: View {
     .cornerRadius(8)
     .contentShape(RoundedRectangle(cornerRadius: 8))
     .onTapGesture {
-      print("Tapped")
       self.viewStore.send(.tapped)
     }
   }
