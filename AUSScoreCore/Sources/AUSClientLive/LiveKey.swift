@@ -31,13 +31,38 @@ extension AUSClient: DependencyKey {
       newsItems: { newsFeedUrl in
         let request = Request<NewsItems>(path: "parseNews", query: [("url", newsFeedUrl)])
         return try await client.send(request).value.items
-      })
+      },
+      schools: {
+        let request = Request<[School]>(path: "schools")
+        return try await client.send(request).value
+      },
+      sports: {
+        let request = Request<[Sport]>(path: "sports")
+        return try await client.send(request).value
+      },
+      teams: {
+        let request = Request<[Team]>(path: "teams")
+        return try await client.send(request).value
+      },
+      allGames: {
+        let request = Request<[Game]>(path: "games")
+        return try await client.send(request).value
+      },
+      gamesBySportId: { sportId in
+        let request = Request<[Game]>(path: "sports/\(sportId)/games")
+        return try await client.send(request).value
+      },
+      bulkFetchGames: { gamesBulkDTO in
+        let request = Request<[Game]>(path: "games/bulk", body: gamesBulkDTO)
+        return try await client.send(request).value
+      }
+    )
   }
 }
 
-extension DateFormatter {
+public extension DateFormatter {
   // 2021-04-25T11:00:00.0000000Z - includes milliseconds
-  public static let iso8601TimeZone: DateFormatter = {
+  static let iso8601TimeZone: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
     formatter.calendar = Calendar(identifier: .iso8601)

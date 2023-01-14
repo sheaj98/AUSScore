@@ -28,6 +28,12 @@ let package = Package(
     .library(
       name: "DatabaseClientLive",
       targets: ["DatabaseClientLive"]),
+    .library(
+      name: "AppCommon",
+      targets: ["AppCommon"]),
+    .library(
+      name: "ScoresFeature",
+      targets: ["ScoresFeature"]),
 
   ],
   dependencies: [
@@ -62,12 +68,22 @@ let package = Package(
     .target(
       name: "NewsFeature",
       dependencies: [
-        "Utilities",
         "Models",
         "AUSClient",
         "AUSClientLive",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "NukeUI", package: "Nuke"),
+        "AppCommon",
+      ]),
+    .target(
+      name: "ScoresFeature",
+      dependencies: [
+        "Models",
+        "AUSClient",
+        "AUSClientLive",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "NukeUI", package: "Nuke"),
+        "AppCommon",
       ]),
     .target(
       name: "Models",
@@ -86,6 +102,6 @@ let package = Package(
         .product(name: "Dependencies", package: "swift-composable-architecture"),
       ]),
     .target(
-      name: "Utilities",
+      name: "AppCommon",
       dependencies: []),
   ])

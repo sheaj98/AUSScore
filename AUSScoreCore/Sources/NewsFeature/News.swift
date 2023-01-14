@@ -7,8 +7,6 @@ import Models
 import NukeUI
 import SwiftUI
 import UIKit
-import Utilities
-
 // MARK: - News
 
 public struct News: ReducerProtocol {

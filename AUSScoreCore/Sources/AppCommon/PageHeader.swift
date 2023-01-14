@@ -9,17 +9,22 @@ import SwiftUI
  The MoveUnderlineButton uses a GeometryReader to find its own width and minX in order to set the respective values for the underline view
  The MoveUnderlineButton is set as the .overlay() for the Text view containing the text of that button so that its GeometryReader inherits its size from that Text view.
   */
-struct PageHeader: View {
+public struct PageHeader: View {
     /// An int representing the selected index
     @Binding var selected: Int
 
     /// An array of title to display
     let labels: [String]
+  
+    public init(selected: Binding<Int>, labels: [String]) {
+      self._selected = selected
+      self.labels = labels
+    }
 
     @State private var offset: CGFloat = 0
     @State private var width: CGFloat = 0
 
-    var body: some View {
+    public var body: some View {
         ScrollView(.horizontal, showsIndicators: false, content: {
             ScrollViewReader { scrollProxy in
                 // Primitive types do not conform to identifiable
