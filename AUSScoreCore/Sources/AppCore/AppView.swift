@@ -27,6 +27,7 @@ public struct AppReducer: ReducerProtocol {
   public enum Action: Equatable {
     case news(NewsFeature.Action)
     case selectedTab(Tab)
+    case appDelegate(AppDelegateReducer.Action)
   }
 
   public enum Tab {

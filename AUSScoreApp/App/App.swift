@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Solbits Software Inc. All rights reserved.
 
 import AppCore
 import ComposableArchitecture
@@ -8,7 +8,6 @@ import SwiftUI
 
 @main
 struct AUSScoreApp: App {
-
   @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
   var body: some Scene {
@@ -21,9 +20,11 @@ struct AUSScoreApp: App {
 // MARK: - AppDelegate
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-  let store: StoreOf<AppReducer> = Store(
-    initialState: AppReducer.State(),
-    reducer: AppReducer())
+  let store: StoreOf<AppReducer> = {
+    return Store(
+      initialState: AppReducer.State(),
+      reducer: AppReducer())
+  }()
 
   lazy var viewStore = ViewStore(
     self.store.scope(state: { _ in () }),
@@ -34,8 +35,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?)
     -> Bool
   {
-    // viewStore.send(.appDelegate(.didFinishLaunching))
-    true
+    viewStore.send(.appDelegate(.didFinishLaunching))
+    return true
   }
 
   // MARK: - UISceneSession Lifecycle
