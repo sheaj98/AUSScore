@@ -3,6 +3,7 @@
 import AUSClient
 import ComposableArchitecture
 import DatabaseClient
+import DatabaseClientLive
 import Foundation
 
 public struct SyncLogic: ReducerProtocol {
@@ -29,8 +30,19 @@ public struct SyncLogic: ReducerProtocol {
   private func syncAll() -> EffectTask<Action> {
     .fireAndForget {
       do {
-        let remoteSchools = try await ausClient.schools()
-        try await databaseClient.syncSchools(remoteSchools)
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          group.addTask {
+            let remoteSchools = try await ausClient.schools()
+            try await databaseClient.syncSchools(remoteSchools)
+          }
+
+          group.addTask {
+            let remoteSports = try await ausClient.sports()
+            try await databaseClient.syncSports(remoteSports)
+          }
+
+          for try await _ in group { }
+        }
       } catch {
         print("Syncing failed \(error)")
       }

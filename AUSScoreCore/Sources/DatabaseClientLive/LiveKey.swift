@@ -27,33 +27,67 @@ extension DatabaseClient: DependencyKey {
 
     let dbWriter = dbWriter()
 
-    return Self(schools: {
-      try await dbWriter.read { db in
-        try School.all().fetchAll(db)
-      }
-    }, syncSchools: { remoteSchools in
-      try dbWriter.write { db in
-        let localSchools = try School.all()
-          .order(Column("id"))
-          .fetchAll(db)
+    return Self(
+      schools: {
+        try await dbWriter.read { db in
+          try School.all().fetchAll(db)
+        }
+      },
+      syncSchools: { schools in
+        try dbWriter.write { db in
+          let localSchools = try School.all()
+            .order(Column("id"))
+            .fetchAll(db)
 
-        let mergeSteps = SortedDifference(
-          left: localSchools,
-          identifiedBy: { $0.id },
-          right: remoteSchools,
-          identifiedBy: { $0.id })
-        for mergeStep in mergeSteps {
-          switch mergeStep {
-          case .left(let local):
-            try local.delete(db)
-          case .right(let remote):
-            try remote.insert(db)
-          case .common(let local, let remote):
-            try local.updateChanges(db, from: remote)
+          let remoteSchools = schools.sorted(by: { $0.id < $1.id })
+
+          let mergeSteps = SortedDifference(
+            left: localSchools,
+            identifiedBy: { $0.id },
+            right: remoteSchools,
+            identifiedBy: { $0.id })
+          for mergeStep in mergeSteps {
+            switch mergeStep {
+            case .left(let local):
+              try local.delete(db)
+            case .right(let remote):
+              try remote.insert(db)
+            case .common(let local, let remote):
+              try local.updateChanges(db, from: remote)
+            }
           }
         }
-      }
-    })
+      },
+      sports: {
+        try await dbWriter.read { db in
+          try Sport.all().fetchAll(db)
+        }
+      },
+      syncSports: { sports in
+        try dbWriter.write { db in
+          let localSports = try Sport.all()
+            .order(Column("id"))
+            .fetchAll(db)
+
+          let remoteSports = sports.sorted(by: { $0.id < $1.id })
+
+          let mergeSteps = SortedDifference(
+            left: localSports,
+            identifiedBy: { $0.id },
+            right: remoteSports,
+            identifiedBy: { $0.id })
+          for mergeStep in mergeSteps {
+            switch mergeStep {
+            case .left(let local):
+              try local.delete(db)
+            case .right(let remote):
+              try remote.insert(db)
+            case .common(let local, let remote):
+              try local.updateChanges(db, from: remote)
+            }
+          }
+        }
+      })
   }
 
   // MARK: Private
@@ -76,13 +110,22 @@ extension DatabaseClient: DependencyKey {
 
     migrator.registerMigration("createSchool") { db in
       try db.create(table: "school") { t in
-        t.primaryKey("id", .text)
+        t.primaryKey("id", .integer)
         t.column("name", .text).notNull()
         t.column("location", .text).notNull()
-        t.column("logoUrl", .text)
+        t.column("logo", .text)
         t.column("displayName", .text).notNull()
       }
     }
+
+    migrator.registerMigration("createSport") { db in
+      try db.create(table: "sport") { t in
+        t.primaryKey("id", .integer)
+        t.column("name", .text).notNull()
+        t.column("gender", .text).notNull()
+      }
+    }
+
     try migrator.migrate(db)
   }
 }

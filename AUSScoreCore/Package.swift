@@ -65,6 +65,7 @@ let package = Package(
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         "AUSClient",
         "DatabaseClient",
+        "DatabaseClientLive",
         "NewsFeature",
       ]),
     .target(
