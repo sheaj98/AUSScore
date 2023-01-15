@@ -5,6 +5,7 @@ import Dependencies
 import Foundation
 import GRDB
 import Models
+import SortedDifference
 
 extension DatabaseClient: DependencyKey {
   // MARK: Public
@@ -29,6 +30,28 @@ extension DatabaseClient: DependencyKey {
     return Self(schools: {
       try await dbWriter.read { db in
         try School.all().fetchAll(db)
+      }
+    }, syncSchools: { remoteSchools in
+      try dbWriter.write { db in
+        let localSchools = try School.all()
+          .order(Column("id"))
+          .fetchAll(db)
+
+        let mergeSteps = SortedDifference(
+          left: localSchools,
+          identifiedBy: { $0.id },
+          right: remoteSchools,
+          identifiedBy: { $0.id })
+        for mergeStep in mergeSteps {
+          switch mergeStep {
+          case .left(let local):
+            try local.delete(db)
+          case .right(let remote):
+            try remote.insert(db)
+          case .common(let local, let remote):
+            try local.updateChanges(db, from: remote)
+          }
+        }
       }
     })
   }

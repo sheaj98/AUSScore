@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Solbits Software Inc. All rights reserved.
 
 import ComposableArchitecture
 import Foundation
@@ -51,6 +51,8 @@ public struct AppReducer: ReducerProtocol {
         return .none
       }
     }
+
+    SyncLogic()
   }
 }
 

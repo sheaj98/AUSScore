@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Solbits Software Inc. All rights reserved.
 
 import Dependencies
 import Foundation
@@ -6,5 +6,6 @@ import XCTestDynamicOverlay
 
 extension DatabaseClient: TestDependencyKey {
   public static let testValue = Self(
-    schools: unimplemented("\(Self.self).schools"))
+    schools: unimplemented("\(Self.self).schools"),
+    syncSchools: unimplemented("\(Self.self).syncSchools"))
 }

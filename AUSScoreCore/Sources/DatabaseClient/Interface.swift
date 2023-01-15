@@ -1,16 +1,23 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Solbits Software Inc. All rights reserved.
 
 import Dependencies
 import Foundation
 import Models
 
+// MARK: - DatabaseClient
+
 public struct DatabaseClient {
   // MARK: Lifecycle
 
-  public var schools: () async throws -> [School]
+  public var schools: @Sendable () async throws -> [School]
+  public var syncSchools: @Sendable ([School]) async throws -> Void
 
-  public init(schools: @escaping () async throws -> [School]) {
+  public init(
+    schools: @escaping @Sendable () async throws -> [School],
+    syncSchools: @escaping @Sendable ([School]) async throws -> Void)
+  {
     self.schools = schools
+    self.syncSchools = syncSchools
   }
 }
 
