@@ -5,9 +5,6 @@ import Foundation
 import XCTestDynamicOverlay
 
 extension DatabaseClient: TestDependencyKey {
-  public static let testValue = Self(newsItems: unimplemented("\(Self.self).newsItems"))
-
-  public static let previewValue = Self(newsItems: { () in
-    [.mock, .mock]
-  })
+  public static let testValue = Self(
+    schools: unimplemented("\(Self.self).schools"))
 }

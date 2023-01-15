@@ -99,6 +99,7 @@ let package = Package(
       dependencies: [
         "DatabaseClient",
         "Models",
+        .product(name: "GRDB", package: "GRDB.swift"),
         .product(name: "Dependencies", package: "swift-composable-architecture"),
       ]),
     .target(

@@ -7,10 +7,10 @@ import Models
 public struct DatabaseClient {
   // MARK: Lifecycle
 
-  public var newsItems: () async throws -> [NewsItem]
+  public var schools: () async throws -> [School]
 
-  public init(newsItems: @escaping () async throws -> [NewsItem]) {
-    self.newsItems = newsItems
+  public init(schools: @escaping () async throws -> [School]) {
+    self.schools = schools
   }
 }
 
