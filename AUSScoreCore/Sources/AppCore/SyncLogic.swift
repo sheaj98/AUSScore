@@ -6,6 +6,8 @@ import DatabaseClient
 import DatabaseClientLive
 import Foundation
 
+// MARK: - SyncLogic
+
 public struct SyncLogic: ReducerProtocol {
   // MARK: Public
 
@@ -40,9 +42,11 @@ public struct SyncLogic: ReducerProtocol {
             let remoteSports = try await ausClient.sports()
             try await databaseClient.syncSports(remoteSports)
           }
-
           for try await _ in group { }
         }
+
+        let remoteTeams = try await ausClient.teams()
+        try await databaseClient.syncTeams(remoteTeams)
       } catch {
         print("Syncing failed \(error)")
       }

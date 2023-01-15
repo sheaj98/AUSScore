@@ -9,5 +9,7 @@ extension DatabaseClient: TestDependencyKey {
     schools: unimplemented("\(Self.self).schools"),
     syncSchools: unimplemented("\(Self.self).syncSchools"),
     sports: unimplemented("\(Self.self).sports"),
-    syncSports: unimplemented("\(Self.self).syncSports"))
+    syncSports: unimplemented("\(Self.self).syncSports"),
+    teams: unimplemented("\(Self.self).teams"),
+    syncTeams: unimplemented("\(Self.self).syncTeams"))
 }

@@ -87,6 +87,41 @@ extension DatabaseClient: DependencyKey {
             }
           }
         }
+      },
+      teams: {
+        try await dbWriter.read { db in
+          try Team
+            .including(required: Team.sport)
+            .including(required: Team.school)
+            .select(Column("id"), as: Int64.self)
+            .asRequest(of: TeamInfo.self)
+            .fetchAll(db)
+        }
+      },
+      syncTeams: { teams in
+        try dbWriter.write { db in
+          let localTeams = try Team.all()
+            .order(Column("id"))
+            .fetchAll(db)
+
+          let remoteTeams = teams.sorted(by: { $0.id < $1.id })
+
+          let mergeSteps = SortedDifference(
+            left: localTeams,
+            identifiedBy: { $0.id },
+            right: remoteTeams,
+            identifiedBy: { $0.id })
+          for mergeStep in mergeSteps {
+            switch mergeStep {
+            case .left(let local):
+              try local.delete(db)
+            case .right(let remote):
+              try remote.insert(db)
+            case .common(let local, let remote):
+              try local.updateChanges(db, from: remote)
+            }
+          }
+        }
       })
   }
 
@@ -123,6 +158,21 @@ extension DatabaseClient: DependencyKey {
         t.primaryKey("id", .integer)
         t.column("name", .text).notNull()
         t.column("gender", .text).notNull()
+      }
+    }
+
+    migrator.registerMigration("createTeam") { db in
+      try db.create(table: "team") { t in
+        t.primaryKey("id", .integer)
+        t.column("schoolId", .integer)
+          .notNull()
+          .indexed()
+          .references("school", onDelete: .cascade)
+
+        t.column("sportId", .integer)
+          .notNull()
+          .indexed()
+          .references("sport", onDelete: .cascade)
       }
     }
 
