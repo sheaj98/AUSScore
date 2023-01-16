@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Solbits Software Inc. All rights reserved.
 
 import ComposableArchitecture
 import Foundation
@@ -27,6 +27,7 @@ public struct AppReducer: ReducerProtocol {
   public enum Action: Equatable {
     case news(NewsFeature.Action)
     case selectedTab(Tab)
+    case appDelegate(AppDelegateReducer.Action)
   }
 
   public enum Tab {
@@ -50,6 +51,8 @@ public struct AppReducer: ReducerProtocol {
         return .none
       }
     }
+
+    SyncLogic()
   }
 }
 

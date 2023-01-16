@@ -63,6 +63,9 @@ let package = Package(
       name: "AppCore",
       dependencies: [
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        "AUSClient",
+        "DatabaseClient",
+        "DatabaseClientLive",
         "NewsFeature",
       ]),
     .target(
@@ -99,6 +102,8 @@ let package = Package(
       dependencies: [
         "DatabaseClient",
         "Models",
+        .product(name: "GRDB", package: "GRDB.swift"),
+        .product(name: "SortedDifference", package: "SortedDifference"),
         .product(name: "Dependencies", package: "swift-composable-architecture"),
       ]),
     .target(

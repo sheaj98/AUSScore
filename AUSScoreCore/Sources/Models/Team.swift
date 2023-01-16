@@ -1,26 +1,23 @@
-//
-//  File.swift
-//
-//
-//  Created by Shea Sullivan on 2023-01-12.
-//
+// Copyright © 2023 Solbits Software Inc. All rights reserved.
 
 import Foundation
 
-public struct Team: Identifiable, Codable, Equatable {
-  public let id: UUID
-  public let sportId: UUID
-  public let schoolId: UUID
+// MARK: - Team
 
-  public init(id: UUID, sportId: UUID, schoolId: UUID) {
+public struct Team: Identifiable, Codable, Equatable {
+  public let id: Int64
+  public let sportId: Int64
+  public let schoolId: Int64
+
+  public init(id: Int64, sportId: Int64, schoolId: Int64) {
     self.id = id
     self.sportId = sportId
     self.schoolId = schoolId
   }
 }
 
-public extension Team {
-  static func mock() -> Self {
-    return .init(id: UUID(), sportId: UUID(), schoolId: UUID())
+extension Team {
+  public static func mock() -> Self {
+    .init(id: 1, sportId: 1, schoolId: 1)
   }
 }
