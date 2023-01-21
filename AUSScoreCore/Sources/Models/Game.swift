@@ -13,20 +13,19 @@ public struct Game: Identifiable, Equatable, Codable {
   public let id: String
   public let startTime: Date
   public let status: GameStatus
-  public let gameTeams: [GameTeam]
+  public let currentTime: String?
+  public let sportId: Int64
+  public let homeGameResult: GameResult
+  public let awayGameResult: GameResult
 
-  public init(id: String, startTime: Date, status: GameStatus, gameTeams: [GameTeam]) {
+  public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sportId: Int64, homeGameResult: GameResult, awayGameResult: GameResult) {
     self.id = id
     self.startTime = startTime
     self.status = status
-    self.gameTeams = gameTeams
-  }
-
-  enum CodingKeys: String, CodingKey {
-    case id
-    case startTime
-    case status
-    case gameTeams = "GameTeams"
+    self.currentTime = currentTime
+    self.sportId = sportId
+    self.homeGameResult = homeGameResult
+    self.awayGameResult = awayGameResult
   }
 }
 
@@ -50,6 +49,6 @@ public struct GamesBulkDTO: Codable {
 
 public extension Game {
   static func mock() -> Self {
-    return .init(id: "f9kdp1vietzh2ub9", startTime: .now, status: .inProgress, gameTeams: [.mock(), .mock()])
+    return .init(id: "abc123", startTime: .now, status: .inProgress, currentTime: "2:33 4Q", sportId: 1, homeGameResult: .mock(), awayGameResult: .mock())
   }
 }

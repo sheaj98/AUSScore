@@ -27,7 +27,7 @@ extension School {
       name: "St. Francis Xavier",
       location: "Antigonish, NS",
       logo: URL(
-        string: "https://github.com/corysullivan/AUSAPI/blob/master/Sources/Assets.xcassets/stfx.imageset/StFX~universal%401x.png")!,
+        string: "https://res.cloudinary.com/dwxvmohwq/image/upload/v1673652450/aus/stfx.png")!,
       displayName: "StFX")
   }
 }

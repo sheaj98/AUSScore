@@ -33,6 +33,8 @@ public struct DatabaseClient {
   public var syncSports: @Sendable ([Sport]) async throws -> Void
   public var teams: @Sendable () async throws -> [TeamInfo]
   public var syncTeams: @Sendable ([Team]) async throws -> Void
+  public var syncGames: @Sendable ([Game]) async throws -> Void
+  
 }
 
 extension DependencyValues {
