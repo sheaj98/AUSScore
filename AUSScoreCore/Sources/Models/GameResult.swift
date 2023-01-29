@@ -7,23 +7,31 @@
 
 import Foundation
 
-public struct GameTeam: Identifiable, Codable, Equatable {
-  public let score: Int
+public struct GameResult: Identifiable, Codable, Equatable {
+  public let score: Int?
   public let outcome: TeamOutcome
   public let isHome: Bool
-  public let teamId: UUID
+  public let teamId: Int64
   public let gameId: String
 
   public var id: String {
-    "\(gameId)+\(teamId.uuidString)"
+    "\(gameId)+\(teamId)"
   }
 
-  public init(score: Int, outcome: TeamOutcome, isHome: Bool, teamId: UUID, gameId: String) {
+  public init(score: Int?, outcome: TeamOutcome, isHome: Bool, teamId: Int64, gameId: String) {
     self.score = score
     self.outcome = outcome
     self.isHome = isHome
     self.teamId = teamId
     self.gameId = gameId
+  }
+  
+  enum CodingKeys: String, CodingKey {
+    case score
+    case outcome
+    case isHome = "home"
+    case teamId
+    case gameId
   }
 }
 
@@ -34,8 +42,8 @@ public enum TeamOutcome: String, Codable {
   case draw = "DRAW"
 }
 
-public extension GameTeam {
+public extension GameResult {
   static func mock() -> Self {
-    return .init(score: 32, outcome: .loss, isHome: true, teamId: UUID(), gameId: "f9kdp1vietzh2ub9")
+    return .init(score: 32, outcome: .loss, isHome: true, teamId: 1, gameId: "f9kdp1vietzh2ub9")
   }
 }

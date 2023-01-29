@@ -15,14 +15,22 @@ public struct DatabaseClient {
     sports: @escaping @Sendable () async throws -> [Sport],
     syncSports: @escaping @Sendable ([Sport]) async throws -> Void,
     teams: @escaping @Sendable () async throws -> [TeamInfo],
-    syncTeams: @escaping @Sendable ([Team]) async throws -> Void)
-  {
+    syncTeams: @escaping @Sendable ([Team]) async throws -> Void,
+    syncGames: @escaping @Sendable ([Game]) async throws -> Void,
+    syncGameResults: @escaping @Sendable ([GameResult]) async throws -> Void,
+    gamesForDate: @escaping @Sendable (Date) async throws -> [GameInfo],
+    datesWithGames: @escaping @Sendable () async throws -> [Date]
+  ) {
     self.schools = schools
     self.syncSchools = syncSchools
     self.sports = sports
     self.syncSports = syncSports
     self.teams = teams
     self.syncTeams = syncTeams
+    self.syncGames = syncGames
+    self.syncGameResults = syncGameResults
+    self.gamesForDate = gamesForDate
+    self.datesWithGames = datesWithGames
   }
 
   // MARK: Public
@@ -33,10 +41,14 @@ public struct DatabaseClient {
   public var syncSports: @Sendable ([Sport]) async throws -> Void
   public var teams: @Sendable () async throws -> [TeamInfo]
   public var syncTeams: @Sendable ([Team]) async throws -> Void
+  public var syncGames: @Sendable ([Game]) async throws -> Void
+  public var syncGameResults: @Sendable ([GameResult]) async throws -> Void
+  public var gamesForDate: @Sendable (Date) async throws -> [GameInfo]
+  public var datesWithGames: @Sendable () async throws -> [Date]
 }
 
-extension DependencyValues {
-  public var databaseClient: DatabaseClient {
+public extension DependencyValues {
+  var databaseClient: DatabaseClient {
     get { self[DatabaseClient.self] }
     set { self[DatabaseClient.self] = newValue }
   }

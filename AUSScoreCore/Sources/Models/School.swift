@@ -21,13 +21,23 @@ public struct School: Equatable, Identifiable, Codable {
 }
 
 extension School {
-  public static func mock() -> Self {
+  public static func stfxMock() -> Self {
     .init(
       id: 1,
       name: "St. Francis Xavier",
       location: "Antigonish, NS",
       logo: URL(
-        string: "https://github.com/corysullivan/AUSAPI/blob/master/Sources/Assets.xcassets/stfx.imageset/StFX~universal%401x.png")!,
+        string: "https://res.cloudinary.com/dwxvmohwq/image/upload/v1673652450/aus/stfx.png")!,
       displayName: "StFX")
+  }
+  
+  public static func unbMock() -> Self {
+    .init(
+      id: 2,
+      name: "University of New Brunswick",
+      location: "Fredericton, NB",
+      logo: URL(
+        string: "https://res.cloudinary.com/dwxvmohwq/image/upload/v1673652450/aus/unb.png")!,
+      displayName: "UNB")
   }
 }
