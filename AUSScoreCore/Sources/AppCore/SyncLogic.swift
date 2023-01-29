@@ -45,11 +45,18 @@ public struct SyncLogic: ReducerProtocol {
           try await group.waitForAll()
         }
 
-        let remoteTeams = try await ausClient.teams()
-        try await databaseClient.syncTeams(remoteTeams)
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          group.addTask {
+            let remoteTeams = try await ausClient.teams()
+            try await databaseClient.syncTeams(remoteTeams)
+          }
 
-        let remoteGames = try await ausClient.allGames()
-        try await databaseClient.syncGames(remoteGames)
+          group.addTask {
+            let remoteGames = try await ausClient.allGames()
+            try await databaseClient.syncGames(remoteGames)
+          }
+          try await group.waitForAll()
+        }
 
         let remoteGameResults = try await ausClient.gameResults()
         try await databaseClient.syncGameResults(remoteGameResults)
