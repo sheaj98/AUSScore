@@ -1,8 +1,10 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
+import AppCommon
 import ComposableArchitecture
 import Foundation
 import NewsFeature
+import ScoresFeature
 import SwiftUI
 
 // MARK: - AppReducer
@@ -16,16 +18,19 @@ public struct AppReducer: ReducerProtocol {
 
   public struct State: Equatable {
     public var news: NewsFeature.State
+    public var scores: ScoresFeature.State
     public var tab: Tab
 
-    public init(news: NewsFeature.State = .init(), tab: AppReducer.Tab = .news) {
+    public init(news: NewsFeature.State = .init(), scores: ScoresFeature.State = .init(), tab: AppReducer.Tab = .news) {
       self.news = news
       self.tab = tab
+      self.scores = scores
     }
   }
 
   public enum Action: Equatable {
     case news(NewsFeature.Action)
+    case scores(ScoresFeature.Action)
     case selectedTab(Tab)
     case appDelegate(AppDelegateReducer.Action)
   }
@@ -43,6 +48,10 @@ public struct AppReducer: ReducerProtocol {
       action: CasePath(Action.news))
     {
       NewsFeature()
+    }
+
+    Scope(state: \.scores, action: CasePath(Action.scores)) {
+      ScoresFeature()
     }
 
     Reduce { _, action in
@@ -105,7 +114,7 @@ public struct AppView: View {
         }
         .tag(AppReducer.Tab.news)
 
-      Text("Score View")
+      ScoresContainer(store: store.scope(state: \.scores, action: AppReducer.Action.scores))
         .tabItem {
           Label("Scores", systemImage: "sportscourt")
         }

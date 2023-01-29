@@ -1,3 +1,118 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
-import Foundation
+import AppCommon
+import ComposableArchitecture
+import DatabaseClient
+import Models
+import SwiftUI
+
+// MARK: - ScoresFeature
+
+public struct ScoresFeature: ReducerProtocol {
+  // MARK: Lifecycle
+
+  public init() { }
+
+  // MARK: Public
+
+  public struct State: Equatable {
+    public var datesWithGames: IdentifiedArrayOf<ScoresList.State>
+    public var selectedIndex: Int
+
+    public init(datesWithGames: IdentifiedArrayOf<ScoresList.State> = [], selectedIndex: Int = 0) {
+      self.datesWithGames = datesWithGames
+      self.selectedIndex = selectedIndex
+    }
+  }
+
+  public enum Destination: Equatable {
+    case date(ScoresList.State)
+  }
+
+  public enum Action: Equatable {
+    case selected(Int)
+    case scoresList(id: ScoresList.State.ID, action: ScoresList.Action)
+    case task
+    case dateWithGamesResponse(TaskResult<[ScoresList.State]>)
+  }
+
+  public var body: some ReducerProtocol<State, Action> {
+    Reduce { state, action in
+      switch action {
+      case .selected(let index):
+        state.selectedIndex = index
+        return .none
+      case .task:
+        return .task {
+          await .dateWithGamesResponse(TaskResult {
+            let dates = try await dbClient.datesWithGames()
+            return dates.enumerated().map { index, selectedDate -> ScoresList.State in
+              ScoresList.State(selectedDate: selectedDate, index: index)
+            }
+          })
+        }
+      case .dateWithGamesResponse(.success(let dates)):
+        state.datesWithGames = IdentifiedArray(uniqueElements: dates)
+        return .none
+      case .dateWithGamesResponse(.failure(let error)):
+        print("Error fetch dates with games \(error)")
+        return .none
+      case .scoresList:
+        return .none
+      }
+    }.forEach(\.datesWithGames, action: /Action.scoresList(id:action:)) {
+      ScoresList()
+    }
+  }
+
+  // MARK: Internal
+
+  @Dependency(\.databaseClient) var dbClient
+}
+
+// MARK: - ScoresContainer
+
+public struct ScoresContainer: View {
+  // MARK: Lifecycle
+
+  public init(store: StoreOf<ScoresFeature>) {
+    self.store = store
+    viewStore = ViewStore(store, observe: { $0 })
+  }
+
+  // MARK: Public
+
+  public var body: some View {
+    VStack(spacing: 0) {
+      Text("Scores").font(.title2)
+      Spacer()
+      PageHeader(
+        selected: viewStore.binding(get: \.selectedIndex, send: ScoresFeature.Action.selected),
+        labels: viewStore.datesWithGames.map { gameList in
+          if gameList.selectedDate == .now.startOfDay {
+            return "TODAY"
+          }
+          return gameList.selectedDate.formatted(.dateTime.month(.abbreviated).day())
+        })
+
+      TabView(selection: viewStore.binding(get: \.selectedIndex, send: ScoresFeature.Action.selected)) {
+        ForEachStore(
+          self.store.scope(state: \.datesWithGames, action: ScoresFeature.Action.scoresList(id:action:)),
+          content: ScoresListView.init(store:))
+      }
+      .tabViewStyle(.page(indexDisplayMode: .never))
+    }
+    .task {
+      await viewStore.send(.task).finish()
+    }
+  }
+
+  // MARK: Internal
+
+  @ObservedObject var viewStore: ViewStoreOf<ScoresFeature>
+  @Environment(\.colorScheme) var colorScheme
+
+  // MARK: Private
+
+  private let store: StoreOf<ScoresFeature>
+}
