@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import ComposableArchitecture
 import Foundation
@@ -14,7 +14,7 @@ import WebKit
 public struct ArticleFeature: ReducerProtocol {
   // MARK: Lifecycle
 
-  public init() {}
+  public init() { }
 
   // MARK: Public
 
@@ -56,49 +56,54 @@ struct ArticleView: UIViewRepresentable {
 
   // MARK: - Inject additional properties
 
-  func createStyleScript(size: CGFloat = UIFont.preferredFont(forTextStyle: .body).pointSize,
-                         fontFamily: String = "-apple-system") -> WKUserScript
+  func createStyleScript(
+    size: CGFloat = UIFont.preferredFont(forTextStyle: .body).pointSize,
+    fontFamily: String = "-apple-system")
+    -> WKUserScript
   {
     let cssString = """
-    :root {
-      color-scheme: light dark;
-      --link-color: blue;
-    }
-    @media screen and (prefers-color-scheme: dark) {
       :root {
-        --link-color: #93d5ff;
+        color-scheme: light dark;
+        --link-color: blue;
       }
-    }
-    body {
-      font-family: \(fontFamily);
-      font-size: \(size)px;
-      padding: 16px;
-    }
-    img {
-      width: 100%;
-    }
-    a {
-      color: var(--link-color);
-    }
-    """.components(separatedBy: .newlines).joined()
+      @media screen and (prefers-color-scheme: dark) {
+        :root {
+          --link-color: #93d5ff;
+        }
+      }
+      body {
+        font-family: \(fontFamily);
+        font-size: \(size)px;
+        padding: 16px;
+      }
+      img {
+        width: 100%;
+      }
+      a {
+        color: var(--link-color);
+      }
+      """.components(separatedBy: .newlines).joined()
 
     let source = """
-    var style = document.createElement('style');
-    style.innerHTML = '\(cssString)';
-    document.head.appendChild(style);
-    """
+      var style = document.createElement('style');
+      style.innerHTML = '\(cssString)';
+      document.head.appendChild(style);
+      """
 
-    return WKUserScript(source: source,
-                        injectionTime: .atDocumentEnd,
-                        forMainFrameOnly: true)
+    return WKUserScript(
+      source: source,
+      injectionTime: .atDocumentEnd,
+      forMainFrameOnly: true)
   }
-  
+
   func createMetaScript() -> WKUserScript {
-    let viewportScriptString = "var meta = document.createElement('meta'); meta.setAttribute('name', 'viewport'); meta.setAttribute('content', 'width=device-width'); meta.setAttribute('initial-scale', '1.0'); meta.setAttribute('maximum-scale', '1.0'); meta.setAttribute('minimum-scale', '1.0'); meta.setAttribute('user-scalable', 'no'); document.getElementsByTagName('head')[0].appendChild(meta);"
-    
-    return WKUserScript(source: viewportScriptString,
-                        injectionTime: .atDocumentEnd,
-                        forMainFrameOnly: true)
+    let viewportScriptString =
+      "var meta = document.createElement('meta'); meta.setAttribute('name', 'viewport'); meta.setAttribute('content', 'width=device-width'); meta.setAttribute('initial-scale', '1.0'); meta.setAttribute('maximum-scale', '1.0'); meta.setAttribute('minimum-scale', '1.0'); meta.setAttribute('user-scalable', 'no'); document.getElementsByTagName('head')[0].appendChild(meta);"
+
+    return WKUserScript(
+      source: viewportScriptString,
+      injectionTime: .atDocumentEnd,
+      forMainFrameOnly: true)
   }
 
   func makeUIView(context: Context) -> WKWebView {

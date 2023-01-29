@@ -1,4 +1,4 @@
-// Copyright © 2023 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import GRDB
 import Models
@@ -10,11 +10,11 @@ extension Game: FetchableRecord, PersistableRecord { }
 extension Game {
   static let sport = belongsTo(Sport.self)
   static let gameResults = hasMany(GameResult.self)
-  
+
   var sport: QueryInterfaceRequest<Sport> {
     request(for: Game.sport)
   }
-  
+
   var gameResults: QueryInterfaceRequest<GameResult> {
     request(for: Game.gameResults)
   }

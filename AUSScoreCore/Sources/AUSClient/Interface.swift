@@ -1,12 +1,14 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Dependencies
 import Foundation
 import Models
 
-// MARK: - APIClient
+// MARK: - AUSClient
 
 public struct AUSClient {
+  // MARK: Lifecycle
+
   public init(
     newsFeeds: @escaping @Sendable () async throws -> [NewsFeed],
     newsItems: @escaping @Sendable (_ newsFeedUrl: String) async throws -> [NewsItem],
@@ -16,8 +18,8 @@ public struct AUSClient {
     allGames: @escaping @Sendable () async throws -> [Game],
     gamesBySportId: @escaping @Sendable (_ sportId: String) async throws -> [Game],
     bulkFetchGames: @escaping @Sendable (_ gamesBulkDto: GamesBulkDTO) async throws -> [Game],
-    gameResults: @escaping @Sendable () async throws -> [GameResult]
-  ) {
+    gameResults: @escaping @Sendable () async throws -> [GameResult])
+  {
     self.newsFeeds = newsFeeds
     self.newsItems = newsItems
     self.schools = schools
@@ -28,6 +30,8 @@ public struct AUSClient {
     self.bulkFetchGames = bulkFetchGames
     self.gameResults = gameResults
   }
+
+  // MARK: Public
 
   // MARK: - News
 
@@ -51,12 +55,12 @@ public struct AUSClient {
   public var allGames: @Sendable () async throws -> [Game]
   public var gamesBySportId: @Sendable (_ sportId: String) async throws -> [Game]
   public var bulkFetchGames: @Sendable (_ gamesBulkDTO: GamesBulkDTO) async throws -> [Game]
-  
+
   public var gameResults: @Sendable () async throws -> [GameResult]
 }
 
-public extension DependencyValues {
-  var ausClient: AUSClient {
+extension DependencyValues {
+  public var ausClient: AUSClient {
     get { self[AUSClient.self] }
     set { self[AUSClient.self] = newValue }
   }

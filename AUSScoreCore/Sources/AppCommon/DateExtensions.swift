@@ -1,14 +1,9 @@
-//
-//  File.swift
-//
-//
-//  Created by Shea Sullivan on 2023-01-28.
-//
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Foundation
 
-public extension Date {
-  var startOfDay: Date {
+extension Date {
+  public var startOfDay: Date {
     Calendar.current.startOfDay(for: self)
   }
 }

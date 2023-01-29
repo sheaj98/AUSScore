@@ -1,4 +1,4 @@
-// Copyright © 2023 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AUSClient
 import ComposableArchitecture
@@ -47,10 +47,10 @@ public struct SyncLogic: ReducerProtocol {
 
         let remoteTeams = try await ausClient.teams()
         try await databaseClient.syncTeams(remoteTeams)
-        
+
         let remoteGames = try await ausClient.allGames()
         try await databaseClient.syncGames(remoteGames)
-        
+
         let remoteGameResults = try await ausClient.gameResults()
         try await databaseClient.syncGameResults(remoteGameResults)
       } catch {

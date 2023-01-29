@@ -1,4 +1,4 @@
-// Copyright © 2023 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import ComposableArchitecture
 import Foundation

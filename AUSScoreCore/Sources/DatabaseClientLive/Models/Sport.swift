@@ -1,4 +1,4 @@
-// Copyright © 2023 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import GRDB
 import Models
@@ -14,7 +14,7 @@ extension Sport {
   var teams: QueryInterfaceRequest<Team> {
     request(for: Sport.teams)
   }
-  
+
   var games: QueryInterfaceRequest<Game> {
     request(for: Sport.games)
   }

@@ -1,4 +1,4 @@
-// Copyright © 2023 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Foundation
 
@@ -30,7 +30,7 @@ extension School {
         string: "https://res.cloudinary.com/dwxvmohwq/image/upload/v1673652450/aus/stfx.png")!,
       displayName: "StFX")
   }
-  
+
   public static func unbMock() -> Self {
     .init(
       id: 2,

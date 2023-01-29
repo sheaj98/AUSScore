@@ -1,18 +1,9 @@
-//
-//  File.swift
-//
-//
-//  Created by Shea Sullivan on 2023-01-12.
-//
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Foundation
 
 public struct GameResultInfo: Decodable, Equatable {
-  public let score: Int?
-  public let outcome: TeamOutcome
-  public let isHome: Bool
-  public let team: TeamInfo
-  public let gameId: String
+  // MARK: Lifecycle
 
   public init(score: Int?, outcome: TeamOutcome, isHome: Bool, team: TeamInfo, gameId: String) {
     self.score = score
@@ -21,7 +12,17 @@ public struct GameResultInfo: Decodable, Equatable {
     self.team = team
     self.gameId = gameId
   }
-  
+
+  // MARK: Public
+
+  public let score: Int?
+  public let outcome: TeamOutcome
+  public let isHome: Bool
+  public let team: TeamInfo
+  public let gameId: String
+
+  // MARK: Internal
+
   enum CodingKeys: String, CodingKey {
     case score
     case outcome

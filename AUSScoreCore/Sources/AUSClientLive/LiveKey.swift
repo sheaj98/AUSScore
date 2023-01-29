@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AUSClient
 import Dependencies
@@ -59,14 +59,13 @@ extension AUSClient: DependencyKey {
       gameResults: {
         let request = Request<[GameResult]>(path: "game-results")
         return try await client.send(request).value
-      }
-    )
+      })
   }
 }
 
-public extension DateFormatter {
+extension DateFormatter {
   // 2021-04-25T11:00:00.0000000Z - includes milliseconds
-  static let iso8601TimeZone: DateFormatter = {
+  public static let iso8601TimeZone: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
     formatter.calendar = Calendar(identifier: .iso8601)

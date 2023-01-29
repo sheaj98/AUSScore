@@ -1,0 +1,75 @@
+--acronyms ID,URL,UUID
+--allman false
+--assetliterals visual-width
+--beforemarks 
+--binarygrouping 4,8
+--categorymark "MARK: %c"
+--classthreshold 0
+--closingparen same-line
+--closurevoid remove
+--commas always
+--conflictmarkers reject
+--decimalgrouping 3,6
+--elseposition same-line
+--emptybraces spaced
+--enumthreshold 20
+--exponentcase lowercase
+--exponentgrouping disabled
+--extensionacl on-declarations
+--extensionlength 0
+--extensionmark "MARK: - %t + %c"
+--fractiongrouping disabled
+--fragment false
+--funcattributes prev-line
+--groupedextension "MARK: %c"
+--guardelse same-line
+--header "// Copyright © {year} Shea Sullivan. All rights reserved."
+--hexgrouping 4,8
+--hexliteralcase uppercase
+--ifdef no-indent
+--importgrouping testable-last
+--indent 2
+--indentcase false
+--indentstrings true
+--lifecycle 
+--lineaftermarks true
+--linebreaks lf
+--markcategories true
+--markextensions always
+--marktypes always
+--maxwidth 130
+--modifierorder 
+--nevertrailing 
+--nospaceoperators 
+--nowrapoperators 
+--octalgrouping 4,8
+--operatorfunc spaced
+--organizetypes actor,class,enum,extension,struct
+--patternlet inline
+--ranges spaced
+--redundanttype inferred
+--self remove
+--selfrequired 
+--semicolons inline
+--shortoptionals always
+--smarttabs enabled
+--stripunusedargs always
+--structthreshold 20
+--swiftversion 5.7
+--tabwidth unspecified
+--trailingclosures 
+--trimwhitespace always
+--typeattributes prev-line
+--typemark "MARK: - %t"
+--varattributes preserve
+--voidtype void
+--wraparguments before-first
+--wrapcollections before-first
+--wrapconditions before-first
+--wrapparameters before-first
+--wrapreturntype if-multiline
+--wrapternary before-operators
+--wraptypealiases before-first
+--xcodeindentation disabled
+--yodaswap always
+--enable blockComments,markTypes,organizeDeclarations

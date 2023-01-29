@@ -1,4 +1,4 @@
-// Copyright © 2023 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AppCore
 import ComposableArchitecture
@@ -20,11 +20,9 @@ struct AUSScoreApp: App {
 // MARK: - AppDelegate
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-  let store: StoreOf<AppReducer> = {
-    return Store(
-      initialState: AppReducer.State(),
-      reducer: AppReducer())
-  }()
+  let store: StoreOf<AppReducer> = Store(
+    initialState: AppReducer.State(),
+    reducer: AppReducer())
 
   lazy var viewStore = ViewStore(
     self.store.scope(state: { _ in () }),

@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Dependencies
 import Foundation
@@ -14,33 +14,34 @@ extension AUSClient: TestDependencyKey {
     allGames: unimplemented("\(Self.self).allGames"),
     gamesBySportId: unimplemented("\(Self.self).gamesBySportId"),
     bulkFetchGames: unimplemented("\(Self.self).bulkFetchGames"),
-    gameResults: unimplemented("\(Self.self).gameResults")
-  )
+    gameResults: unimplemented("\(Self.self).gameResults"))
 
-  public static let previewValue = Self(newsFeeds: { () in
-    [.mock(id: "123"), .mock(id: "1234"), .mock(id: "12345")]
-  }, newsItems: { _ in
-    [.mock(title: "Title1"), .mock(title: "Title2"), .mock(title: "Title3")]
-  },
-  schools: { () in
-    [.unbMock()]
-  },
-  sports: { () in
-    [.mock()]
-  },
-  teams: { () in
-    [.mock()]
-  },
-  allGames: { () in
-    [.mock(), .mock(), .mock()]
-  },
-  gamesBySportId: { _ in
-    [.mock(), .mock(), .mock()]
-  },
-  bulkFetchGames: { _ in
-    [.mock(), .mock(), .mock()]
-  },
-gameResults: { () in
-    [.mock(), .mock()]
-  })
+  public static let previewValue = Self(
+    newsFeeds: { () in
+      [.mock(id: "123"), .mock(id: "1234"), .mock(id: "12345")]
+    },
+    newsItems: { _ in
+      [.mock(title: "Title1"), .mock(title: "Title2"), .mock(title: "Title3")]
+    },
+    schools: { () in
+      [.unbMock()]
+    },
+    sports: { () in
+      [.mock()]
+    },
+    teams: { () in
+      [.mock()]
+    },
+    allGames: { () in
+      [.mock(), .mock(), .mock()]
+    },
+    gamesBySportId: { _ in
+      [.mock(), .mock(), .mock()]
+    },
+    bulkFetchGames: { _ in
+      [.mock(), .mock(), .mock()]
+    },
+    gameResults: { () in
+      [.mock(), .mock()]
+    })
 }

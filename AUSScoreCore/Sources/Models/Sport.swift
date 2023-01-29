@@ -1,11 +1,8 @@
-//
-//  File.swift
-//
-//
-//  Created by Shea Sullivan on 2023-01-12.
-//
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Foundation
+
+// MARK: - Sport
 
 public struct Sport: Identifiable, Codable, Equatable {
   public let id: Int64
@@ -19,13 +16,15 @@ public struct Sport: Identifiable, Codable, Equatable {
   }
 }
 
+// MARK: - Gender
+
 public enum Gender: String, Codable {
   case male = "MALE"
   case female = "FEMALE"
 }
 
-public extension Sport {
-  static func mock() -> Self {
-    return .init(id: 1, name: "Men's Basketball", gender: .male)
+extension Sport {
+  public static func mock() -> Self {
+    .init(id: 1, name: "Men's Basketball", gender: .male)
   }
 }

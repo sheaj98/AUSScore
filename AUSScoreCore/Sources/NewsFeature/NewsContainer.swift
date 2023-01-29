@@ -1,11 +1,11 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
+import AppCommon
 import AUSClient
 import AUSClientLive
 import ComposableArchitecture
 import Foundation
 import Models
-import AppCommon
 import SwiftUI
 
 // MARK: - NewsFeature
@@ -62,7 +62,7 @@ public struct NewsFeature: ReducerProtocol {
       case .newsFeedResponse(.failure(let error)):
         print("Could not fetch news feeds \(error.localizedDescription)")
         return .none
-      case .newsCategory(_, _):
+      case .newsCategory:
         return .none
       }
     }
@@ -90,8 +90,6 @@ public struct NewsContainer: View {
   }
 
   // MARK: Public
-  @Environment(\.colorScheme) var colorScheme
-
 
   public var body: some View {
     VStack(spacing: 0) {
@@ -122,6 +120,8 @@ public struct NewsContainer: View {
   }
 
   // MARK: Internal
+
+  @Environment(\.colorScheme) var colorScheme
 
   @ObservedObject var viewStore: ViewStoreOf<NewsFeature>
 

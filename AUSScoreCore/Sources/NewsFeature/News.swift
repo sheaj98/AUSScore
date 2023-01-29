@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AUSClient
 import ComposableArchitecture
@@ -7,25 +7,18 @@ import Models
 import NukeUI
 import SwiftUI
 import UIKit
+
 // MARK: - News
 
 public struct News: ReducerProtocol {
   // MARK: Lifecycle
 
-  public init() {}
+  public init() { }
 
   // MARK: Public
 
   public struct State: Equatable, Identifiable {
-    public var id: String {
-      title
-    }
-
-    public let title: String
-    public let link: URL
-    public let content: String
-    public var imageUrl: URL?
-    public let date: Date
+    // MARK: Lifecycle
 
     public init(title: String, link: URL, content: String, imageUrl: URL?, date: Date) {
       self.title = title
@@ -36,11 +29,23 @@ public struct News: ReducerProtocol {
     }
 
     public init(newsItem: NewsItem) {
-      self.title = newsItem.title
-      self.link = newsItem.link
-      self.content = newsItem.content
-      self.imageUrl = newsItem.imageUrl
-      self.date = newsItem.date
+      title = newsItem.title
+      link = newsItem.link
+      content = newsItem.content
+      imageUrl = newsItem.imageUrl
+      date = newsItem.date
+    }
+
+    // MARK: Public
+
+    public let title: String
+    public let link: URL
+    public let content: String
+    public var imageUrl: URL?
+    public let date: Date
+
+    public var id: String {
+      title
     }
   }
 
@@ -62,14 +67,14 @@ public struct News: ReducerProtocol {
 // MARK: - NewsView
 
 public struct NewsView: View {
-  private let store: StoreOf<News>
-  @ObservedObject var viewStore: ViewStoreOf<News>
-  @Environment(\.colorScheme) var colorScheme
+  // MARK: Lifecycle
 
   public init(store: StoreOf<News>) {
     self.store = store
-    self.viewStore = ViewStore(store, observe: { $0 })
+    viewStore = ViewStore(store, observe: { $0 })
   }
+
+  // MARK: Public
 
   public var body: some View {
     VStack {
@@ -99,6 +104,15 @@ public struct NewsView: View {
       self.viewStore.send(.tapped)
     }
   }
+
+  // MARK: Internal
+
+  @ObservedObject var viewStore: ViewStoreOf<News>
+  @Environment(\.colorScheme) var colorScheme
+
+  // MARK: Private
+
+  private let store: StoreOf<News>
 }
 
 #if DEBUG
@@ -112,7 +126,12 @@ struct NewsView_Previews: PreviewProvider {
 
 extension Store where State == News.State, Action == News.Action {
   static let newsItem = Store(
-    initialState: .init(title: "Canada ready to chase gold at Lake Placid 2023", link: URL(string: "http://www.atlanticuniversitysport.com/sports/mice/2022-23/releases/20221214i5csbw")!, content: "Eleven AUS players named as U SPORTS announces men's hockey roster for 2023 FISU Winter World University Games", imageUrl: URL(string: "http://www.atlanticuniversitysport.com/sports/mice/2022-23/photos/FISU_MHCK_1040x680-1040x_mp.jpg")!, date: Date()),
+    initialState: .init(
+      title: "Canada ready to chase gold at Lake Placid 2023",
+      link: URL(string: "http://www.atlanticuniversitysport.com/sports/mice/2022-23/releases/20221214i5csbw")!,
+      content: "Eleven AUS players named as U SPORTS announces men's hockey roster for 2023 FISU Winter World University Games",
+      imageUrl: URL(string: "http://www.atlanticuniversitysport.com/sports/mice/2022-23/photos/FISU_MHCK_1040x680-1040x_mp.jpg")!,
+      date: Date()),
     reducer: News())
 }
 #endif

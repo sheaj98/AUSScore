@@ -1,16 +1,10 @@
-//
-//  File.swift
-//  
-//
-//  Created by Shea Sullivan on 2022-12-19.
-//
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Foundation
 
-// MARK: - NewsItem
+// MARK: - NewsFeed
 
 public struct NewsFeed: Equatable, Identifiable, Codable {
-  
   public let id: String
   public let displayName: String
   public let url: String
@@ -23,9 +17,12 @@ public struct NewsFeed: Equatable, Identifiable, Codable {
 }
 
 extension NewsFeed {
-  
-  public static func mock(id: String, displayName: String = "Featured", url: String = "https://www.atlanticuniversitysport.com/landing/headlines-featured?feed=rss_2.0") -> Self {
-    return .init(id: id, displayName: displayName, url: url)
+  public static func mock(
+    id: String,
+    displayName: String = "Featured",
+    url: String = "https://www.atlanticuniversitysport.com/landing/headlines-featured?feed=rss_2.0")
+    -> Self
+  {
+    .init(id: id, displayName: displayName, url: url)
   }
 }
-

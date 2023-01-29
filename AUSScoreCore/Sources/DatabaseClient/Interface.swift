@@ -1,4 +1,4 @@
-// Copyright © 2023 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Dependencies
 import Foundation
@@ -19,8 +19,8 @@ public struct DatabaseClient {
     syncGames: @escaping @Sendable ([Game]) async throws -> Void,
     syncGameResults: @escaping @Sendable ([GameResult]) async throws -> Void,
     gamesForDate: @escaping @Sendable (Date) async throws -> [GameInfo],
-    datesWithGames: @escaping @Sendable () async throws -> [Date]
-  ) {
+    datesWithGames: @escaping @Sendable () async throws -> [Date])
+  {
     self.schools = schools
     self.syncSchools = syncSchools
     self.sports = sports
@@ -47,8 +47,8 @@ public struct DatabaseClient {
   public var datesWithGames: @Sendable () async throws -> [Date]
 }
 
-public extension DependencyValues {
-  var databaseClient: DatabaseClient {
+extension DependencyValues {
+  public var databaseClient: DatabaseClient {
     get { self[DatabaseClient.self] }
     set { self[DatabaseClient.self] = newValue }
   }

@@ -1,13 +1,8 @@
-//
-//  File.swift
-//
-//
-//  Created by Shea Sullivan on 2023-01-09.
-//
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import Foundation
 
-// MARK: - Game Model
+// MARK: - Game
 
 public struct Game: Identifiable, Equatable, Codable {
   public let id: String
@@ -24,6 +19,8 @@ public struct Game: Identifiable, Equatable, Codable {
     self.sportId = sportId
   }
 }
+
+// MARK: - GameStatus
 
 public enum GameStatus: String, Codable {
   case complete = "COMPLETE"
@@ -44,8 +41,8 @@ public struct GamesBulkDTO: Codable {
 
 // MARK: - Game Mock
 
-public extension Game {
-  static func mock() -> Self {
-    return .init(id: "f9kdp1vietzh2ub9", startTime: .now, status: .inProgress, currentTime: "3:32 4Q", sportId: 1)
+extension Game {
+  public static func mock() -> Self {
+    .init(id: "f9kdp1vietzh2ub9", startTime: .now, status: .inProgress, currentTime: "3:32 4Q", sportId: 1)
   }
 }

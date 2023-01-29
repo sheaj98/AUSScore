@@ -1,11 +1,6 @@
-//
-//  File.swift
-//  
-//
-//  Created by Shea Sullivan on 2023-01-23.
-//
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
-import Models
 import GRDB
+import Models
 
-extension GameResultInfo: FetchableRecord {}
+extension GameResultInfo: FetchableRecord { }

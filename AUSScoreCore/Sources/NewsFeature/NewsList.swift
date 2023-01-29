@@ -1,4 +1,4 @@
-// Copyright © 2022 Solbits Software Inc. All rights reserved.
+// Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AUSClient
 import ComposableArchitecture
@@ -36,18 +36,17 @@ public struct NewsList: ReducerProtocol {
 
     // MARK: Public
 
+    public enum Destination: Equatable {
+      case article(ArticleFeature.State)
+    }
+
     public var id: String
     public var index: Int
     public var url: String
     public var displayName: String
     public var destination: Destination?
     public var newsItems: IdentifiedArrayOf<News.State>
-
-    public enum Destination: Equatable {
-      case article(ArticleFeature.State)
-    }
   }
-
 
   public enum Action: Equatable {
     case task
@@ -62,7 +61,6 @@ public struct NewsList: ReducerProtocol {
       // Likely related to https://github.com/pointfreeco/swift-case-paths/issues/71
       case noop
     }
-
   }
 
   public var body: some ReducerProtocol<State, Action> {
@@ -140,9 +138,11 @@ struct NewsListView: View {
     .sheet(isPresented: viewStore.binding(get: { _ in
       viewStore.destination.flatMap(/NewsList.State.Destination.article) != nil
     }, send: .articleDismissed)) {
-      IfLetStore(self.store.scope(state: { $0.destination.flatMap(/NewsList.State.Destination.article)},
-                                  action: { NewsList.Action.destination(.article($0)) })) { articleStore in
-        NavigationStack{
+      IfLetStore(self.store.scope(
+        state: { $0.destination.flatMap(/NewsList.State.Destination.article) },
+        action: { NewsList.Action.destination(.article($0)) }))
+      { articleStore in
+        NavigationStack {
           ArticleView(store: articleStore)
             .toolbar(content: {
               ToolbarItem(placement: .navigationBarLeading) {
