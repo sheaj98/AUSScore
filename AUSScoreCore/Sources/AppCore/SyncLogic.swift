@@ -47,6 +47,12 @@ public struct SyncLogic: ReducerProtocol {
 
         let remoteTeams = try await ausClient.teams()
         try await databaseClient.syncTeams(remoteTeams)
+        
+        let remoteGames = try await ausClient.allGames()
+        try await databaseClient.syncGames(remoteGames)
+        
+        let remoteGameResults = try await ausClient.gameResults()
+        try await databaseClient.syncGameResults(remoteGameResults)
       } catch {
         print("Syncing failed \(error)")
       }

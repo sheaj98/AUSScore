@@ -45,7 +45,7 @@ extension AUSClient: DependencyKey {
         return try await client.send(request).value
       },
       allGames: {
-        let request = Request<[Game]>(path: "games")
+        let request = Request<[Game]>(path: "games", query: [("includeCancelled", "true")])
         return try await client.send(request).value
       },
       gamesBySportId: { sportId in
@@ -54,6 +54,10 @@ extension AUSClient: DependencyKey {
       },
       bulkFetchGames: { gamesBulkDTO in
         let request = Request<[Game]>(path: "games/bulk", body: gamesBulkDTO)
+        return try await client.send(request).value
+      },
+      gameResults: {
+        let request = Request<[GameResult]>(path: "game-results")
         return try await client.send(request).value
       }
     )

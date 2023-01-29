@@ -67,6 +67,7 @@ let package = Package(
         "DatabaseClient",
         "DatabaseClientLive",
         "NewsFeature",
+        "AppCommon",
       ]),
     .target(
       name: "NewsFeature",

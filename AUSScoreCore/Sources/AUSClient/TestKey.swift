@@ -13,7 +13,8 @@ extension AUSClient: TestDependencyKey {
     teams: unimplemented("\(Self.self).teams"),
     allGames: unimplemented("\(Self.self).allGames"),
     gamesBySportId: unimplemented("\(Self.self).gamesBySportId"),
-    bulkFetchGames: unimplemented("\(Self.self).bulkFetchGames")
+    bulkFetchGames: unimplemented("\(Self.self).bulkFetchGames"),
+    gameResults: unimplemented("\(Self.self).gameResults")
   )
 
   public static let previewValue = Self(newsFeeds: { () in
@@ -22,7 +23,7 @@ extension AUSClient: TestDependencyKey {
     [.mock(title: "Title1"), .mock(title: "Title2"), .mock(title: "Title3")]
   },
   schools: { () in
-    [.mock()]
+    [.unbMock()]
   },
   sports: { () in
     [.mock()]
@@ -38,5 +39,8 @@ extension AUSClient: TestDependencyKey {
   },
   bulkFetchGames: { _ in
     [.mock(), .mock(), .mock()]
+  },
+gameResults: { () in
+    [.mock(), .mock()]
   })
 }

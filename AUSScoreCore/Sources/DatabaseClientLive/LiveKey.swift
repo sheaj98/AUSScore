@@ -6,6 +6,7 @@ import Foundation
 import GRDB
 import Models
 import SortedDifference
+import AppCommon
 
 extension DatabaseClient: DependencyKey {
   // MARK: Public
@@ -122,6 +123,85 @@ extension DatabaseClient: DependencyKey {
             }
           }
         }
+      },
+      syncGames: { games in
+        try dbWriter.write { db in
+          let localGames = try Game.all()
+            .order(Column("id"))
+            .fetchAll(db)
+          
+          let remoteGames = games.sorted(by: { $0.id < $1.id })
+          
+          let mergeSteps = SortedDifference(
+            left: localGames,
+            identifiedBy: { $0.id },
+            right: remoteGames,
+            identifiedBy: { $0.id })
+          for mergeStep in mergeSteps {
+            switch mergeStep {
+            case .left(let local):
+              try local.delete(db)
+            case .right(let remote):
+              try remote.insert(db)
+            case .common(let local, let remote):
+              try local.updateChanges(db, from: remote)
+            }
+          }
+        }
+      },
+      syncGameResults: { gameResults in
+        try dbWriter.write { db in
+          var localGames = try GameResult.all()
+            .order(Column("gameId"), Column("teamId"))
+            .fetchAll(db)
+          
+          localGames = localGames.sorted(by: { $0.id < $1.id })
+          
+          
+          let remoteGames = gameResults.sorted(by: { $0.id < $1.id })
+          let mergeSteps = SortedDifference(
+            left: localGames,
+            identifiedBy: { $0.id },
+            right: remoteGames,
+            identifiedBy: { $0.id })
+          for mergeStep in mergeSteps {
+            switch mergeStep {
+            case .left(let local):
+              try local.delete(db)
+            case .right(let remote):
+              try remote.insert(db)
+            case .common(let local, let remote):
+              try local.updateChanges(db, from: remote)
+            }
+          }
+        }
+      },
+    gamesForDate: { selectedDate in
+      try await dbWriter.read { db in
+                
+        try Game
+          .including(all: Game.gameResults
+            .including(required: GameResult.team
+              .including(required: Team.school)
+              .including(required: Team.sport)
+            )
+          )
+          .including(required: Game.sport)
+          .filter(selectedDate < Column("startTime") && Column("startTime") < Calendar.current.date(byAdding: .day, value: 1, to: selectedDate))
+          .asRequest(of: GameInfo.self)
+          .fetchAll(db)
+      }
+    },
+      datesWithGames: {
+        try await dbWriter.read { db in
+          let dates = try Game
+            .select(Column("startTime"), as: Date.self)
+            .distinct()
+            .fetchAll(db)
+          
+          let startOfDays = dates.map({ $0.startOfDay })
+          return Array(Set(startOfDays)).sorted(by: { $0 < $1 })
+        }
       })
   }
 
@@ -173,6 +253,44 @@ extension DatabaseClient: DependencyKey {
           .notNull()
           .indexed()
           .references("sport", onDelete: .cascade)
+      }
+    }
+    
+    migrator.registerMigration("createGame") { db in
+      try db.create(table: "game") { t in
+        t.primaryKey("id", .text)
+        
+        t.column("startTime", .datetime)
+          .notNull()
+          .indexed()
+        
+        t.column("status", .text)
+          .notNull()
+        
+        t.column("currentTime", .text)
+        
+        t.column("sportId", .integer)
+          .notNull()
+          .indexed()
+          .references("sport", onDelete: .cascade)
+      }
+    }
+    
+    migrator.registerMigration("createGameResult") { db in
+      try db.create(table: "gameResult") { t in
+        t.column("score", .integer)
+        t.column("outcome", .text)
+        t.column("home", .boolean)
+        t.column("teamId", .integer)
+          .notNull()
+          .indexed()
+          .references("team", onDelete: .cascade)
+        t.column("gameId", .text)
+          .notNull()
+          .indexed()
+          .references("game", onDelete: .cascade)
+        
+        t.primaryKey(["gameId", "teamId"])
       }
     }
 
