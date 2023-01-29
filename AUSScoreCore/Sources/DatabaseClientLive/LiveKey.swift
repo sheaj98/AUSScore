@@ -54,7 +54,7 @@ extension DatabaseClient: DependencyKey {
             case .right(let remote):
               try remote.insert(db)
             case .common(let local, let remote):
-              try local.updateChanges(db, from: remote)
+              try remote.updateChanges(db, from: local)
             }
           }
         }
@@ -84,7 +84,7 @@ extension DatabaseClient: DependencyKey {
             case .right(let remote):
               try remote.insert(db)
             case .common(let local, let remote):
-              try local.updateChanges(db, from: remote)
+              try remote.updateChanges(db, from: local)
             }
           }
         }
@@ -119,7 +119,7 @@ extension DatabaseClient: DependencyKey {
             case .right(let remote):
               try remote.insert(db)
             case .common(let local, let remote):
-              try local.updateChanges(db, from: remote)
+              try remote.updateChanges(db, from: local)
             }
           }
         }
@@ -144,7 +144,7 @@ extension DatabaseClient: DependencyKey {
             case .right(let remote):
               try remote.insert(db)
             case .common(let local, let remote):
-              try local.updateChanges(db, from: remote)
+              try remote.updateChanges(db, from: local)
             }
           }
         }
@@ -170,7 +170,7 @@ extension DatabaseClient: DependencyKey {
             case .right(let remote):
               try remote.insert(db)
             case .common(let local, let remote):
-              try local.updateChanges(db, from: remote)
+              try remote.updateChanges(db, from: local)
             }
           }
         }
