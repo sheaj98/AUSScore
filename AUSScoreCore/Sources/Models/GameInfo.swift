@@ -3,12 +3,7 @@
 import Foundation
 
 public struct GameInfo: Decodable {
-  public let id: String
-  public let startTime: Date
-  public let status: GameStatus
-  public let currentTime: String?
-  public let sport: Sport
-  public let gameResults: [GameResultInfo]
+  // MARK: Lifecycle
 
   public init(
     id: String,
@@ -25,4 +20,13 @@ public struct GameInfo: Decodable {
     self.sport = sport
     self.gameResults = gameResults
   }
+
+  // MARK: Public
+
+  public let id: String
+  public let startTime: Date
+  public let status: GameStatus
+  public let currentTime: String?
+  public let sport: Sport
+  public let gameResults: [GameResultInfo]
 }

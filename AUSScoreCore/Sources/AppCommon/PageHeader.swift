@@ -14,7 +14,7 @@ import SwiftUI
 // underline view
 // The MoveUnderlineButton is set as the .overlay() for the Text view containing the text of that button so that its
 // GeometryReader inherits its size from that Text view.
-// 
+//
 public struct PageHeader: View {
   // MARK: Lifecycle
 

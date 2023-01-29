@@ -7,9 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		34D6A4C52986E85C00F62F3A /* SwiftFormat in Frameworks */ = {isa = PBXBuildFile; productRef = 34D6A4C42986E85C00F62F3A /* SwiftFormat */; };
-		34D6A4C72986E85C00F62F3A /* CommandLineTool in Frameworks */ = {isa = PBXBuildFile; productRef = 34D6A4C62986E85C00F62F3A /* CommandLineTool */; };
-		34D6A4C92986E85C00F62F3A /* swiftformat in Frameworks */ = {isa = PBXBuildFile; productRef = 34D6A4C82986E85C00F62F3A /* swiftformat */; };
+		34D6A4D92986EC9200F62F3A /* SwiftFormat in Frameworks */ = {isa = PBXBuildFile; productRef = 34D6A4D82986EC9200F62F3A /* SwiftFormat */; };
 		5D2C73C72947FB7300E9EF49 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2C73C62947FB7300E9EF49 /* App.swift */; };
 		5D2C73CB2947FB7400E9EF49 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D2C73CA2947FB7400E9EF49 /* Assets.xcassets */; };
 		5D9FE3EA294E680F002A0D9B /* AppCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5D9FE3E9294E680F002A0D9B /* AppCore */; };
@@ -29,10 +27,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				34D6A4C72986E85C00F62F3A /* CommandLineTool in Frameworks */,
-				34D6A4C92986E85C00F62F3A /* swiftformat in Frameworks */,
 				5D9FE3EA294E680F002A0D9B /* AppCore in Frameworks */,
-				34D6A4C52986E85C00F62F3A /* SwiftFormat in Frameworks */,
+				34D6A4D92986EC9200F62F3A /* SwiftFormat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,9 +105,7 @@
 			name = AUSScore;
 			packageProductDependencies = (
 				5D9FE3E9294E680F002A0D9B /* AppCore */,
-				34D6A4C42986E85C00F62F3A /* SwiftFormat */,
-				34D6A4C62986E85C00F62F3A /* CommandLineTool */,
-				34D6A4C82986E85C00F62F3A /* swiftformat */,
+				34D6A4D82986EC9200F62F3A /* SwiftFormat */,
 			);
 			productName = AUSScore;
 			productReference = 5D2C73C32947FB7300E9EF49 /* AUSScore.app */;
@@ -142,7 +136,7 @@
 			);
 			mainGroup = 5D2C73BA2947FB7300E9EF49;
 			packageReferences = (
-				34D6A4C32986E85C00F62F3A /* XCRemoteSwiftPackageReference "SwiftFormat" */,
+				34D6A4D72986EC9200F62F3A /* XCRemoteSwiftPackageReference "SwiftFormat" */,
 			);
 			productRefGroup = 5D2C73C42947FB7300E9EF49 /* Products */;
 			projectDirPath = "";
@@ -376,31 +370,21 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		34D6A4C32986E85C00F62F3A /* XCRemoteSwiftPackageReference "SwiftFormat" */ = {
+		34D6A4D72986EC9200F62F3A /* XCRemoteSwiftPackageReference "SwiftFormat" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nicklockwood/SwiftFormat";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.6;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		34D6A4C42986E85C00F62F3A /* SwiftFormat */ = {
+		34D6A4D82986EC9200F62F3A /* SwiftFormat */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 34D6A4C32986E85C00F62F3A /* XCRemoteSwiftPackageReference "SwiftFormat" */;
+			package = 34D6A4D72986EC9200F62F3A /* XCRemoteSwiftPackageReference "SwiftFormat" */;
 			productName = SwiftFormat;
-		};
-		34D6A4C62986E85C00F62F3A /* CommandLineTool */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 34D6A4C32986E85C00F62F3A /* XCRemoteSwiftPackageReference "SwiftFormat" */;
-			productName = CommandLineTool;
-		};
-		34D6A4C82986E85C00F62F3A /* swiftformat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 34D6A4C32986E85C00F62F3A /* XCRemoteSwiftPackageReference "SwiftFormat" */;
-			productName = swiftformat;
 		};
 		5D9FE3E9294E680F002A0D9B /* AppCore */ = {
 			isa = XCSwiftPackageProductDependency;
