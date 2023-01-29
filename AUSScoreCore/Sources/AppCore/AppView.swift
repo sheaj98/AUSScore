@@ -54,8 +54,11 @@ public struct AppReducer: ReducerProtocol {
       ScoresFeature()
     }
 
-    Reduce { _, action in
+    Reduce { state, action in
       switch action {
+      case .selectedTab(let tab):
+        state.tab = tab
+        return .none
       default:
         return .none
       }
