@@ -48,6 +48,7 @@ public struct ScoresList: ReducerProtocol {
               .map { sportName, mappedGameRows -> ScoresListSection.State in
                 ScoresListSection.State(name: sportName, scoreRows: IdentifiedArray(uniqueElements: mappedGameRows))
               }
+              .sorted(by: { $0.name < $1.name })
           })
         })
       case .gamesResponse(.success(let scores)):
@@ -86,6 +87,14 @@ public struct ScoresListView: View {
       }
     }
     .listStyle(.grouped)
+    .refreshable {
+      await viewStore.send(.task).finish()
+    }
+    .overlay(Group {
+      if viewStore.scoreSections.isEmpty {
+        Text("No Games Today!")
+      }
+    })
     .task {
       await viewStore.send(.task).finish()
     }.tag(viewStore.index)

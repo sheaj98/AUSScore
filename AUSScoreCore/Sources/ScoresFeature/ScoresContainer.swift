@@ -45,13 +45,19 @@ public struct ScoresFeature: ReducerProtocol {
       case .task:
         return .task {
           await .dateWithGamesResponse(TaskResult {
-            let dates = try await dbClient.datesWithGames()
+            var dates = try await dbClient.datesWithGames()
+            if (!dates.contains(where: { Calendar.current.isDateInToday($0) })) {
+              dates.append(.now.startOfDay)
+              dates = dates.sorted(by: { $0 < $1 })
+            }
             return dates.enumerated().map { index, selectedDate -> ScoresList.State in
               ScoresList.State(selectedDate: selectedDate, index: index)
             }
           })
         }
       case .dateWithGamesResponse(.success(let dates)):
+        let todayIndex = dates.firstIndex(where: { Calendar.current.isDateInToday($0.selectedDate)}) ?? 0
+        state.selectedIndex = todayIndex
         state.datesWithGames = IdentifiedArray(uniqueElements: dates)
         return .none
       case .dateWithGamesResponse(.failure(let error)):
@@ -102,6 +108,7 @@ public struct ScoresContainer: View {
       }
       .tabViewStyle(.page(indexDisplayMode: .never))
     }
+    .background(Color(uiColor: colorScheme == .light ? .systemBackground : .secondarySystemBackground))
     .task {
       await viewStore.send(.task).finish()
     }
