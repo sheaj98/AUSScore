@@ -186,9 +186,7 @@ extension DatabaseClient: DependencyKey {
                     .including(required: Team.school)
                     .including(required: Team.sport)))
             .including(required: Game.sport)
-            .filter(
-              selectedDate < Column("startTime") && Column("startTime") < Calendar.current
-                .date(byAdding: .day, value: 1, to: selectedDate))
+            .filter((selectedDate.startOfDay...selectedDate.endOfDay).contains(Column("startTime")))
             .asRequest(of: GameInfo.self)
             .fetchAll(db)
         }

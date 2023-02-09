@@ -46,7 +46,7 @@ public struct ScoresFeature: ReducerProtocol {
         return .task {
           await .dateWithGamesResponse(TaskResult {
             var dates = try await dbClient.datesWithGames()
-            if (!dates.contains(where: { $0.startOfDay == .now.startOfDay})) {
+            if (!dates.contains(where: { Calendar.current.isDateInToday($0) })) {
               dates.append(.now.startOfDay)
               dates = dates.sorted(by: { $0 < $1 })
             }
@@ -56,7 +56,7 @@ public struct ScoresFeature: ReducerProtocol {
           })
         }
       case .dateWithGamesResponse(.success(let dates)):
-        let todayIndex = dates.firstIndex(where: { $0.id == .now.startOfDay}) ?? 0
+        let todayIndex = dates.firstIndex(where: { Calendar.current.isDateInToday($0.selectedDate)}) ?? 0
         state.selectedIndex = todayIndex
         state.datesWithGames = IdentifiedArray(uniqueElements: dates)
         return .none
