@@ -30,3 +30,14 @@ public struct GameInfo: Decodable {
   public let sport: Sport
   public let gameResults: [GameResultInfo]
 }
+
+public extension GameInfo {
+  static func mock(id: String,
+                   startTime: Date = .now,
+                   status: GameStatus = .upcoming,
+                   sport: Sport = .mock(),
+                   gameResults: [GameResultInfo] = [.mock(score: 12, isHome: true, gameId: "game1"), .mock(score: 32, isHome: false, gameId: "game1")]) -> Self
+  {
+    return .init(id: id, startTime: startTime, status: status, currentTime: nil, sport: sport, gameResults: gameResults)
+  }
+}

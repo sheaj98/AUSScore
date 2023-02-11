@@ -48,7 +48,7 @@ public enum TeamOutcome: String, Codable {
 }
 
 extension GameResult {
-  public static func mock() -> Self {
-    .init(score: 32, outcome: .loss, isHome: true, teamId: 1, gameId: "f9kdp1vietzh2ub9")
+  public static func mock(teamId: Int64, gameId: String, isHome: Bool) -> Self {
+    .init(score: 32, outcome: .loss, isHome: isHome, teamId: teamId, gameId: gameId)
   }
 }

@@ -31,3 +31,9 @@ public struct GameResultInfo: Decodable, Equatable {
     case gameId
   }
 }
+
+public extension GameResultInfo {
+  static func mock(score: Int?, outcome: TeamOutcome = .tbd, isHome: Bool, team: TeamInfo = .mock(id: 1, school: .stfxMock(), sport: .mock()), gameId: String) -> Self {
+    return .init(score: score, outcome: outcome, isHome: isHome, team: team, gameId: gameId)
+  }
+}
