@@ -103,7 +103,9 @@ public struct ScoresListView: View {
     }
     .task {
       await viewStore.send(.task).finish()
-    }.tag(viewStore.index)
+    }
+    .tag(viewStore.index)
+    .emptyPlaceholder(loadingState: viewStore.loadingState)
   }
 
   // MARK: Internal
