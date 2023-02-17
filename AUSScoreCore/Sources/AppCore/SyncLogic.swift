@@ -5,6 +5,7 @@ import ComposableArchitecture
 import DatabaseClient
 import DatabaseClientLive
 import Foundation
+import ScoresFeature
 
 // MARK: - SyncLogic
 
@@ -16,6 +17,8 @@ public struct SyncLogic: ReducerProtocol {
       switch action {
       case .appDelegate(.didFinishLaunching):
         return syncAll()
+      case .scores(.scoresList(_, action: .refreshGames)):
+        return syncGames()
       default:
         return .none
       }
@@ -28,6 +31,20 @@ public struct SyncLogic: ReducerProtocol {
   @Dependency(\.databaseClient) var databaseClient
 
   // MARK: Private
+  
+  private func syncGames() -> EffectTask<Action> {
+    return .fireAndForget {
+      do {
+        let remoteGames = try await ausClient.allGames()
+        try await databaseClient.syncGames(remoteGames)
+        
+        let remoteGameResults = try await ausClient.gameResults()
+        try await databaseClient.syncGameResults(remoteGameResults)
+      } catch {
+        print("Syncing games failed")
+      }
+    }
+  }
 
   private func syncAll() -> EffectTask<Action> {
     .fireAndForget {

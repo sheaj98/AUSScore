@@ -42,6 +42,6 @@ extension AUSClient: TestDependencyKey {
       [.mock(), .mock(), .mock()]
     },
     gameResults: { () in
-      [.mock(), .mock()]
+      [.mock(teamId: 12, gameId: "abc", isHome: true), .mock(teamId: 13, gameId: "abc123", isHome: false)]
     })
 }

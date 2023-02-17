@@ -1,5 +1,6 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
+import AppCommon
 import ComposableArchitecture
 import DatabaseClient
 import Models
@@ -10,7 +11,7 @@ import SwiftUI
 public struct ScoresList: ReducerProtocol {
   // MARK: Lifecycle
 
-  public init() { }
+  public init() {}
 
   // MARK: Public
 
@@ -22,11 +23,13 @@ public struct ScoresList: ReducerProtocol {
     public var selectedDate: Date
     public var index: Int
     public var scoreSections: IdentifiedArrayOf<ScoresListSection.State>
+    public var loadingState: LoadingState
 
-    public init(selectedDate: Date, index: Int, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = []) {
+    public init(selectedDate: Date, index: Int, isLoading: Bool = false, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = [], loadingState: LoadingState = .loading) {
       self.selectedDate = selectedDate
       self.scoreSections = scoreSections
       self.index = index
+      self.loadingState = loadingState
     }
   }
 
@@ -34,6 +37,7 @@ public struct ScoresList: ReducerProtocol {
     case task
     case gamesResponse(TaskResult<[ScoresListSection.State]>)
     case gamesSection(id: ScoresListSection.State.ID, action: ScoresListSection.Action)
+    case refreshGames
   }
 
   public var body: some ReducerProtocol<State, Action> {
@@ -52,12 +56,20 @@ public struct ScoresList: ReducerProtocol {
           })
         })
       case .gamesResponse(.success(let scores)):
+        if scores.isEmpty {
+          state.loadingState = .empty("No games today!")
+        } else {
+          state.loadingState = .loaded
+        }
         state.scoreSections = IdentifiedArray(uniqueElements: scores)
         return .none
       case .gamesResponse(.failure(let error)):
+        state.loadingState = .empty("An error occurred fetching the games!")
         print("Could not fetch games \(error.localizedDescription)")
         return .none
       case .gamesSection:
+        return .none
+      default:
         return .none
       }
     }._printChanges()
@@ -86,15 +98,11 @@ public struct ScoresListView: View {
         ScoresListSectionView(store: $0)
       }
     }
+    .animation(.default, value: viewStore.loadingState)
     .listStyle(.grouped)
     .refreshable {
-      await viewStore.send(.task).finish()
+      viewStore.send(.refreshGames)
     }
-    .overlay(Group {
-      if viewStore.scoreSections.isEmpty {
-        Text("No Games Today!")
-      }
-    })
     .task {
       await viewStore.send(.task).finish()
     }.tag(viewStore.index)
