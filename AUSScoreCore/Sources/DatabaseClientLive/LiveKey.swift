@@ -7,6 +7,7 @@ import Foundation
 import GRDB
 import Models
 import SortedDifference
+import Combine
 
 extension DatabaseClient: DependencyKey {
   // MARK: Public
@@ -27,6 +28,13 @@ extension DatabaseClient: DependencyKey {
     }
 
     let dbWriter = dbWriter()
+    
+    let gamesDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: Game.all(), GameResult.all())
+      .publisher(in: dbWriter)
+      .map { _ in }
+      .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+      .share()
+      .eraseToAnyPublisher()
 
     return Self(
       schools: {
@@ -201,7 +209,34 @@ extension DatabaseClient: DependencyKey {
           let startOfDays = dates.map(\.startOfDay)
           return Array(Set(startOfDays)).sorted(by: { $0 < $1 })
         }
-      })
+      },
+      gameStream: { date in
+       gamesDidChange
+        .prepend(())
+        .map { [dbWriter] in
+          dbWriter.readPublisher { db in
+            let start = date.startOfDay
+            let end = date.endOfDay
+            
+            return try Game
+              .including(
+                all: Game.gameResults
+                  .including(
+                    required: GameResult.team
+                      .including(required: Team.school)
+                      .including(required: Team.sport)))
+              .including(required: Game.sport)
+              .filter((start...end).contains(Column("startTime")))
+              .asRequest(of: GameInfo.self)
+              .fetchAll(db)
+          }
+        }
+        .switchToLatest()
+        .eraseToAnyPublisher()
+        .values
+        .eraseToThrowingStream()
+      }
+    )
   }
 
   // MARK: Private

@@ -2,6 +2,7 @@
 
 import Dependencies
 import Foundation
+import Combine
 import Models
 
 // MARK: - DatabaseClient
@@ -19,7 +20,8 @@ public struct DatabaseClient {
     syncGames: @escaping @Sendable ([Game]) async throws -> Void,
     syncGameResults: @escaping @Sendable ([GameResult]) async throws -> Void,
     gamesForDate: @escaping @Sendable (Date) async throws -> [GameInfo],
-    datesWithGames: @escaping @Sendable () async throws -> [Date])
+    datesWithGames: @escaping @Sendable () async throws -> [Date],
+    gameStream: @escaping @Sendable (Date) -> AsyncThrowingStream<[GameInfo], Error>)
   {
     self.schools = schools
     self.syncSchools = syncSchools
@@ -31,6 +33,7 @@ public struct DatabaseClient {
     self.syncGameResults = syncGameResults
     self.gamesForDate = gamesForDate
     self.datesWithGames = datesWithGames
+    self.gameStream = gameStream
   }
 
   // MARK: Public
@@ -45,6 +48,7 @@ public struct DatabaseClient {
   public var syncGameResults: @Sendable ([GameResult]) async throws -> Void
   public var gamesForDate: @Sendable (Date) async throws -> [GameInfo]
   public var datesWithGames: @Sendable () async throws -> [Date]
+  public var gameStream: @Sendable (Date) -> AsyncThrowingStream<[GameInfo], Error>
 }
 
 extension DependencyValues {

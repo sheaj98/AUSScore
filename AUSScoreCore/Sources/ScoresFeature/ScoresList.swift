@@ -25,7 +25,7 @@ public struct ScoresList: ReducerProtocol {
     public var scoreSections: IdentifiedArrayOf<ScoresListSection.State>
     public var loadingState: LoadingState
 
-    public init(selectedDate: Date, index: Int, isLoading: Bool = false, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = [], loadingState: LoadingState = .loading) {
+    public init(selectedDate: Date, index: Int, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = [], loadingState: LoadingState = .loading) {
       self.selectedDate = selectedDate
       self.scoreSections = scoreSections
       self.index = index
@@ -35,7 +35,7 @@ public struct ScoresList: ReducerProtocol {
 
   public enum Action: Equatable {
     case task
-    case gamesResponse(TaskResult<[ScoresListSection.State]>)
+    case scoreSections(sections: [ScoresListSection.State])
     case gamesSection(id: ScoresListSection.State.ID, action: ScoresListSection.Action)
     case refreshGames
   }
@@ -44,28 +44,26 @@ public struct ScoresList: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .task:
-        return .task(operation: { [selectedDate = state.selectedDate] in
-          await .gamesResponse(TaskResult {
-            let games = try await dbClient.gamesForDate(selectedDate)
+        return .run { [date = state.selectedDate] send in
+          for try await games in dbClient.gameStream(date) {
             let gameRows = games.map { ScoresRow.State(from: $0) }
-            return Dictionary(grouping: gameRows, by: { $0.sport.name })
+            let gameSections = Dictionary(grouping: gameRows, by: { $0.sport.name })
               .map { sportName, mappedGameRows -> ScoresListSection.State in
                 ScoresListSection.State(name: sportName, scoreRows: IdentifiedArray(uniqueElements: mappedGameRows))
               }
               .sorted(by: { $0.name < $1.name })
-          })
-        })
-      case .gamesResponse(.success(let scores)):
+            await send(.scoreSections(sections: gameSections))
+          }
+        } catch: { error, _ in
+          print("Error Syncing Games \(error)")
+        }
+      case .scoreSections(let scores):
         if scores.isEmpty {
           state.loadingState = .empty("No games today!")
         } else {
           state.loadingState = .loaded
         }
         state.scoreSections = IdentifiedArray(uniqueElements: scores)
-        return .none
-      case .gamesResponse(.failure(let error)):
-        state.loadingState = .empty("An error occurred fetching the games!")
-        print("Could not fetch games \(error.localizedDescription)")
         return .none
       case .gamesSection:
         return .none

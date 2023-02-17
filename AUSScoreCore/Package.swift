@@ -37,24 +37,25 @@ let package = Package(
 
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.41.0"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.50.3"),
     .package(url: "https://github.com/kean/Nuke", from: "11.4.0"),
     .package(url: "https://github.com/kean/Get", from: "2.1.0"),
     .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.0.0"),
     .package(url: "https://github.com/groue/SortedDifference", from: "1.0.0"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.1.0"),
   ],
   targets: [
     .target(
       name: "AUSClient",
       dependencies: [
-        .product(name: "Dependencies", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
         "Models",
       ]),
     .target(
       name: "AUSClientLive",
       dependencies: [
         "AUSClient",
-        .product(name: "Dependencies", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
         "Models",
         "Get",
       ]),
@@ -97,7 +98,7 @@ let package = Package(
       name: "DatabaseClient",
       dependencies: [
         "Models",
-        .product(name: "Dependencies", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
       ]),
     .target(
       name: "DatabaseClientLive",
@@ -106,7 +107,7 @@ let package = Package(
         "Models",
         .product(name: "GRDB", package: "GRDB.swift"),
         .product(name: "SortedDifference", package: "SortedDifference"),
-        .product(name: "Dependencies", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
       ]),
     .target(
       name: "AppCommon",
