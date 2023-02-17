@@ -105,7 +105,6 @@ public struct ScoresListView: View {
       await viewStore.send(.task).finish()
     }
     .tag(viewStore.index)
-    .emptyPlaceholder(loadingState: viewStore.loadingState)
   }
 
   // MARK: Internal
