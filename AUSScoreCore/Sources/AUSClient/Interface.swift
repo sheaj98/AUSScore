@@ -18,7 +18,8 @@ public struct AUSClient {
     allGames: @escaping @Sendable () async throws -> [Game],
     gamesBySportId: @escaping @Sendable (_ sportId: String) async throws -> [Game],
     bulkFetchGames: @escaping @Sendable (_ gamesBulkDto: GamesBulkDTO) async throws -> [Game],
-    gameResults: @escaping @Sendable () async throws -> [GameResult])
+    gameResults: @escaping @Sendable () async throws -> [GameResult],
+    upsertUser: @escaping @Sendable (_ userRequest: UserRequest) async throws -> User)
   {
     self.newsFeeds = newsFeeds
     self.newsItems = newsItems
@@ -29,6 +30,7 @@ public struct AUSClient {
     self.gamesBySportId = gamesBySportId
     self.bulkFetchGames = bulkFetchGames
     self.gameResults = gameResults
+    self.upsertUser = upsertUser
   }
 
   // MARK: Public
@@ -57,6 +59,10 @@ public struct AUSClient {
   public var bulkFetchGames: @Sendable (_ gamesBulkDTO: GamesBulkDTO) async throws -> [Game]
 
   public var gameResults: @Sendable () async throws -> [GameResult]
+  
+  // MARK: - User
+  
+  public var upsertUser: @Sendable (_ user: UserRequest) async throws -> User
 }
 
 extension DependencyValues {

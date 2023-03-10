@@ -41,7 +41,7 @@ public struct ScoresFeature: ReducerProtocol {
       switch action {
       case .selected(let index):
         state.selectedIndex = index
-        return .none
+       return .none
       case .task:
         return .task {
           await .dateWithGamesResponse(TaskResult {

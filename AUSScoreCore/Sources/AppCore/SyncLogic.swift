@@ -6,6 +6,9 @@ import DatabaseClient
 import DatabaseClientLive
 import Foundation
 import ScoresFeature
+import Models
+import UserIdentifier
+import UIKit
 
 // MARK: - SyncLogic
 
@@ -17,8 +20,20 @@ public struct SyncLogic: ReducerProtocol {
       switch action {
       case .appDelegate(.didFinishLaunching):
         return syncAll()
+      case .appDelegate(.didRegisterForRemoteNotifications(.success(let tokenData))):
+        return .fireAndForget {
+          let token = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
+          do {
+            let userId = try await userIdentifier.id()
+            try await ausClient.upsertUser(UserRequest(id: userId, deviceId: token))
+          } catch {
+            print("Failed to update user or device \(error)")
+          }
+        }
+      case .appDelegate(.didRecieveRemoteNotification(let completionHandler)):
+        return syncGames(completionHandler: completionHandler)
       case .scores(.scoresList(_, action: .refreshGames)):
-        return syncGames()
+        return syncGames(completionHandler: nil)
       default:
         return .none
       }
@@ -29,18 +44,25 @@ public struct SyncLogic: ReducerProtocol {
 
   @Dependency(\.ausClient) var ausClient
   @Dependency(\.databaseClient) var databaseClient
-
+  @Dependency(\.userIdentifier) var userIdentifier
   // MARK: Private
-  
-  private func syncGames() -> EffectTask<Action> {
+
+  private func syncGames(completionHandler: ((UIBackgroundFetchResult) -> Void)?) -> EffectTask<Action> {
     return .fireAndForget {
       do {
         let remoteGames = try await ausClient.allGames()
         try await databaseClient.syncGames(remoteGames)
-        
+
         let remoteGameResults = try await ausClient.gameResults()
         try await databaseClient.syncGameResults(remoteGameResults)
+        
+        if let cb = completionHandler {
+          cb(.newData)
+        }
       } catch {
+        if let cb = completionHandler {
+          cb(.failed)
+        }
         print("Syncing games failed")
       }
     }

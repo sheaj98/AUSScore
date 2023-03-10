@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/groue/GRDB.swift.git",
       "state" : {
-        "revision" : "ba68e3b02d9ed953a0c9ff43183f856f20c9b7ce",
-        "version" : "6.6.1"
+        "revision" : "c3cc998fc14efa356259e5d01d8910e82de080ad",
+        "version" : "6.6.0"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/kean/Nuke",
       "state" : {
-        "revision" : "67bd45931180f652159e3342575277a7f197b3ab",
-        "version" : "11.6.2"
+        "revision" : "2e9337168d08acccf72c039bf9324be24a1cf7d7",
+        "version" : "11.5.3"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "1b998c43b3b3505876db6f66e03243dd2453e93a",
-        "version" : "0.50.3"
+        "revision" : "cd22f6a1b3a6210e1e365cbfa8706dbb1736ca27",
+        "version" : "0.51.0"
       }
     },
     {

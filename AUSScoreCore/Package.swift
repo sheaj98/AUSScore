@@ -34,6 +34,9 @@ let package = Package(
     .library(
       name: "ScoresFeature",
       targets: ["ScoresFeature"]),
+    .library(name: "RemoteNotificationsClient", targets: ["RemoteNotificationsClient"]),
+    .library(name: "UserNotificationsClient", targets: ["UserNotificationsClient"]),
+    .library(name: "UserIdentifier", targets: ["UserIdentifier"]),
 
   ],
   dependencies: [
@@ -42,7 +45,7 @@ let package = Package(
     .package(url: "https://github.com/kean/Get", from: "2.1.0"),
     .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.0.0"),
     .package(url: "https://github.com/groue/SortedDifference", from: "1.0.0"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.1.0"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.1.4"),
   ],
   targets: [
     .target(
@@ -70,6 +73,10 @@ let package = Package(
         "NewsFeature",
         "ScoresFeature",
         "AppCommon",
+        "RemoteNotificationsClient",
+        "UserNotificationsClient",
+        "Models",
+        "UserIdentifier",
       ]),
     .target(
       name: "NewsFeature",
@@ -112,4 +119,13 @@ let package = Package(
     .target(
       name: "AppCommon",
       dependencies: []),
+    .target(name: "RemoteNotificationsClient", dependencies: [
+      .product(name: "Dependencies", package: "swift-dependencies"),
+    ]),
+    .target(name: "UserNotificationsClient", dependencies: [
+      .product(name: "Dependencies", package: "swift-dependencies"),
+    ]),
+    .target(name: "UserIdentifier", dependencies: [
+      .product(name: "Dependencies", package: "swift-dependencies"),
+    ]),
   ])

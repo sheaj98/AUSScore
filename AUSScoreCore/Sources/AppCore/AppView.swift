@@ -12,7 +12,7 @@ import SwiftUI
 public struct AppReducer: ReducerProtocol {
   // MARK: Lifecycle
 
-  public init() { }
+  public init() {}
 
   // MARK: Public
 
@@ -20,15 +20,17 @@ public struct AppReducer: ReducerProtocol {
     public var news: NewsFeature.State
     public var scores: ScoresFeature.State
     public var tab: Tab
+    public var appDelegate: AppDelegateReducer.State
 
-    public init(news: NewsFeature.State = .init(), scores: ScoresFeature.State = .init(), tab: AppReducer.Tab = .news) {
+    public init(news: NewsFeature.State = .init(), scores: ScoresFeature.State = .init(), tab: AppReducer.Tab = .news, appDelegate: AppDelegateReducer.State = .init()) {
       self.news = news
       self.tab = tab
       self.scores = scores
+      self.appDelegate = appDelegate
     }
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case news(NewsFeature.Action)
     case scores(ScoresFeature.Action)
     case selectedTab(Tab)
@@ -65,6 +67,12 @@ public struct AppReducer: ReducerProtocol {
     }
 
     SyncLogic()
+    Scope(
+      state: \.appDelegate,
+      action: /Action.appDelegate)
+    {
+      AppDelegateReducer()
+    }
   }
 }
 

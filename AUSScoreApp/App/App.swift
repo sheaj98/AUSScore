@@ -48,19 +48,19 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
   }
 
-  func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken _: Data) {
-//    viewStore.send(.appDelegate(.didRegisterForRemoteNotifications(.success(deviceToken))))
-  }
+  func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+      viewStore.send(.appDelegate(.didRegisterForRemoteNotifications(.success(deviceToken))))
+    }
 
-  func application(
-    _: UIApplication,
-    didReceiveRemoteNotification _: [AnyHashable: Any],
-    fetchCompletionHandler _: @escaping (UIBackgroundFetchResult) -> Void)
-  {
-//    viewStore.send(.background(.didReceiveRemoteNotification(userInfo: userInfo, completionHandler: completionHandler)))
-  }
+    func application(
+      _: UIApplication,
+      didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void)
+    {
+      viewStore.send(.appDelegate(.didRecieveRemoteNotification(completionHandler)))
+    }
 
-  func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError _: Error) {
-//    viewStore.send(.appDelegate(.didRegisterForRemoteNotifications(.failure(error as NSError))))
-  }
+    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+      viewStore.send(.appDelegate(.didRegisterForRemoteNotifications(.failure(error as NSError))))
+    }
 }

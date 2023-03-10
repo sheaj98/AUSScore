@@ -59,6 +59,10 @@ extension AUSClient: DependencyKey {
       gameResults: {
         let request = Request<[GameResult]>(path: "game-results")
         return try await client.send(request).value
+      },
+      upsertUser: { userRequest in
+        let request = Request<User>(path: "user", method: .post, body: userRequest)
+        return try await client.send(request).value
       })
   }
 }
