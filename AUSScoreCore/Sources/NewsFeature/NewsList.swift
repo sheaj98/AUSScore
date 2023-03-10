@@ -129,6 +129,9 @@ struct NewsListView: View {
       }
       .padding()
     }
+    .refreshable(action: {
+      await viewStore.send(.task).finish()
+    })
     .dynamicTypeSize(...DynamicTypeSize.xLarge)
     .background(Color(uiColor: .systemGroupedBackground))
     .task {

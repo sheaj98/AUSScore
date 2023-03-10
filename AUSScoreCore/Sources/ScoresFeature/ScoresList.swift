@@ -70,7 +70,7 @@ public struct ScoresList: ReducerProtocol {
       default:
         return .none
       }
-    }._printChanges()
+    }
   }
 
   // MARK: Internal
@@ -99,11 +99,28 @@ public struct ScoresListView: View {
     .animation(.default, value: viewStore.loadingState)
     .listStyle(.grouped)
     .refreshable {
-      viewStore.send(.refreshGames)
+      await viewStore.send(.refreshGames).finish()
     }
     .task {
       await viewStore.send(.task).finish()
     }
+//  This is causing crash for some reason
+//    .emptyPlaceholder(loadingState: viewStore.loadingState)
+    .overlay(content: {
+      Group {
+        switch (viewStore.loadingState) {
+        case .loading:
+          ProgressView()
+        case .empty(let text):
+          Text(text)
+            .foregroundColor(.gray)
+            .font(.body)
+            .fontWeight(.semibold)
+        case .loaded:
+          EmptyView()
+        }
+      }
+    })
     .tag(viewStore.index)
   }
 

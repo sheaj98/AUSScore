@@ -5,6 +5,7 @@ import ComposableArchitecture
 import DatabaseClient
 import Models
 import SwiftUI
+import AppNotificationsClient
 
 // MARK: - ScoresFeature
 
@@ -34,6 +35,7 @@ public struct ScoresFeature: ReducerProtocol {
     case scoresList(id: ScoresList.State.ID, action: ScoresList.Action)
     case task
     case dateWithGamesResponse(TaskResult<[ScoresList.State]>)
+    case dayDidChange
   }
 
   public var body: some ReducerProtocol<State, Action> {
@@ -43,16 +45,24 @@ public struct ScoresFeature: ReducerProtocol {
         state.selectedIndex = index
        return .none
       case .task:
+        return .run { send in
+          await withThrowingTaskGroup(of: Void.self, body: { group in
+            group.addTask {
+              for await _ in appNotificationsClient.didChangeDay() {
+                await send(.dayDidChange)
+              }
+            }
+            group.addTask {
+              await send(.dateWithGamesResponse(TaskResult {
+                return try await refreshDatesWithGames()
+              }))
+            }
+          })
+        }
+      case .dayDidChange:
         return .task {
           await .dateWithGamesResponse(TaskResult {
-            var dates = try await dbClient.datesWithGames()
-            if (!dates.contains(where: { Calendar.current.isDateInToday($0) })) {
-              dates.append(.now.startOfDay)
-              dates = dates.sorted(by: { $0 < $1 })
-            }
-            return dates.enumerated().map { index, selectedDate -> ScoresList.State in
-              ScoresList.State(selectedDate: selectedDate, index: index)
-            }
+            return try await refreshDatesWithGames()
           })
         }
       case .dateWithGamesResponse(.success(let dates)):
@@ -74,6 +84,18 @@ public struct ScoresFeature: ReducerProtocol {
   // MARK: Internal
 
   @Dependency(\.databaseClient) var dbClient
+  @Dependency(\.appNotificationsClient) var appNotificationsClient
+  
+  private func refreshDatesWithGames() async throws -> [ScoresList.State] {
+    var dates = try await dbClient.datesWithGames()
+    if (!dates.contains(where: { Calendar.current.isDateInToday($0) })) {
+      dates.append(.now.startOfDay)
+      dates = dates.sorted(by: { $0 < $1 })
+    }
+    return dates.enumerated().map { index, selectedDate -> ScoresList.State in
+      ScoresList.State(selectedDate: selectedDate, index: index)
+    }
+  }
 }
 
 // MARK: - ScoresContainer

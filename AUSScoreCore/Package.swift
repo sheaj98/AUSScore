@@ -37,6 +37,7 @@ let package = Package(
     .library(name: "RemoteNotificationsClient", targets: ["RemoteNotificationsClient"]),
     .library(name: "UserNotificationsClient", targets: ["UserNotificationsClient"]),
     .library(name: "UserIdentifier", targets: ["UserIdentifier"]),
+    .library(name: "AppNotificationsClient", targets: ["AppNotificationsClient"]),
 
   ],
   dependencies: [
@@ -97,6 +98,7 @@ let package = Package(
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "NukeUI", package: "Nuke"),
         "AppCommon",
+        "AppNotificationsClient"
       ]),
     .target(
       name: "Models",
@@ -128,4 +130,7 @@ let package = Package(
     .target(name: "UserIdentifier", dependencies: [
       .product(name: "Dependencies", package: "swift-dependencies"),
     ]),
+    .target(name: "AppNotificationsClient", dependencies: [
+      .product(name: "Dependencies", package: "swift-dependencies")
+    ])
   ])
