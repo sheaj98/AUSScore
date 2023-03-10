@@ -84,6 +84,10 @@ struct TeamRowView: View {
     } icon: {
       if let url = teamResult.team.school.logo {
         LazyImage(url: url, resizingMode: .aspectFit)
+      } else {
+        Image(systemName: "sportscourt.circle")
+        .font(.system(size: 24))
+        .foregroundColor(.primary)
       }
     }
     .fontWeight(.semibold)
