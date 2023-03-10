@@ -34,8 +34,8 @@ public struct ScoresRow: ReducerProtocol {
       status = gameInfo.status
       currentTime = gameInfo.currentTime
       sport = gameInfo.sport
-      homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome })!
-      awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome })!
+      homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? gameInfo.gameResults.first!
+      awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? gameInfo.gameResults.first!
     }
 
     // MARK: Public
