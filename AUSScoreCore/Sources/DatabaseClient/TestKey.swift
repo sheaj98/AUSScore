@@ -16,5 +16,7 @@ extension DatabaseClient: TestDependencyKey {
     syncGameResults: unimplemented("\(Self.self).syncGameTeams"),
     gamesForDate: unimplemented("\(Self.self).gamesForDate"),
     datesWithGames: unimplemented("\(Self.self).datesWithGames"),
-    gameStream: unimplemented("\(Self.self).gameStream"))
+    gameStream: unimplemented("\(Self.self).gameStream"),
+    syncNewsFeeds: unimplemented("\(Self.self).syncNewsFeeds")
+  )
 }

@@ -38,10 +38,11 @@ let package = Package(
     .library(name: "UserNotificationsClient", targets: ["UserNotificationsClient"]),
     .library(name: "UserIdentifier", targets: ["UserIdentifier"]),
     .library(name: "AppNotificationsClient", targets: ["AppNotificationsClient"]),
+    .library(name: "SportsFeature", targets: ["SportsFeature"])
 
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.50.3"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", branch: "navigation-beta"),
     .package(url: "https://github.com/kean/Nuke", from: "11.4.0"),
     .package(url: "https://github.com/kean/Get", from: "2.1.0"),
     .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.0.0"),
@@ -78,6 +79,7 @@ let package = Package(
         "UserNotificationsClient",
         "Models",
         "UserIdentifier",
+        "SportsFeature"
       ]),
     .target(
       name: "NewsFeature",
@@ -132,5 +134,14 @@ let package = Package(
     ]),
     .target(name: "AppNotificationsClient", dependencies: [
       .product(name: "Dependencies", package: "swift-dependencies")
+    ]),
+    .target(name: "SportsFeature", dependencies: [
+      "Models",
+      "DatabaseClient",
+      "DatabaseClientLive",
+      "AppCommon",
+      "NewsFeature",
+      "ScoresFeature",
+      .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
     ])
   ])

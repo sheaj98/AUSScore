@@ -17,9 +17,18 @@ public struct NewsList: ReducerProtocol {
 
   public struct State: Equatable, Identifiable {
     // MARK: Lifecycle
+    
+    public init(from newsFeed: NewsFeed, index: Int) {
+      self.id = newsFeed.id
+      self.index = index
+      self.url = newsFeed.url
+      self.displayName = newsFeed.displayName
+      self.destination = nil
+      self.newsItems = []
+    }
 
     public init(
-      id: String,
+      id: Int64,
       index: Int,
       url: String,
       displayName: String,
@@ -40,7 +49,7 @@ public struct NewsList: ReducerProtocol {
       case article(ArticleFeature.State)
     }
 
-    public var id: String
+    public var id: Int64
     public var index: Int
     public var url: String
     public var displayName: String
@@ -107,7 +116,7 @@ public struct NewsList: ReducerProtocol {
 
 // MARK: - NewsListView
 
-struct NewsListView: View {
+public struct NewsListView: View {
   // MARK: Lifecycle
 
   public init(store: StoreOf<NewsList>) {
@@ -120,7 +129,7 @@ struct NewsListView: View {
   @ObservedObject var viewStore: ViewStoreOf<NewsList>
   @Environment(\.colorScheme) var colorScheme
 
-  var body: some View {
+  public var body: some View {
     ScrollView {
       LazyVStack(spacing: 15) {
         ForEachStore(self.store.scope(state: \.newsItems, action: NewsList.Action.newsItem(id:action:))) {
@@ -175,7 +184,7 @@ struct NewsListView_Preview: PreviewProvider {
 extension Store where State == NewsList.State, Action == NewsList.Action {
   static let items = Store(
     initialState: .init(
-      id: "TestId",
+      id: 1,
       index: 0,
       url: "https://www.atlanticuniversitysport.com/landing/headlines-featured?feed=rss_2.0",
       displayName: "Featured"),

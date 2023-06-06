@@ -23,13 +23,6 @@ public struct GameResultInfo: Decodable, Equatable {
 
   // MARK: Internal
 
-  enum CodingKeys: String, CodingKey {
-    case score
-    case outcome
-    case isHome = "home"
-    case team
-    case gameId
-  }
 }
 
 public extension GameResultInfo {

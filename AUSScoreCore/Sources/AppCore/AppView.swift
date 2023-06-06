@@ -5,6 +5,7 @@ import ComposableArchitecture
 import Foundation
 import NewsFeature
 import ScoresFeature
+import SportsFeature
 import SwiftUI
 
 // MARK: - AppReducer
@@ -19,13 +20,15 @@ public struct AppReducer: ReducerProtocol {
   public struct State: Equatable {
     public var news: NewsFeature.State
     public var scores: ScoresFeature.State
+    public var sports: LeaguesList.State
     public var tab: Tab
     public var appDelegate: AppDelegateReducer.State
 
-    public init(news: NewsFeature.State = .init(), scores: ScoresFeature.State = .init(), tab: AppReducer.Tab = .news, appDelegate: AppDelegateReducer.State = .init()) {
+    public init(news: NewsFeature.State = .init(), scores: ScoresFeature.State = .init(), sports: LeaguesList.State = .init(), tab: AppReducer.Tab = .news, appDelegate: AppDelegateReducer.State = .init()) {
       self.news = news
       self.tab = tab
       self.scores = scores
+      self.sports = sports
       self.appDelegate = appDelegate
     }
   }
@@ -33,6 +36,7 @@ public struct AppReducer: ReducerProtocol {
   public enum Action {
     case news(NewsFeature.Action)
     case scores(ScoresFeature.Action)
+    case sports(LeaguesList.Action)
     case selectedTab(Tab)
     case appDelegate(AppDelegateReducer.Action)
   }
@@ -40,8 +44,7 @@ public struct AppReducer: ReducerProtocol {
   public enum Tab {
     case news
     case scores
-    case favourites
-    case settings
+    case sports
   }
 
   public var body: some ReducerProtocol<State, Action> {
@@ -54,6 +57,10 @@ public struct AppReducer: ReducerProtocol {
 
     Scope(state: \.scores, action: CasePath(Action.scores)) {
       ScoresFeature()
+    }
+
+    Scope(state: \.sports, action: CasePath(Action.sports)) {
+      LeaguesList()
     }
 
     Reduce { state, action in
@@ -130,6 +137,14 @@ public struct AppView: View {
           Label("Scores", systemImage: "sportscourt")
         }
         .tag(AppReducer.Tab.scores)
+
+      NavigationView {
+        LeaguesListView(store: store.scope(state: \.sports, action: AppReducer.Action.sports))
+      }
+      .tabItem {
+        Label("Leagues", systemImage: "trophy")
+      }
+      .tag(AppReducer.Tab.sports)
     }
   }
 }

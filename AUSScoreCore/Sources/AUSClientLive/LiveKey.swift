@@ -19,7 +19,7 @@ extension AUSClient: DependencyKey {
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601TimeZone)
 
-    let client = APIClient(baseURL: URL(string: "https://aus-sports-api-production.up.railway.app")) {
+    let client = APIClient(baseURL: URL(string: "https://govlfpnoq6.execute-api.us-east-1.amazonaws.com")) {
       $0.decoder = decoder
     }
 
@@ -57,11 +57,11 @@ extension AUSClient: DependencyKey {
         return try await client.send(request).value
       },
       gameResults: {
-        let request = Request<[GameResult]>(path: "game-results")
+        let request = Request<[GameResult]>(path: "game_results")
         return try await client.send(request).value
       },
       upsertUser: { userRequest in
-        let request = Request<User>(path: "user", method: .post, body: userRequest)
+        let request = Request(path: "users", method: .post, body: userRequest)
         return try await client.send(request).value
       })
   }

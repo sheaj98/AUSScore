@@ -1,13 +1,13 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AppCommon
+import Combine
 import DatabaseClient
 import Dependencies
 import Foundation
 import GRDB
 import Models
 import SortedDifference
-import Combine
 
 extension DatabaseClient: DependencyKey {
   // MARK: Public
@@ -28,7 +28,7 @@ extension DatabaseClient: DependencyKey {
     }
 
     let dbWriter = dbWriter()
-    
+
     let gamesDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: Game.all(), GameResult.all())
       .publisher(in: dbWriter)
       .map { _ in }
@@ -69,7 +69,10 @@ extension DatabaseClient: DependencyKey {
       },
       sports: {
         try await dbWriter.read { db in
-          try Sport.all().fetchAll(db)
+          try Sport.all().order(Column("name"))
+            .including(optional: Sport.newsFeed)
+            .asRequest(of: SportInfo.self)
+            .fetchAll(db)
         }
       },
       syncSports: { sports in
@@ -211,32 +214,54 @@ extension DatabaseClient: DependencyKey {
         }
       },
       gameStream: { date in
-       gamesDidChange
-        .prepend(())
-        .map { [dbWriter] in
-          dbWriter.readPublisher { db in
-            let start = date.startOfDay
-            let end = date.endOfDay
-            
-            return try Game
-              .including(
-                all: Game.gameResults
-                  .including(
-                    required: GameResult.team
-                      .including(required: Team.school)
-                      .including(required: Team.sport)))
-              .including(required: Game.sport)
-              .filter((start...end).contains(Column("startTime")))
-              .asRequest(of: GameInfo.self)
-              .fetchAll(db)
+        gamesDidChange
+          .prepend(())
+          .map { [dbWriter] in
+            dbWriter.readPublisher { db in
+              let start = date.startOfDay
+              let end = date.endOfDay
+
+              return try Game
+                .including(
+                  all: Game.gameResults
+                    .including(
+                      required: GameResult.team
+                        .including(required: Team.school)
+                        .including(required: Team.sport)))
+                .including(required: Game.sport)
+                .filter((start...end).contains(Column("startTime")))
+                .asRequest(of: GameInfo.self)
+                .fetchAll(db)
+            }
+          }
+          .switchToLatest()
+          .eraseToAnyPublisher()
+          .values
+          .eraseToThrowingStream()
+      },
+      syncNewsFeeds: { newsFeeds in
+        try dbWriter.write { db in
+          let localNewsFeeds = try NewsFeed.all().order(Column("id")).fetchAll(db)
+
+          let remoteNewsFeeds = newsFeeds.sorted(by: { $0.id < $1.id })
+
+          let mergeSteps = SortedDifference(
+            left: localNewsFeeds,
+            identifiedBy: { $0.id },
+            right: remoteNewsFeeds,
+            identifiedBy: { $0.id })
+          for mergeStep in mergeSteps {
+            switch mergeStep {
+            case .left(let local):
+              try local.delete(db)
+            case .right(let remote):
+              try remote.insert(db)
+            case .common(let local, let remote):
+              try remote.updateChanges(db, from: local)
+            }
           }
         }
-        .switchToLatest()
-        .eraseToAnyPublisher()
-        .values
-        .eraseToThrowingStream()
-      }
-    )
+      })
   }
 
   // MARK: Private
@@ -267,11 +292,25 @@ extension DatabaseClient: DependencyKey {
       }
     }
 
+    migrator.registerMigration("createNewsFeed") { db in
+      try db.create(table: "newsFeed", body: { t in
+        t.primaryKey("id", .integer)
+        t.column("displayName", .text)
+        t.column("url", .text)
+      })
+    }
+
     migrator.registerMigration("createSport") { db in
       try db.create(table: "sport") { t in
         t.primaryKey("id", .integer)
         t.column("name", .text).notNull()
         t.column("gender", .text).notNull()
+        t.column("icon", .text)
+
+        t.column("newsFeedId", .integer)
+          .notNull()
+          .indexed()
+          .references("newsFeed")
       }
     }
 
@@ -314,7 +353,7 @@ extension DatabaseClient: DependencyKey {
       try db.create(table: "gameResult") { t in
         t.column("score", .integer)
         t.column("outcome", .text)
-        t.column("home", .boolean)
+        t.column("isHome", .boolean)
         t.column("teamId", .integer)
           .notNull()
           .indexed()

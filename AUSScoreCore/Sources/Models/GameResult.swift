@@ -29,13 +29,6 @@ public struct GameResult: Identifiable, Codable, Equatable {
 
   // MARK: Internal
 
-  enum CodingKeys: String, CodingKey {
-    case score
-    case outcome
-    case isHome = "home"
-    case teamId
-    case gameId
-  }
 }
 
 // MARK: - TeamOutcome

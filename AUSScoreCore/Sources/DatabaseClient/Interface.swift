@@ -1,8 +1,8 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
+import Combine
 import Dependencies
 import Foundation
-import Combine
 import Models
 
 // MARK: - DatabaseClient
@@ -13,7 +13,7 @@ public struct DatabaseClient {
   public init(
     schools: @escaping @Sendable () async throws -> [School],
     syncSchools: @escaping @Sendable ([School]) async throws -> Void,
-    sports: @escaping @Sendable () async throws -> [Sport],
+    sports: @escaping @Sendable () async throws -> [SportInfo],
     syncSports: @escaping @Sendable ([Sport]) async throws -> Void,
     teams: @escaping @Sendable () async throws -> [TeamInfo],
     syncTeams: @escaping @Sendable ([Team]) async throws -> Void,
@@ -21,8 +21,9 @@ public struct DatabaseClient {
     syncGameResults: @escaping @Sendable ([GameResult]) async throws -> Void,
     gamesForDate: @escaping @Sendable (Date) async throws -> [GameInfo],
     datesWithGames: @escaping @Sendable () async throws -> [Date],
-    gameStream: @escaping @Sendable (Date) -> AsyncThrowingStream<[GameInfo], Error>)
-  {
+    gameStream: @escaping @Sendable (Date) -> AsyncThrowingStream<[GameInfo], Error>,
+    syncNewsFeeds: @escaping @Sendable ([NewsFeed]) async throws -> Void
+  ) {
     self.schools = schools
     self.syncSchools = syncSchools
     self.sports = sports
@@ -34,13 +35,14 @@ public struct DatabaseClient {
     self.gamesForDate = gamesForDate
     self.datesWithGames = datesWithGames
     self.gameStream = gameStream
+    self.syncNewsFeeds = syncNewsFeeds
   }
 
   // MARK: Public
 
   public var schools: @Sendable () async throws -> [School]
   public var syncSchools: @Sendable ([School]) async throws -> Void
-  public var sports: @Sendable () async throws -> [Sport]
+  public var sports: @Sendable () async throws -> [SportInfo]
   public var syncSports: @Sendable ([Sport]) async throws -> Void
   public var teams: @Sendable () async throws -> [TeamInfo]
   public var syncTeams: @Sendable ([Team]) async throws -> Void
@@ -49,10 +51,11 @@ public struct DatabaseClient {
   public var gamesForDate: @Sendable (Date) async throws -> [GameInfo]
   public var datesWithGames: @Sendable () async throws -> [Date]
   public var gameStream: @Sendable (Date) -> AsyncThrowingStream<[GameInfo], Error>
+  public var syncNewsFeeds: @Sendable ([NewsFeed]) async throws -> Void
 }
 
-extension DependencyValues {
-  public var databaseClient: DatabaseClient {
+public extension DependencyValues {
+  var databaseClient: DatabaseClient {
     get { self[DatabaseClient.self] }
     set { self[DatabaseClient.self] = newValue }
   }

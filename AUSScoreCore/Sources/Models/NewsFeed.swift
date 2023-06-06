@@ -5,11 +5,11 @@ import Foundation
 // MARK: - NewsFeed
 
 public struct NewsFeed: Equatable, Identifiable, Codable {
-  public let id: String
+  public let id: Int64
   public let displayName: String
   public let url: String
 
-  public init(id: String, displayName: String, url: String) {
+  public init(id: Int64, displayName: String, url: String) {
     self.id = id
     self.displayName = displayName
     self.url = url
@@ -18,7 +18,7 @@ public struct NewsFeed: Equatable, Identifiable, Codable {
 
 extension NewsFeed {
   public static func mock(
-    id: String,
+    id: Int64,
     displayName: String = "Featured",
     url: String = "https://www.atlanticuniversitysport.com/landing/headlines-featured?feed=rss_2.0")
     -> Self

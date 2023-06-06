@@ -19,7 +19,7 @@ extension AUSClient: TestDependencyKey {
 
   public static let previewValue = Self(
     newsFeeds: { () in
-      [.mock(id: "123"), .mock(id: "1234"), .mock(id: "12345")]
+      [.mock(id: 1), .mock(id: 2), .mock(id: 3)]
     },
     newsItems: { _ in
       [.mock(title: "Title1"), .mock(title: "Title2"), .mock(title: "Title3")]
@@ -46,6 +46,6 @@ extension AUSClient: TestDependencyKey {
       [.mock(teamId: 12, gameId: "abc", isHome: true), .mock(teamId: 13, gameId: "abc123", isHome: false)]
     },
     upsertUser: { _ in
-        .mock()
+        return
     })
 }
