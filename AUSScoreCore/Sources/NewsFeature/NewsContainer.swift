@@ -93,8 +93,6 @@ public struct NewsContainer: View {
 
   public var body: some View {
     VStack(spacing: 0) {
-      Text("News").font(.title2)
-      Spacer()
       PageHeader(
         selected: viewStore.binding(
           get: \.selectIndex,

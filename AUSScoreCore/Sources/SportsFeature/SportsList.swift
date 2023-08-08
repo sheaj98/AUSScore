@@ -79,7 +79,7 @@ public struct LeaguesListView: View {
   public var body: some View {
     VStack(spacing: 0) {
       Text("Leagues")
-        .font(.title2)
+        .font(.headline)
       List {
         ForEach(viewStore.leagues) { league in
           NavigationLinkStore(
@@ -90,13 +90,17 @@ public struct LeaguesListView: View {
           } destination: { store in
             LeagueView(store: store)
               .navigationTitle(league.name)
+              .toolbarRole(.editor)
           } label: {
             LeaguesListRowView(league: league)
           }
+          .listRowBackground(Color(.secondarySystemBackground))
         }
       }
-      .listStyle(.grouped)
+      .listStyle(.inset)
+      .scrollContentBackground(.hidden)
     }
+    .background(Color(.secondarySystemBackground))
     .onLoad {
       viewStore.send(.task)
     }

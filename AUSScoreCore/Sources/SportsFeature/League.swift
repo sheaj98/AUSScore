@@ -86,17 +86,19 @@ struct LeagueView: View {
   @ObservedObject var viewStore: ViewStoreOf<League>
   
     var body: some View {
-      PageHeader(
+      SimplePageHeader(
         selected: viewStore.binding(
           get: \.selectedView,
           send: League.Action.selected),
-        labels: ["News", "Scores", "Standings"])
+        labels: ["NEWS", "SCORES", "STANDINGS"])
+      .padding(.bottom, -8)
 
       TabView(selection: viewStore.binding(
         get: \.selectedView,
         send: League.Action.selected))
       {
         NewsListView(store: self.store.scope(state: \.news, action: League.Action.news))
+          .tag(0)
         
         ScoresContainer(store: self.store.scope(state: \.scores, action: League.Action.scores))
           .tag(1)

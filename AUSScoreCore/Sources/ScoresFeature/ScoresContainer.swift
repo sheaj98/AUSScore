@@ -112,23 +112,23 @@ public struct ScoresContainer: View {
 
   public var body: some View {
     VStack(spacing: 0) {
-      Text("Scores").font(.title2)
-      Spacer()
       PageHeader(
         selected: viewStore.binding(get: \.selectedIndex, send: ScoresFeature.Action.selected),
         labels: viewStore.datesWithGames.map { gameList in
           if gameList.selectedDate == .now.startOfDay {
             return "TODAY"
           }
-          return gameList.selectedDate.formatted(.dateTime.month(.abbreviated).day())
+          return gameList.selectedDate.formatted(.dateTime.month(.abbreviated).day()).uppercased()
         })
 
       TabView(selection: viewStore.binding(get: \.selectedIndex, send: ScoresFeature.Action.selected)) {
         ForEachStore(
-          self.store.scope(state: \.datesWithGames, action: ScoresFeature.Action.scoresList(id:action:)),
-          content: ScoresListView.init(store:))
+          self.store.scope(state: \.datesWithGames, action: ScoresFeature.Action.scoresList(id:action:))) { store in
+            ScoresListView(store: store)
+          }
       }
       .tabViewStyle(.page(indexDisplayMode: .never))
+      .background(Color.black)
     }
     .background(Color(uiColor: colorScheme == .light ? .systemBackground : .secondarySystemBackground))
     .onLoad {

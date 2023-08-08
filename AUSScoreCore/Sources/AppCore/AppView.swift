@@ -124,27 +124,30 @@ public struct AppView: View {
         get: \.tab,
         send: AppReducer.Action.selectedTab))
     {
-      NewsContainer(store: store.scope(
-        state: \.news,
-        action: AppReducer.Action.news))
-        .tabItem {
-          Label("News", systemImage: "newspaper")
-        }
-        .tag(AppReducer.Tab.news)
+      Group {
+        NewsContainer(store: store.scope(
+          state: \.news,
+          action: AppReducer.Action.news))
+          .tabItem {
+            Label("News", systemImage: "newspaper")
+          }
+          .tag(AppReducer.Tab.news)
 
-      ScoresContainer(store: store.scope(state: \.scores, action: AppReducer.Action.scores))
-        .tabItem {
-          Label("Scores", systemImage: "sportscourt")
-        }
-        .tag(AppReducer.Tab.scores)
+        ScoresContainer(store: store.scope(state: \.scores, action: AppReducer.Action.scores))
+          .tabItem {
+            Label("Scores", systemImage: "sportscourt")
+          }
+          .tag(AppReducer.Tab.scores)
 
-      NavigationView {
-        LeaguesListView(store: store.scope(state: \.sports, action: AppReducer.Action.sports))
+        NavigationView {
+          LeaguesListView(store: store.scope(state: \.sports, action: AppReducer.Action.sports))
+        }
+        .tabItem {
+          Label("Leagues", systemImage: "trophy")
+        }
+        .tag(AppReducer.Tab.sports)
       }
-      .tabItem {
-        Label("Leagues", systemImage: "trophy")
-      }
-      .tag(AppReducer.Tab.sports)
+      .toolbarColorScheme(.light, for: .bottomBar)
     }
   }
 }

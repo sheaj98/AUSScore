@@ -39,9 +39,10 @@ public struct PageHeader: View {
             Text(label)
               .font(.caption)
               .fontWeight(/*@START_MENU_TOKEN@*/ .bold/*@END_MENU_TOKEN@*/)
-              .foregroundColor(.blue)
+              .foregroundColor(selected == index ? Color(.white) : Color(uiColor: .lightGray))
               .overlay(MoveUnderlineButton(offset: $offset, width: $width, isSelected: $selected, index: index))
               .id(index) // identifies the view for the scrollproxy
+              .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 6))
           }
         }
         .padding(.bottom)

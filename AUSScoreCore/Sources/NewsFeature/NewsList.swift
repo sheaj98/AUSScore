@@ -2,7 +2,7 @@
 
 import AUSClient
 import ComposableArchitecture
-import Foundation
+import AppCommon
 import Models
 import SwiftUI
 
@@ -25,6 +25,7 @@ public struct NewsList: ReducerProtocol {
       self.displayName = newsFeed.displayName
       self.destination = nil
       self.newsItems = []
+      self.loadingState = .loading
     }
 
     public init(
@@ -33,7 +34,9 @@ public struct NewsList: ReducerProtocol {
       url: String,
       displayName: String,
       destination: Destination? = nil,
-      newsItems: IdentifiedArrayOf<News.State> = [])
+      newsItems: IdentifiedArrayOf<News.State> = [],
+      loadingState: LoadingState = .loading
+    )
     {
       self.id = id
       self.index = index
@@ -41,6 +44,7 @@ public struct NewsList: ReducerProtocol {
       self.displayName = displayName
       self.destination = destination
       self.newsItems = newsItems
+      self.loadingState = loadingState
     }
 
     // MARK: Public
@@ -55,6 +59,7 @@ public struct NewsList: ReducerProtocol {
     public var displayName: String
     public var destination: Destination?
     public var newsItems: IdentifiedArrayOf<News.State>
+    public var loadingState: LoadingState
   }
 
   public enum Action: Equatable {
@@ -85,10 +90,12 @@ public struct NewsList: ReducerProtocol {
           })
         }
       case .newsItemResponse(.success(let items)):
+        state.loadingState = .loaded
         state.newsItems = IdentifiedArray(uniqueElements: items)
         return .none
       case .newsItemResponse(.failure(let error)):
         print("Could not fetch news items \(error.localizedDescription)")
+        state.loadingState = .empty("Something unexpected occured")
         return .none
       case .newsItem(let id, action: .tapped):
         guard let news = state.newsItems[id: id] else { return .none }
@@ -147,6 +154,7 @@ public struct NewsListView: View {
       await viewStore.send(.task).finish()
     }
     .tag(viewStore.index)
+    .emptyPlaceholder(loadingState: viewStore.loadingState)
     .sheet(isPresented: viewStore.binding(get: { _ in
       viewStore.destination.flatMap(/NewsList.State.Destination.article) != nil
     }, send: .articleDismissed)) {
