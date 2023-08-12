@@ -62,6 +62,7 @@ public struct PageHeader: View {
         })
       }
     }).padding(.horizontal, 20)
+      .padding(.top)
   }
 
   // MARK: Internal

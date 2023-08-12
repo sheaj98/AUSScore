@@ -19,7 +19,7 @@ extension AUSClient: DependencyKey {
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601TimeZone)
 
-    let client = APIClient(baseURL: URL(string: "https://govlfpnoq6.execute-api.us-east-1.amazonaws.com")) {
+    let client = APIClient(baseURL: URL(string: "https://nhs80qwzwd.execute-api.us-east-1.amazonaws.com")) {
       $0.decoder = decoder
     }
 

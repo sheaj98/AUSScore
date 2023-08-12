@@ -17,6 +17,8 @@ public struct ScoresRow: ReducerProtocol {
       status: GameStatus,
       currentTime: String?,
       sport: Sport,
+      isExhibition: Bool = false,
+      is4PointGame: Bool = false,
       gameResults: [GameResultInfo])
     {
       self.id = id
@@ -24,6 +26,8 @@ public struct ScoresRow: ReducerProtocol {
       self.status = status
       self.currentTime = currentTime
       self.sport = sport
+      self.isExhibition = isExhibition
+      self.is4PointGame = is4PointGame
       homeTeamResult = gameResults.first(where: { $0.isHome })!
       awayTeamResult = gameResults.first(where: { !$0.isHome })!
     }
@@ -34,6 +38,8 @@ public struct ScoresRow: ReducerProtocol {
       status = gameInfo.status
       currentTime = gameInfo.currentTime
       sport = gameInfo.sport
+      isExhibition = gameInfo.isExhibition
+      is4PointGame = gameInfo.is4PointGame
       homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? gameInfo.gameResults.first!
       awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? gameInfo.gameResults.first!
     }
@@ -45,6 +51,8 @@ public struct ScoresRow: ReducerProtocol {
     public let status: GameStatus
     public let currentTime: String?
     public let sport: Sport
+    public let isExhibition: Bool
+    public let is4PointGame: Bool
     public let homeTeamResult: GameResultInfo
     public let awayTeamResult: GameResultInfo
 
@@ -126,6 +134,13 @@ struct ScoresRowView: View {
 
       GridRow {
         TeamRowView(teamResult: viewStore.awayTeamResult)
+      }
+      if (viewStore.isExhibition) {
+        GridRow {
+          Text("Exhibition").font(.caption).foregroundColor(Color(uiColor: .lightGray))
+            .gridColumnAlignment(.leading)
+            .padding(.top, 4)
+        }
       }
     }.padding(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
   }

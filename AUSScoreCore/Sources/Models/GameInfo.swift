@@ -11,6 +11,8 @@ public struct GameInfo: Decodable {
     status: GameStatus,
     currentTime: String?,
     sport: Sport,
+    isExhibition: Bool = false,
+    is4PointGame: Bool = false,
     gameResults: [GameResultInfo])
   {
     self.id = id
@@ -19,6 +21,8 @@ public struct GameInfo: Decodable {
     self.currentTime = currentTime
     self.sport = sport
     self.gameResults = gameResults
+    self.isExhibition = isExhibition
+    self.is4PointGame = is4PointGame
   }
 
   // MARK: Public
@@ -29,6 +33,8 @@ public struct GameInfo: Decodable {
   public let currentTime: String?
   public let sport: Sport
   public let gameResults: [GameResultInfo]
+  public let isExhibition: Bool
+  public let is4PointGame: Bool
 }
 
 public extension GameInfo {

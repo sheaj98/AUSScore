@@ -10,13 +10,17 @@ public struct Game: Identifiable, Equatable, Codable {
   public let status: GameStatus
   public let currentTime: String?
   public let sportId: Int
+  public let isExhibition: Bool
+  public let is4PointGame: Bool
 
-  public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sportId: Int) {
+  public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sportId: Int, isExhibition: Bool = false, is4PointGame: Bool = false) {
     self.id = id
     self.startTime = startTime
     self.status = status
     self.currentTime = currentTime
     self.sportId = sportId
+    self.isExhibition = isExhibition
+    self.is4PointGame = is4PointGame
   }
 }
 
