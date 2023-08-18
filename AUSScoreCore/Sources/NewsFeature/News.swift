@@ -90,11 +90,26 @@ public struct NewsView: View {
         Spacer()
       }
       .padding()
+      GeometryReader { geometry in
+        if var url = viewStore.imageUrl {
+          let scale = UIScreen.main.scale
+          let _ = url.append(queryItems: [URLQueryItem(name: "max_width", value: String(describing: Int(geometry.size.width * scale)))])
+          LazyImage(url: url) { state in
+             if let image = state.image {
+               image
+                 .resizingMode(.aspectFill)// Displays the loaded image.
+             } else {
+               // Acts as a placeholder.
+               Image(systemName: "photo")
+                 .foregroundColor(Color(uiColor: .darkGray))
+                 .font(.system(size: 64))
+                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
 
-      if let url = viewStore.imageUrl {
-        LazyImage(url: url)
-          .aspectRatio(639 / 470, contentMode: .fit)
+             }
+          }
+        }
       }
+      .aspectRatio(639/470, contentMode: .fit)
     }
 
     .background(Color(uiColor: colorScheme == .light ? .systemBackground : .secondarySystemBackground))
