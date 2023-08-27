@@ -17,7 +17,8 @@ public struct NewsItems: Codable {
 public struct NewsItem: Equatable, Identifiable, Codable {
   // MARK: Lifecycle
 
-  public init(title: String, link: URL, content: String, imageUrl: URL?, date: Date) {
+  public init(id: String, title: String, link: URL, content: String, imageUrl: URL?, date: Date) {
+    self.id = id
     self.title = title
     self.link = link
     self.content = content
@@ -26,20 +27,17 @@ public struct NewsItem: Equatable, Identifiable, Codable {
   }
 
   // MARK: Public
-
+  public let id: String
   public let title: String
   public let link: URL
   public let content: String
   public let imageUrl: URL?
   public let date: Date
 
-  public var id: String {
-    title
-  }
-
   // MARK: Internal
 
   enum CodingKeys: String, CodingKey {
+    case id
     case title
     case link
     case content
@@ -48,8 +46,8 @@ public struct NewsItem: Equatable, Identifiable, Codable {
   }
 }
 
-extension NewsItem {
-  public static func mock(
+public extension NewsItem {
+  static func mock(
     title: String,
     link: URL = URL(string: "http://www.atlanticuniversitysport.com/sports/wice/2022-23/releases/20221213i6o7s1")!,
     content: String = "Five AUS players named as U SPORTS announces roster for 2023 FISU Winter World University Games.",
@@ -58,6 +56,6 @@ extension NewsItem {
     date: Date = .now)
     -> Self
   {
-    .init(title: title, link: link, content: content, imageUrl: imageUrl, date: date)
+    .init(id: "testId", title: title, link: link, content: content, imageUrl: imageUrl, date: date)
   }
 }

@@ -42,7 +42,7 @@ let package = Package(
 
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", branch: "navigation-beta"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.59.0"),
     .package(url: "https://github.com/kean/Nuke", from: "11.4.0"),
     .package(url: "https://github.com/kean/Get", from: "2.1.0"),
     .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.0.0"),
@@ -87,6 +87,7 @@ let package = Package(
         "Models",
         "AUSClient",
         "AUSClientLive",
+        "DatabaseClient",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "NukeUI", package: "Nuke"),
         "AppCommon",

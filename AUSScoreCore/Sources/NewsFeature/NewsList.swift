@@ -1,8 +1,9 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
+import AppCommon
 import AUSClient
 import ComposableArchitecture
-import AppCommon
+import DatabaseClient
 import Models
 import SwiftUI
 
@@ -11,21 +12,20 @@ import SwiftUI
 public struct NewsList: ReducerProtocol {
   // MARK: Lifecycle
 
-  public init() { }
+  public init() {}
 
   // MARK: Public
 
   public struct State: Equatable, Identifiable {
     // MARK: Lifecycle
-    
+
     public init(from newsFeed: NewsFeed, index: Int) {
       self.id = newsFeed.id
       self.index = index
-      self.url = newsFeed.url
       self.displayName = newsFeed.displayName
       self.destination = nil
       self.newsItems = []
-      self.loadingState = .loading
+      self.loadingState = .loaded
     }
 
     public init(
@@ -35,12 +35,10 @@ public struct NewsList: ReducerProtocol {
       displayName: String,
       destination: Destination? = nil,
       newsItems: IdentifiedArrayOf<News.State> = [],
-      loadingState: LoadingState = .loading
-    )
+      loadingState: LoadingState = .loaded)
     {
       self.id = id
       self.index = index
-      self.url = url
       self.displayName = displayName
       self.destination = destination
       self.newsItems = newsItems
@@ -55,7 +53,6 @@ public struct NewsList: ReducerProtocol {
 
     public var id: Int64
     public var index: Int
-    public var url: String
     public var displayName: String
     public var destination: Destination?
     public var newsItems: IdentifiedArrayOf<News.State>
@@ -68,6 +65,7 @@ public struct NewsList: ReducerProtocol {
     case newsItem(id: News.State.ID, action: News.Action)
     case articleDismissed
     case destination(Destination)
+    case refresh
 
     public enum Destination: Equatable {
       case article(ArticleFeature.Action)
@@ -78,19 +76,29 @@ public struct NewsList: ReducerProtocol {
   }
 
   public var body: some ReducerProtocol<State, Action> {
-    Reduce { state, action in
+    Reduce<State, Action> { state, action in
       switch action {
       case .task:
-        return .task { [url = state.url] in
-          await .newsItemResponse(TaskResult {
-            let newsItems = try await apiClient.newsItems(url)
-            return newsItems.map {
-              News.State(newsItem: $0)
+        return .merge(
+          .run { [id = state.id] _ in
+            try await syncNewsItems(id: id)
+          } catch: { error, send in
+            print(error)
+          },
+
+          .run { [id = state.id] send in
+            for try await newsItems in databaseClient.newsItemStream(id) {
+              let news = newsItems.map { News.State(newsItem: $0) }
+              await send(.newsItemResponse(.success(news)))
             }
+          } catch: { error, send in
+            await send(.newsItemResponse(.failure(error)))
           })
+      case .refresh:
+        return .run { [id = state.id] _ in
+          try await syncNewsItems(id: id)
         }
       case .newsItemResponse(.success(let items)):
-        state.loadingState = .loaded
         state.newsItems = IdentifiedArray(uniqueElements: items)
         return .none
       case .newsItemResponse(.failure(let error)):
@@ -115,10 +123,16 @@ public struct NewsList: ReducerProtocol {
         }
     }
   }
+  
+  func syncNewsItems(id: Int64) async throws {
+    let remoteNewsItems = try await apiClient.newsItems(id)
+    try await databaseClient.syncNewsFeed(id, remoteNewsItems)
+  }
 
   // MARK: Internal
 
   @Dependency(\.ausClient) var apiClient
+  @Dependency(\.databaseClient) var databaseClient
 }
 
 // MARK: - NewsListView
@@ -128,12 +142,25 @@ public struct NewsListView: View {
 
   public init(store: StoreOf<NewsList>) {
     self.store = store
-    viewStore = ViewStore(store, observe: { $0 })
+    self.viewStore = ViewStore(store, observe: { ViewState(state: $0) })
+  
+  }
+  
+  public struct ViewState: Equatable {
+    public let loadingState: LoadingState
+    public let index: Int
+    public let destination: NewsList.State.Destination?
+    
+    public init(state: NewsList.State) {
+      self.loadingState = state.loadingState
+      self.index = state.index
+      self.destination = state.destination
+    }
   }
 
   // MARK: Internal
 
-  @ObservedObject var viewStore: ViewStoreOf<NewsList>
+  @ObservedObject var viewStore: ViewStore<ViewState, NewsList.Action>
   @Environment(\.colorScheme) var colorScheme
 
   public var body: some View {
@@ -146,12 +173,12 @@ public struct NewsListView: View {
       .padding()
     }
     .refreshable(action: {
-      await viewStore.send(.task).finish()
+      await viewStore.send(.refresh).finish()
     })
     .dynamicTypeSize(...DynamicTypeSize.xLarge)
     .background(Color(uiColor: .systemGroupedBackground))
     .task {
-      await viewStore.send(.task).finish()
+      viewStore.send(.task)
     }
     .tag(viewStore.index)
     .emptyPlaceholder(loadingState: viewStore.loadingState)

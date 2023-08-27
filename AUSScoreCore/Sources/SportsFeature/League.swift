@@ -8,7 +8,6 @@
 import SwiftUI
 import ComposableArchitecture
 import Models
-import SwiftUINavigation
 import AppCommon
 import NewsFeature
 import ScoresFeature

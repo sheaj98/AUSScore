@@ -11,7 +11,7 @@ public struct AUSClient {
 
   public init(
     newsFeeds: @escaping @Sendable () async throws -> [NewsFeed],
-    newsItems: @escaping @Sendable (_ newsFeedUrl: String) async throws -> [NewsItem],
+    newsItems: @escaping @Sendable (_ newsFeedId: Int64) async throws -> [NewsItem],
     schools: @escaping @Sendable () async throws -> [School],
     sports: @escaping @Sendable () async throws -> [Sport],
     teams: @escaping @Sendable () async throws -> [Team],
@@ -38,7 +38,7 @@ public struct AUSClient {
   // MARK: - News
 
   public var newsFeeds: @Sendable () async throws -> [NewsFeed]
-  public var newsItems: @Sendable (_ newsFeedUrl: String) async throws -> [NewsItem]
+  public var newsItems: @Sendable (_ newsFeedId: Int64) async throws -> [NewsItem]
 
   // MARK: - Schools
 

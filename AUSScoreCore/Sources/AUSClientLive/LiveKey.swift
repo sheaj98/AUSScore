@@ -28,8 +28,8 @@ extension AUSClient: DependencyKey {
         let request = Request<[NewsFeed]>(path: "newsfeeds")
         return try await client.send(request).value
       },
-      newsItems: { newsFeedUrl in
-        let request = Request<NewsItems>(path: "parseNews", query: [("url", newsFeedUrl)])
+      newsItems: { newsFeedId in
+        let request = Request<NewsItems>(path: "newsfeeds/\(newsFeedId)/items")
         return try await client.send(request).value.items
       },
       schools: {

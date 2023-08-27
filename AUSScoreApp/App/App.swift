@@ -3,6 +3,7 @@
 import AppCore
 import ComposableArchitecture
 import SwiftUI
+import Nuke
 
 // MARK: - AUSScoreApp
 
@@ -34,6 +35,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     -> Bool
   {
     viewStore.send(.appDelegate(.didFinishLaunching))
+    ImagePipeline.shared = ImagePipeline(configuration: .withDataCache)
     return true
   }
 

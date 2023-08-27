@@ -112,7 +112,7 @@ public struct NewsContainer: View {
       .tabViewStyle(.page(indexDisplayMode: .never))
     }
     .background(Color(uiColor: colorScheme == .light ? .systemBackground : .secondarySystemBackground))
-    .onLoad {
+    .task {
       viewStore.send(.task)
     }
   }
