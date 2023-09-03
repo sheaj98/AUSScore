@@ -12,7 +12,7 @@ import AppCommon
 import NewsFeature
 import ScoresFeature
 
-public struct League: ReducerProtocol {
+public struct League: Reducer {
   public init() {}
   
   public enum Tab: Int {
@@ -44,7 +44,7 @@ public struct League: ReducerProtocol {
     case scores(ScoresFeature.Action)
   }
   
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     
     Scope(state: \.news, action: /Action.news) {
       NewsList()
@@ -105,6 +105,8 @@ struct LeagueView: View {
           .tag(2)
       }
       .tabViewStyle(.page(indexDisplayMode: .never))
+      .navigationTitle(viewStore.sport.name)
+      .toolbarRole(.editor)
     }
 }
 
@@ -117,5 +119,7 @@ struct SwiftUIView_Previews: PreviewProvider {
 extension Store where State == League.State, Action == League.Action {
   static let item = Store(
     initialState: .init(sport: .mock()),
-    reducer: League())
+    reducer: {
+      League()
+    })
 }

@@ -42,12 +42,12 @@ let package = Package(
 
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.59.0"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
     .package(url: "https://github.com/kean/Nuke", from: "11.4.0"),
     .package(url: "https://github.com/kean/Get", from: "2.1.0"),
     .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.0.0"),
     .package(url: "https://github.com/groue/SortedDifference", from: "1.0.0"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.1.4"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
   ],
   targets: [
     .target(

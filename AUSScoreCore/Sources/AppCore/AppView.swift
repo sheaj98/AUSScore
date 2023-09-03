@@ -10,7 +10,7 @@ import SwiftUI
 
 // MARK: - AppReducer
 
-public struct AppReducer: ReducerProtocol {
+public struct AppReducer: Reducer {
   // MARK: Lifecycle
 
   public init() {}
@@ -47,7 +47,7 @@ public struct AppReducer: ReducerProtocol {
     case sports
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Scope(
       state: \.news,
       action: CasePath(Action.news))
@@ -90,7 +90,7 @@ public struct AppView: View {
 
   public init(store: StoreOf<AppReducer>) {
     self.store = store
-    viewStore = ViewStore(self.store.scope(state: ViewState.init))
+    viewStore = ViewStore(store, observe: ViewState.init)
   }
 
   // MARK: Public

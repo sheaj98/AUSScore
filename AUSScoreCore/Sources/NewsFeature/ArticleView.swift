@@ -1,5 +1,6 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
+import AppCommon
 import ComposableArchitecture
 import Foundation
 import SwiftUI
@@ -11,10 +12,10 @@ import WebKit
 // Error: [Security] This method should not be called on the main thread as it may lead to UI unresponsiveness.
 // See:https://developer.apple.com/forums/thread/714467?answerId=734799022#734799022
 
-public struct ArticleFeature: ReducerProtocol {
+public struct ArticleFeature: Reducer {
   // MARK: Lifecycle
 
-  public init() { }
+  public init() {}
 
   // MARK: Public
 
@@ -22,18 +23,28 @@ public struct ArticleFeature: ReducerProtocol {
     public init(url: URL, isLoading: Bool = true) {
       self.url = url
       self.isLoading = isLoading
+      loadingState = .loading
     }
 
     public var url: URL
-    @BindableState public var isLoading: Bool
+    public var loadingState: LoadingState
+    @BindingState public var isLoading: Bool
   }
 
   public enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     BindingReducer()
+      .onChange(of: \.isLoading) { oldValue, newValue in
+        Reduce { state, _ in
+          if oldValue == true && newValue == false {
+            state.loadingState = .loaded
+          }
+          return .none
+        }
+      }
   }
 }
 
@@ -44,16 +55,13 @@ struct ArticleView: UIViewRepresentable {
 
   public init(store: StoreOf<ArticleFeature>) {
     self.store = store
-    viewStore = ViewStore(store)
+    viewStore = ViewStore(store, observe: { $0 })
   }
 
   // MARK: Internal
-
   func makeCoordinator() -> Coordinator {
-    Coordinator(
-      isLoading: viewStore.binding(\.$isLoading))
+    Coordinator(isLoading: viewStore.$isLoading)
   }
-
   // MARK: - Inject additional properties
 
   func createStyleScript(
@@ -62,33 +70,33 @@ struct ArticleView: UIViewRepresentable {
     -> WKUserScript
   {
     let cssString = """
+    :root {
+      color-scheme: light dark;
+      --link-color: blue;
+    }
+    @media screen and (prefers-color-scheme: dark) {
       :root {
-        color-scheme: light dark;
-        --link-color: blue;
+        --link-color: #93d5ff;
       }
-      @media screen and (prefers-color-scheme: dark) {
-        :root {
-          --link-color: #93d5ff;
-        }
-      }
-      body {
-        font-family: \(fontFamily);
-        font-size: \(size)px;
-        padding: 16px;
-      }
-      img {
-        width: 100%;
-      }
-      a {
-        color: var(--link-color);
-      }
-      """.components(separatedBy: .newlines).joined()
+    }
+    body {
+      font-family: \(fontFamily);
+      font-size: \(size)px;
+      padding: 16px;
+    }
+    img {
+      width: 100%;
+    }
+    a {
+      color: var(--link-color);
+    }
+    """.components(separatedBy: .newlines).joined()
 
     let source = """
-      var style = document.createElement('style');
-      style.innerHTML = '\(cssString)';
-      document.head.appendChild(style);
-      """
+    var style = document.createElement('style');
+    style.innerHTML = '\(cssString)';
+    document.head.appendChild(style);
+    """
 
     return WKUserScript(
       source: source,

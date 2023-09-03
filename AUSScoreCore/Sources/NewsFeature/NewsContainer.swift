@@ -10,7 +10,7 @@ import SwiftUI
 
 // MARK: - NewsFeature
 
-public struct NewsFeature: ReducerProtocol {
+public struct NewsFeature: Reducer {
   // MARK: Lifecycle
 
   public init() { }
@@ -41,20 +41,20 @@ public struct NewsFeature: ReducerProtocol {
     case newsFeedResponse(TaskResult<[NewsList.State]>)
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
       case .selected(let index):
         state.selectIndex = index
         return .none
       case .task:
-        return .task {
-          await .newsFeedResponse(TaskResult {
+        return .run { send in
+          await send(.newsFeedResponse(TaskResult {
             let feeds = try await apiClient.newsFeeds()
             return feeds.enumerated().map { index, newsFeed -> NewsList.State in
               NewsList.State(id: newsFeed.id, index: index, url: newsFeed.url, displayName: newsFeed.displayName)
             }
-          })
+          }))
         }
       case .newsFeedResponse(.success(let items)):
         state.newsCategories = IdentifiedArray(uniqueElements: items)
@@ -138,6 +138,7 @@ struct NewsContainer_Preview: PreviewProvider {
 
 extension Store where State == NewsFeature.State, Action == NewsFeature.Action {
   static let items = Store(
-    initialState: .init(),
-    reducer: NewsFeature())
+    initialState: .init()) {
+      NewsFeature()
+    }
 }

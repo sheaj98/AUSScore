@@ -10,7 +10,7 @@ import UIKit
 
 // MARK: - News
 
-public struct News: ReducerProtocol {
+public struct News: Reducer {
   // MARK: Lifecycle
 
   public init() { }
@@ -53,7 +53,7 @@ public struct News: ReducerProtocol {
     case tapped
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Reduce { _, _ in
       .none
     }
@@ -146,7 +146,8 @@ extension Store where State == News.State, Action == News.Action {
       link: URL(string: "http://www.atlanticuniversitysport.com/sports/mice/2022-23/releases/20221214i5csbw")!,
       content: "Eleven AUS players named as U SPORTS announces men's hockey roster for 2023 FISU Winter World University Games",
       imageUrl: URL(string: "http://www.atlanticuniversitysport.com/sports/mice/2022-23/photos/FISU_MHCK_1040x680-1040x_mp.jpg")!,
-      date: Date()),
-    reducer: News())
+      date: Date())) {
+        News()
+      }
 }
 #endif

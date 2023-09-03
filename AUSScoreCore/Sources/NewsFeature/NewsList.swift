@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - NewsList
 
-public struct NewsList: ReducerProtocol {
+public struct NewsList: Reducer {
   // MARK: Lifecycle
 
   public init() {}
@@ -23,9 +23,9 @@ public struct NewsList: ReducerProtocol {
       self.id = newsFeed.id
       self.index = index
       self.displayName = newsFeed.displayName
-      self.destination = nil
       self.newsItems = []
       self.loadingState = .loaded
+      self.articleView = nil
     }
 
     public init(
@@ -33,56 +33,45 @@ public struct NewsList: ReducerProtocol {
       index: Int,
       url: String,
       displayName: String,
-      destination: Destination? = nil,
       newsItems: IdentifiedArrayOf<News.State> = [],
-      loadingState: LoadingState = .loaded)
+      loadingState: LoadingState = .loaded,
+      articleView: ArticleFeature.State? = nil)
     {
       self.id = id
       self.index = index
       self.displayName = displayName
-      self.destination = destination
       self.newsItems = newsItems
       self.loadingState = loadingState
+      self.articleView = articleView
     }
 
     // MARK: Public
 
-    public enum Destination: Equatable {
-      case article(ArticleFeature.State)
-    }
-
     public var id: Int64
     public var index: Int
     public var displayName: String
-    public var destination: Destination?
     public var newsItems: IdentifiedArrayOf<News.State>
     public var loadingState: LoadingState
+    @PresentationState public var articleView: ArticleFeature.State?
   }
 
   public enum Action: Equatable {
     case task
     case newsItemResponse(TaskResult<[News.State]>)
     case newsItem(id: News.State.ID, action: News.Action)
-    case articleDismissed
-    case destination(Destination)
     case refresh
-
-    public enum Destination: Equatable {
-      case article(ArticleFeature.Action)
-      // Crash workaround (CasePath Library doesn't seem to handle a nested enum with only one case)
-      // Likely related to https://github.com/pointfreeco/swift-case-paths/issues/71
-      case noop
-    }
+    case article(PresentationAction<ArticleFeature.Action>)
+    case dismissArticle
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Reduce<State, Action> { state, action in
       switch action {
       case .task:
         return .merge(
           .run { [id = state.id] _ in
             try await syncNewsItems(id: id)
-          } catch: { error, send in
+          } catch: { error, _ in
             print(error)
           },
 
@@ -107,23 +96,20 @@ public struct NewsList: ReducerProtocol {
         return .none
       case .newsItem(let id, action: .tapped):
         guard let news = state.newsItems[id: id] else { return .none }
-        state.destination = .article(.init(url: news.link))
+        state.articleView = ArticleFeature.State(url: news.link)
         return .none
-      case .articleDismissed:
-        state.destination = nil
+      case .dismissArticle:
+        state.articleView = nil
         return .none
-      case .destination:
+      default:
         return .none
       }
     }
-    .ifLet(\.destination, action: /Action.destination) {
-      EmptyReducer()
-        .ifCaseLet(/State.Destination.article, action: /Action.Destination.article) {
-          ArticleFeature()
-        }
+    .ifLet(\.$articleView, action: /Action.article) {
+      ArticleFeature()
     }
   }
-  
+
   func syncNewsItems(id: Int64) async throws {
     let remoteNewsItems = try await apiClient.newsItems(id)
     try await databaseClient.syncNewsFeed(id, remoteNewsItems)
@@ -143,18 +129,15 @@ public struct NewsListView: View {
   public init(store: StoreOf<NewsList>) {
     self.store = store
     self.viewStore = ViewStore(store, observe: { ViewState(state: $0) })
-  
   }
-  
+
   public struct ViewState: Equatable {
     public let loadingState: LoadingState
     public let index: Int
-    public let destination: NewsList.State.Destination?
-    
+
     public init(state: NewsList.State) {
       self.loadingState = state.loadingState
       self.index = state.index
-      self.destination = state.destination
     }
   }
 
@@ -182,23 +165,18 @@ public struct NewsListView: View {
     }
     .tag(viewStore.index)
     .emptyPlaceholder(loadingState: viewStore.loadingState)
-    .sheet(isPresented: viewStore.binding(get: { _ in
-      viewStore.destination.flatMap(/NewsList.State.Destination.article) != nil
-    }, send: .articleDismissed)) {
-      IfLetStore(self.store.scope(
-        state: { $0.destination.flatMap(/NewsList.State.Destination.article) },
-        action: { NewsList.Action.destination(.article($0)) }))
-      { articleStore in
-        NavigationStack {
-          ArticleView(store: articleStore)
-            .toolbar(content: {
-              ToolbarItem(placement: .navigationBarLeading) {
-                Button("Done") {
-                  viewStore.send(.articleDismissed)
-                }
+    .sheet(
+      store: self.store.scope(state: \.$articleView, action: { .article($0) })
+    ) { store in
+      NavigationStack {
+        ArticleView(store: store)
+          .toolbar {
+            ToolbarItem {
+              Button("Done") {
+                viewStore.send(.dismissArticle)
               }
-            })
-        }
+            }
+          }
       }
     }
   }
@@ -219,9 +197,11 @@ struct NewsListView_Preview: PreviewProvider {
 extension Store where State == NewsList.State, Action == NewsList.Action {
   static let items = Store(
     initialState: .init(
-      id: 1,
+      id: Int64(1),
       index: 0,
       url: "https://www.atlanticuniversitysport.com/landing/headlines-featured?feed=rss_2.0",
-      displayName: "Featured"),
-    reducer: NewsList())
+      displayName: "Featured"))
+  {
+    NewsList()
+  }
 }

@@ -22,11 +22,11 @@ struct AUSScoreApp: App {
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
   let store: StoreOf<AppReducer> = Store(
-    initialState: AppReducer.State(),
-    reducer: AppReducer())
+    initialState: AppReducer.State()) {
+      AppReducer()
+    }
 
-  lazy var viewStore = ViewStore(
-    self.store.scope(state: { _ in () }),
+  lazy var viewStore = ViewStore(store, observe: { _ in () },
     removeDuplicates: ==)
 
   func application(

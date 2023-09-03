@@ -7,7 +7,7 @@ import SwiftUI
 
 // MARK: - ScoresRow
 
-public struct ScoresRow: ReducerProtocol {
+public struct ScoresRow: Reducer {
   public struct State: Equatable, Identifiable {
     // MARK: Lifecycle
 
@@ -74,7 +74,7 @@ public struct ScoresRow: ReducerProtocol {
     case tapped
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Reduce { _, _ in
       .none
     }
