@@ -6,7 +6,7 @@ import SwiftUI
 
 // MARK: - ScoresListSection
 
-public struct ScoresListSection: ReducerProtocol {
+public struct ScoresListSection: Reducer {
   // MARK: Lifecycle
 
   public init() { }
@@ -32,7 +32,7 @@ public struct ScoresListSection: ReducerProtocol {
     case gamesRow(id: ScoresRow.State.ID, action: ScoresRow.Action)
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Reduce { _, action in
       switch action {
       case .gamesRow(let id, action: .tapped):

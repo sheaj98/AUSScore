@@ -12,12 +12,28 @@ import Foundation
 import Models
 import SwiftUI
 
-public struct LeaguesList: ReducerProtocol {
+public struct LeaguesList: Reducer {
   public init() {}
+
+  public struct Path: Reducer {
+    public enum State: Equatable {
+      case league(League.State)
+    }
+
+    public enum Action: Equatable {
+      case league(League.Action)
+    }
+
+    public var body: some ReducerOf<Self> {
+      Scope(state: /State.league, action: /Action.league) {
+        League()
+      }
+    }
+  }
 
   public struct State: Equatable {
     public var leagues: IdentifiedArrayOf<SportInfo>
-    @PresentationState public var selectedLeague: League.State?
+    public var path = StackState<Path.State>()
 
     public init(leagues: IdentifiedArrayOf<SportInfo> = []) {
       self.leagues = leagues
@@ -28,17 +44,17 @@ public struct LeaguesList: ReducerProtocol {
     case task
     case leaguesResponse(TaskResult<[SportInfo]>)
     case leagueRowTapped(id: League.State.ID)
-    case league(PresentationAction<League.Action>)
+    case path(StackAction<Path.State, Path.Action>)
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
       case .task:
-        return .task {
-          await .leaguesResponse(TaskResult {
+        return .run { send in
+          await send(.leaguesResponse(TaskResult {
             try await dbClient.sports()
-          })
+          }))
         }
       case .leaguesResponse(.success(let sports)):
         state.leagues = IdentifiedArray(uniqueElements: sports)
@@ -50,14 +66,14 @@ public struct LeaguesList: ReducerProtocol {
         guard let league = state.leagues[id: leagueId] else {
           return .none
         }
-        state.selectedLeague = League.State(sport: league)
+        state.path.append(.league(.init(sport: league)))
         return .none
-      case .league:
+      default:
         return .none
       }
     }
-    .ifLet(\.$selectedLeague, action: /Action.league) {
-      League()
+    .forEach(\.path, action: /Action.path) {
+      Path()
     }
   }
 
@@ -77,30 +93,33 @@ public struct LeaguesListView: View {
   @ObservedObject var viewStore: ViewStoreOf<LeaguesList>
 
   public var body: some View {
-    VStack(spacing: 0) {
-      Text("Leagues")
-        .font(.headline)
-      List {
-        ForEach(viewStore.leagues) { league in
-          NavigationLinkStore(
-            self.store.scope(state: \.$selectedLeague, action: LeaguesList.Action.league),
-            id: league.id)
-          {
-            viewStore.send(.leagueRowTapped(id: league.id))
-          } destination: { store in
-            LeagueView(store: store)
-              .navigationTitle(league.name)
-              .toolbarRole(.editor)
-          } label: {
-            LeaguesListRowView(league: league)
+    NavigationStackStore(self.store.scope(state: \.path, action: { .path($0) }), root: {
+      VStack(spacing: 0) {
+        Text("Leagues")
+          .font(.headline)
+        List {
+          ForEach(viewStore.leagues) { league in
+            NavigationLink(state: LeaguesList.Path.State.league(.init(sport: league)), label: {
+              LeaguesListRowView(league: league)
+            })
+            .listRowBackground(Color(.secondarySystemBackground))
           }
-          .listRowBackground(Color(.secondarySystemBackground))
         }
+        .listStyle(.inset)
+        .scrollContentBackground(.hidden)
       }
-      .listStyle(.inset)
-      .scrollContentBackground(.hidden)
-    }
-    .background(Color(.secondarySystemBackground))
+      .background(Color(.secondarySystemBackground))
+    }, destination: { state in
+      switch state {
+      case .league:
+        CaseLet(
+          /LeaguesList.Path.State.league,
+          action: LeaguesList.Path.Action.league,
+          then: LeagueView.init(store:)
+        )
+      }
+    })
+
     .onLoad {
       viewStore.send(.task)
     }
@@ -121,6 +140,8 @@ struct LeaguesList_Preview: PreviewProvider {
 
 extension Store where State == LeaguesList.State, Action == LeaguesList.Action {
   static let items = Store(
-    initialState: .init(leagues: [.mock()]),
-    reducer: LeaguesList())
+    initialState: .init(leagues: IdentifiedArray(uniqueElements: [SportInfo.mock()])))
+  {
+    LeaguesList()
+  }
 }

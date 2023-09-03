@@ -8,7 +8,7 @@ import SwiftUI
 
 // MARK: - ScoresList
 
-public struct ScoresList: ReducerProtocol {
+public struct ScoresList: Reducer {
   // MARK: Lifecycle
 
   public init() {}
@@ -40,7 +40,7 @@ public struct ScoresList: ReducerProtocol {
     case refreshGames
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
       case .task:

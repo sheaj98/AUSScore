@@ -12,16 +12,16 @@ import UIKit
 
 // MARK: - SyncLogic
 
-public struct SyncLogic: ReducerProtocol {
+public struct SyncLogic: Reducer {
   // MARK: Public
 
-  public var body: some ReducerProtocol<AppReducer.State, AppReducer.Action> {
+  public var body: some Reducer<AppReducer.State, AppReducer.Action> {
     Reduce { _, action in
       switch action {
       case .appDelegate(.didFinishLaunching):
         return syncAll()
       case .appDelegate(.didRegisterForRemoteNotifications(.success(let tokenData))):
-        return .fireAndForget {
+        return .run { _ in
           let token = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
           do {
             let userId = try await userIdentifier.id()
@@ -47,8 +47,8 @@ public struct SyncLogic: ReducerProtocol {
   @Dependency(\.userIdentifier) var userIdentifier
   // MARK: Private
 
-  private func syncGames(completionHandler: ((UIBackgroundFetchResult) -> Void)?) -> EffectTask<Action> {
-    return .fireAndForget {
+  private func syncGames(completionHandler: ((UIBackgroundFetchResult) -> Void)?) -> Effect<Action> {
+    return .run { _ in
       do {
         let remoteGames = try await ausClient.allGames()
         try await databaseClient.syncGames(remoteGames)
@@ -68,8 +68,8 @@ public struct SyncLogic: ReducerProtocol {
     }
   }
 
-  private func syncAll() -> EffectTask<Action> {
-    .fireAndForget {
+  private func syncAll() -> Effect<Action> {
+    .run { _ in
       do {
         try await withThrowingTaskGroup(of: Void.self) { group in
           group.addTask {

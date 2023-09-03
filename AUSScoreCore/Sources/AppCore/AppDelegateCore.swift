@@ -6,7 +6,7 @@ import RemoteNotificationsClient
 import UserNotificationsClient
 import UIKit
 
-public struct AppDelegateReducer: ReducerProtocol {
+public struct AppDelegateReducer: Reducer {
   // MARK: Lifecycle
 
   public init() {}
@@ -21,7 +21,7 @@ public struct AppDelegateReducer: ReducerProtocol {
     case userNotifications(UserNotificationClient.DelegateEvent)
   }
 
-  public func reduce(into _: inout State, action: Action) -> EffectTask<Action> {
+  public func reduce(into _: inout State, action: Action) -> Effect<Action> {
     switch action {
     case .didFinishLaunching:
       let notificationEvents = userNotifications.delegate()

@@ -9,7 +9,7 @@ import AppNotificationsClient
 
 // MARK: - ScoresFeature
 
-public struct ScoresFeature: ReducerProtocol {
+public struct ScoresFeature: Reducer {
   // MARK: Lifecycle
 
   public init() { }
@@ -38,7 +38,7 @@ public struct ScoresFeature: ReducerProtocol {
     case dayDidChange
   }
 
-  public var body: some ReducerProtocol<State, Action> {
+  public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
       case .selected(let index):
@@ -60,10 +60,10 @@ public struct ScoresFeature: ReducerProtocol {
           })
         }
       case .dayDidChange:
-        return .task {
-          await .dateWithGamesResponse(TaskResult {
+        return .run { send in
+          await send(.dateWithGamesResponse(TaskResult {
             return try await refreshDatesWithGames()
-          })
+          }))
         }
       case .dateWithGamesResponse(.success(let dates)):
         let todayIndex = dates.firstIndex(where: { Calendar.current.isDateInToday($0.selectedDate)}) ?? 0
