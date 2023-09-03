@@ -1,16 +1,16 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Shea Sullivan on 2023-03-25.
 //
 
-import SwiftUI
+import AppCommon
 import ComposableArchitecture
 import Models
-import AppCommon
 import NewsFeature
 import ScoresFeature
+import SwiftUI
 
 public struct League: Reducer {
   public init() {}
@@ -45,7 +45,6 @@ public struct League: Reducer {
   }
   
   public var body: some Reducer<State, Action> {
-    
     Scope(state: \.news, action: /Action.news) {
       NewsList()
     }
@@ -55,7 +54,7 @@ public struct League: Reducer {
     }
     
     Reduce { state, action in
-      switch(action) {
+      switch action {
       case .task:
         return .none
       case .selected(let tab):
@@ -77,21 +76,21 @@ struct LeagueView: View {
   
   public init(store: StoreOf<League>) {
     self.store = store
-    viewStore = ViewStore(store, observe: { $0 })
+    self.viewStore = ViewStore(store, observe: { $0 })
   }
 
   // MARK: Internal
 
   @ObservedObject var viewStore: ViewStoreOf<League>
   
-    var body: some View {
+  var body: some View {
+    VStack(spacing: 0) {
       SimplePageHeader(
         selected: viewStore.binding(
           get: \.selectedView,
           send: League.Action.selected),
         labels: ["NEWS", "SCORES", "STANDINGS"])
-      .padding(.bottom, -8)
-
+      
       TabView(selection: viewStore.binding(
         get: \.selectedView,
         send: League.Action.selected))
@@ -101,6 +100,7 @@ struct LeagueView: View {
         
         ScoresContainer(store: self.store.scope(state: \.scores, action: League.Action.scores))
           .tag(1)
+          .padding(.top, -14)
         Text("Standings")
           .tag(2)
       }
@@ -108,12 +108,13 @@ struct LeagueView: View {
       .navigationTitle(viewStore.sport.name)
       .toolbarRole(.editor)
     }
+  }
 }
 
 struct SwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-      LeagueView(store: .item)
-    }
+  static var previews: some View {
+    LeagueView(store: .item)
+  }
 }
 
 extension Store where State == League.State, Action == League.Action {
