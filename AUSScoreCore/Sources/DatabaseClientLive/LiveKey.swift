@@ -26,23 +26,23 @@ extension DatabaseClient: DependencyKey {
         fatalError("Could not create database \(error)")
       }
     }
-    
+
     let dbWriter = dbWriter()
-    
+
     let gamesDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: Game.all(), GameResult.all())
       .publisher(in: dbWriter)
       .map { _ in }
       .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
       .share()
       .eraseToAnyPublisher()
-    
+
     let newsItemsDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: NewsItem.all())
       .publisher(in: dbWriter)
       .map { _ in }
       .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
       .share()
       .eraseToAnyPublisher()
-    
+
     return Self(
       schools: {
         try await dbWriter.read { db in
@@ -54,9 +54,9 @@ extension DatabaseClient: DependencyKey {
           let localSchools = try School.all()
             .order(Column("id"))
             .fetchAll(db)
-          
+
           let remoteSchools = schools.sorted(by: { $0.id < $1.id })
-          
+
           let mergeSteps = SortedDifference(
             left: localSchools,
             identifiedBy: { $0.id },
@@ -87,9 +87,9 @@ extension DatabaseClient: DependencyKey {
           let localSports = try Sport.all()
             .order(Column("id"))
             .fetchAll(db)
-          
+
           let remoteSports = sports.sorted(by: { $0.id < $1.id })
-          
+
           let mergeSteps = SortedDifference(
             left: localSports,
             identifiedBy: { $0.id },
@@ -122,9 +122,9 @@ extension DatabaseClient: DependencyKey {
           let localTeams = try Team.all()
             .order(Column("id"))
             .fetchAll(db)
-          
+
           let remoteTeams = teams.sorted(by: { $0.id < $1.id })
-          
+
           let mergeSteps = SortedDifference(
             left: localTeams,
             identifiedBy: { $0.id },
@@ -147,9 +147,9 @@ extension DatabaseClient: DependencyKey {
           let localGames = try Game.all()
             .order(Column("id"))
             .fetchAll(db)
-          
+
           let remoteGames = games.sorted(by: { $0.id < $1.id })
-          
+
           let mergeSteps = SortedDifference(
             left: localGames,
             identifiedBy: { $0.id },
@@ -172,9 +172,9 @@ extension DatabaseClient: DependencyKey {
           var localGames = try GameResult.all()
             .order(Column("gameId"), Column("teamId"))
             .fetchAll(db)
-          
+
           localGames = localGames.sorted(by: { $0.id < $1.id })
-          
+
           let remoteGames = gameResults.sorted(by: { $0.id < $1.id })
           let mergeSteps = SortedDifference(
             left: localGames,
@@ -194,11 +194,11 @@ extension DatabaseClient: DependencyKey {
         }
       },
       syncNewsFeed: { newsFeedId, newsItems in
-        try dbWriter.write({ db in
+        try dbWriter.write { db in
           let localNewsItems = try NewsItem.joining(required: NewsItem.newsFeeds.filter(Column("id") == newsFeedId)).order(Column("id")).fetchAll(db)
-          
+
           let remoteNewsItems = newsItems.sorted(by: { $0.id < $1.id })
-          
+
           let mergeSteps = SortedDifference(
             left: localNewsItems,
             identifiedBy: { $0.id },
@@ -216,14 +216,14 @@ extension DatabaseClient: DependencyKey {
               try remote.updateChanges(db, from: local)
             }
           }
-        })
+        }
       },
       newsItemStream: { newsFeedId in
         newsItemsDidChange
           .prepend(())
           .map { [dbWriter] in
             dbWriter.readPublisher { db in
-              return try NewsItem.joining(required: NewsItem.newsFeeds.filter(Column("id") == newsFeedId)).order(Column("isoDate").desc).fetchAll(db)
+              try NewsItem.joining(required: NewsItem.newsFeeds.filter(Column("id") == newsFeedId)).order(Column("isoDate").desc).fetchAll(db)
             }
           }
           .switchToLatest()
@@ -247,18 +247,23 @@ extension DatabaseClient: DependencyKey {
             .fetchAll(db)
         }
       },
-      datesWithGames: {
+      datesWithGames: { sportId in
         try await dbWriter.read { db in
-          let dates = try Game
+          var query = Game
             .select(Column("startTime"), as: Date.self)
             .distinct()
-            .fetchAll(db)
+
+          if let sportId = sportId {
+            query = query.filter(Column("sportId") == sportId)
+          }
+
+          let dates = try query.fetchAll(db)
 
           let startOfDays = dates.map(\.startOfDay)
           return Array(Set(startOfDays)).sorted(by: { $0 < $1 })
         }
       },
-      gameStream: { date in
+      gameStream: { date, sportId in
         gamesDidChange
           .prepend(())
           .map { [dbWriter] in
@@ -266,7 +271,7 @@ extension DatabaseClient: DependencyKey {
               let start = date.startOfDay
               let end = date.endOfDay
 
-              return try Game
+              var query = Game
                 .including(
                   all: Game.gameResults
                     .including(
@@ -276,7 +281,12 @@ extension DatabaseClient: DependencyKey {
                 .including(required: Game.sport)
                 .filter((start...end).contains(Column("startTime")))
                 .asRequest(of: GameInfo.self)
-                .fetchAll(db)
+
+              if let sportId = sportId {
+                query = query.filter(Column("sportId") == sportId)
+              }
+
+              return try query.fetchAll(db)
             }
           }
           .switchToLatest()
@@ -413,7 +423,7 @@ extension DatabaseClient: DependencyKey {
         t.primaryKey(["gameId", "teamId"])
       }
     }
-    
+
     migrator.registerMigration("createNewsItems") { db in
       try db.create(table: "newsItem", body: { t in
         t.column("title", .text)
@@ -424,7 +434,7 @@ extension DatabaseClient: DependencyKey {
         t.primaryKey("id", .text)
       })
     }
-    
+
     migrator.registerMigration("createNewsItemCategories") { db in
       try db.create(table: "newsFeedCategory", body: { t in
         t.column("newsFeedId", .integer)

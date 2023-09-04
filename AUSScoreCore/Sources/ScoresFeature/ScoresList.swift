@@ -24,12 +24,14 @@ public struct ScoresList: Reducer {
     public var index: Int
     public var scoreSections: IdentifiedArrayOf<ScoresListSection.State>
     public var loadingState: LoadingState
+    public var sportId: Int64?
 
-    public init(selectedDate: Date, index: Int, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = [], loadingState: LoadingState = .loading) {
+    public init(selectedDate: Date, index: Int, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = [], loadingState: LoadingState = .loading, sportId: Int64?) {
       self.selectedDate = selectedDate
       self.scoreSections = scoreSections
       self.index = index
       self.loadingState = loadingState
+      self.sportId = sportId
     }
   }
 
@@ -44,19 +46,28 @@ public struct ScoresList: Reducer {
     Reduce { state, action in
       switch action {
       case .task:
-        return .run { [date = state.selectedDate] send in
-          for try await games in dbClient.gameStream(date) {
+        return .run { [date = state.selectedDate, sportId = state.sportId] send in
+          for try await games in dbClient.gameStream(date, sportId) {
             let gameRows = games.map { ScoresRow.State(from: $0) }
-            let gameSections = Dictionary(grouping: gameRows, by: { $0.sport.name })
-              .map { sportName, mappedGameRows -> ScoresListSection.State in
-                ScoresListSection.State(name: sportName, scoreRows: IdentifiedArray(uniqueElements: mappedGameRows))
+            if sportId != nil {
+              if gameRows.isEmpty {
+                return await send(.scoreSections(sections: []))
               }
-              .sorted(by: { $0.name < $1.name })
-            await send(.scoreSections(sections: gameSections))
+              let scoresSections = ScoresListSection.State(name: date.formatted(Date.FormatStyle().weekday(.abbreviated).month(.abbreviated).day(.defaultDigits)), scoreRows: IdentifiedArray(uniqueElements: gameRows))
+              await send(.scoreSections(sections: [scoresSections]))
+            } else {
+              let gameSections = Dictionary(grouping: gameRows, by: { $0.sport.name })
+                .map { sportName, mappedGameRows -> ScoresListSection.State in
+                  ScoresListSection.State(name: sportName, scoreRows: IdentifiedArray(uniqueElements: mappedGameRows))
+                }
+                .sorted(by: { $0.name < $1.name })
+              await send(.scoreSections(sections: gameSections))
+            }
           }
         } catch: { error, _ in
           print("Error Syncing Games \(error)")
         }
+
       case .scoreSections(let scores):
         if scores.isEmpty {
           state.loadingState = .empty("No games today!")
@@ -108,7 +119,7 @@ public struct ScoresListView: View {
 //    .emptyPlaceholder(loadingState: viewStore.loadingState)
     .overlay(content: {
       Group {
-        switch (viewStore.loadingState) {
+        switch viewStore.loadingState {
         case .loading:
           ProgressView()
         case .empty(let text):

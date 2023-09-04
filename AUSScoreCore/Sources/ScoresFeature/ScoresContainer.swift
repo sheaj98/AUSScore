@@ -1,28 +1,30 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AppCommon
+import AppNotificationsClient
 import ComposableArchitecture
 import DatabaseClient
 import Models
 import SwiftUI
-import AppNotificationsClient
 
 // MARK: - ScoresFeature
 
 public struct ScoresFeature: Reducer {
   // MARK: Lifecycle
 
-  public init() { }
+  public init() {}
 
   // MARK: Public
 
   public struct State: Equatable {
     public var datesWithGames: IdentifiedArrayOf<ScoresList.State>
     public var selectedIndex: Int
+    public var sportId: Int64?
 
-    public init(datesWithGames: IdentifiedArrayOf<ScoresList.State> = [], selectedIndex: Int = 0) {
+    public init(datesWithGames: IdentifiedArrayOf<ScoresList.State> = [], selectedIndex: Int = 0, sportId: Int64? = nil) {
       self.datesWithGames = datesWithGames
       self.selectedIndex = selectedIndex
+      self.sportId = sportId
     }
   }
 
@@ -43,9 +45,9 @@ public struct ScoresFeature: Reducer {
       switch action {
       case .selected(let index):
         state.selectedIndex = index
-       return .none
+        return .none
       case .task:
-        return .run { send in
+        return .run { [sportId = state.sportId] send in
           await withThrowingTaskGroup(of: Void.self, body: { group in
             group.addTask {
               for await _ in appNotificationsClient.didChangeDay() {
@@ -54,19 +56,19 @@ public struct ScoresFeature: Reducer {
             }
             group.addTask {
               await send(.dateWithGamesResponse(TaskResult {
-                return try await refreshDatesWithGames()
+                try await refreshDatesWithGames(sportId: sportId)
               }))
             }
           })
         }
       case .dayDidChange:
-        return .run { send in
+        return .run { [sportId = state.sportId] send in
           await send(.dateWithGamesResponse(TaskResult {
-            return try await refreshDatesWithGames()
+            try await refreshDatesWithGames(sportId: sportId)
           }))
         }
       case .dateWithGamesResponse(.success(let dates)):
-        let todayIndex = dates.firstIndex(where: { Calendar.current.isDateInToday($0.selectedDate)}) ?? 0
+        let todayIndex = dates.firstIndex(where: { Calendar.current.isDateInToday($0.selectedDate) }) ?? 0
         state.selectedIndex = todayIndex
         state.datesWithGames = IdentifiedArray(uniqueElements: dates)
         return .none
@@ -85,15 +87,15 @@ public struct ScoresFeature: Reducer {
 
   @Dependency(\.databaseClient) var dbClient
   @Dependency(\.appNotificationsClient) var appNotificationsClient
-  
-  private func refreshDatesWithGames() async throws -> [ScoresList.State] {
-    var dates = try await dbClient.datesWithGames()
-    if (!dates.contains(where: { Calendar.current.isDateInToday($0) })) {
+
+  private func refreshDatesWithGames(sportId: Int64?) async throws -> [ScoresList.State] {
+    var dates = try await dbClient.datesWithGames(sportId)
+    if !dates.contains(where: { Calendar.current.isDateInToday($0) }) {
       dates.append(.now.startOfDay)
       dates = dates.sorted(by: { $0 < $1 })
     }
     return dates.enumerated().map { index, selectedDate -> ScoresList.State in
-      ScoresList.State(selectedDate: selectedDate, index: index)
+      ScoresList.State(selectedDate: selectedDate, index: index, sportId: sportId)
     }
   }
 }
@@ -123,9 +125,10 @@ public struct ScoresContainer: View {
 
       TabView(selection: viewStore.binding(get: \.selectedIndex, send: ScoresFeature.Action.selected)) {
         ForEachStore(
-          self.store.scope(state: \.datesWithGames, action: ScoresFeature.Action.scoresList(id:action:))) { store in
-            ScoresListView(store: store)
-          }
+          self.store.scope(state: \.datesWithGames, action: ScoresFeature.Action.scoresList(id:action:)))
+        { store in
+          ScoresListView(store: store)
+        }
       }
       .tabViewStyle(.page(indexDisplayMode: .never))
       .background(Color.black)
