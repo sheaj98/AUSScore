@@ -25,6 +25,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     initialState: AppReducer.State()) {
       AppReducer()
     }
+  
+  var deviceOrientation = UIInterfaceOrientationMask.portrait
+  
+  func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+    return deviceOrientation
+  }
 
   lazy var viewStore = ViewStore(store, observe: { _ in () },
     removeDuplicates: ==)
