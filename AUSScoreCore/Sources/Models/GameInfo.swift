@@ -42,7 +42,7 @@ public extension GameInfo {
                    startTime: Date = .now,
                    status: GameStatus = .upcoming,
                    sport: Sport = .mock(),
-                   gameResults: [GameResultInfo] = [.mock(score: 12, isHome: true, gameId: "game1"), .mock(score: 32, isHome: false, gameId: "game1")]) -> Self
+                   gameResults: [GameResultInfo] = [.mock(score: 12, isHome: true, team: .mock(id: 12, school: .unbMock(), sport: .mock()), gameId: "game1"), .mock(score: 32, isHome: false, gameId: "game1")]) -> Self
   {
     return .init(id: id, startTime: startTime, status: status, currentTime: nil, sport: sport, gameResults: gameResults)
   }
