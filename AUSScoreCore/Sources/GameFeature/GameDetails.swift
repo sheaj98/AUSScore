@@ -91,7 +91,7 @@ public struct GameDetailsView: View {
   
   public var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text(viewStore.timeString).font(.subheadline)
+      Text(viewStore.timeString).font(.system(size: 14))
       Grid(verticalSpacing: 12) {
         GridRow {
           TeamRowView(teamResult: viewStore.homeTeamResult)
@@ -106,6 +106,8 @@ public struct GameDetailsView: View {
       Spacer()
     }.padding()
       .navigationTitle("\(self.viewStore.awayTeamResult.team.school.displayName) @ \(self.viewStore.homeTeamResult.team.school.displayName)")
+      .toolbarBackground(Color(uiColor: .secondarySystemBackground), for: .navigationBar)
+      .toolbarBackground(.visible, for: .navigationBar)
   }
 }
 
@@ -132,7 +134,7 @@ public struct TeamRowView: View {
             .frame(width: 50, height: 50)
         } else {
           Image(systemName: "sportscourt.circle")
-            .font(.system(size: 45))
+            .font(.system(size: 40))
             .foregroundColor(.primary)
         }
         VStack(alignment: .leading) {
@@ -154,7 +156,9 @@ public struct TeamRowView: View {
 #if DEBUG
 struct ScoresRowView_Previews: PreviewProvider {
   static var previews: some View {
-    GameDetailsView(store: .items)
+    
+      GameDetailsView(store: .items)
+    
   }
 }
 extension Store where State == GameDetails.State, Action == GameDetails.Action {
