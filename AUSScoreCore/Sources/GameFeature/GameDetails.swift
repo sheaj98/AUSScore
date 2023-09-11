@@ -17,28 +17,6 @@ public struct GameDetails: Reducer {
   public struct State: Equatable, Identifiable {
     // MARK: Lifecycle
     
-
-    public init(
-      id: String,
-      startTime: Date,
-      status: GameStatus,
-      currentTime: String?,
-      sport: Sport,
-      isExhibition: Bool = false,
-      is4PointGame: Bool = false,
-      gameResults: [GameResultInfo])
-    {
-      self.id = id
-      self.startTime = startTime
-      self.status = status
-      self.currentTime = currentTime
-      self.sport = sport
-      self.isExhibition = isExhibition
-      self.is4PointGame = is4PointGame
-      homeTeamResult = gameResults.first(where: { $0.isHome })!
-      awayTeamResult = gameResults.first(where: { !$0.isHome })!
-    }
-
     public init(from gameInfo: GameInfo) {
       id = gameInfo.id
       startTime = gameInfo.startTime
@@ -49,6 +27,18 @@ public struct GameDetails: Reducer {
       is4PointGame = gameInfo.is4PointGame
       homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? gameInfo.gameResults.first!
       awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? gameInfo.gameResults.first!
+    }
+    
+    public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sport: Sport, isExhibition: Bool, is4PointGame: Bool, homeTeamResult: GameResultInfo, awayTeamResult: GameResultInfo) {
+      self.id = id
+      self.startTime = startTime
+      self.status = status
+      self.currentTime = currentTime
+      self.sport = sport
+      self.isExhibition = isExhibition
+      self.is4PointGame = is4PointGame
+      self.homeTeamResult = homeTeamResult
+      self.awayTeamResult = awayTeamResult
     }
 
     // MARK: Public
@@ -115,6 +105,7 @@ public struct GameDetailsView: View {
       KeyValueView(key: "Location", value: "StFX Antigonish, NS")
       Spacer()
     }.padding()
+      .navigationTitle("\(self.viewStore.awayTeamResult.team.school.displayName) @ \(self.viewStore.homeTeamResult.team.school.displayName)")
   }
 }
 
@@ -141,7 +132,7 @@ public struct TeamRowView: View {
             .frame(width: 50, height: 50)
         } else {
           Image(systemName: "sportscourt.circle")
-            .font(.system(size: 50))
+            .font(.system(size: 45))
             .foregroundColor(.primary)
         }
         VStack(alignment: .leading) {

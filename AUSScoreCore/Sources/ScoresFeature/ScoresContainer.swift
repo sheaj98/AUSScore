@@ -15,28 +15,10 @@ public struct ScoresFeature: Reducer {
 
   public init() {}
 
-  // MARK: Public
-  public struct Path: Reducer {
-    public enum State: Equatable {
-      case gameDetails(GameDetails.State)
-    }
-
-    public enum Action: Equatable {
-      case gameDetails(GameDetails.Action)
-    }
-
-    public var body: some ReducerOf<Self> {
-      Scope(state: /State.gameDetails, action: /Action.gameDetails) {
-        GameDetails()
-      }
-    }
-  }
-
   public struct State: Equatable {
     public var datesWithGames: IdentifiedArrayOf<ScoresList.State>
     public var selectedIndex: Int
     public var sportId: Int64?
-    public var path = StackState<Path.State>()
 
     public init(datesWithGames: IdentifiedArrayOf<ScoresList.State> = [], selectedIndex: Int = 0, sportId: Int64? = nil) {
       self.datesWithGames = datesWithGames
@@ -55,7 +37,6 @@ public struct ScoresFeature: Reducer {
     case task
     case dateWithGamesResponse(TaskResult<[ScoresList.State]>)
     case dayDidChange
-    case path(StackAction<Path.State, Path.Action>)
   }
 
   public var body: some Reducer<State, Action> {
@@ -95,14 +76,9 @@ public struct ScoresFeature: Reducer {
         return .none
       case .scoresList:
         return .none
-      default:
-        return .none
       }
     }.forEach(\.datesWithGames, action: /Action.scoresList(id:action:)) {
       ScoresList()
-    }
-    .forEach(\.path, action: /Action.path) {
-      Path()
     }
   }
 

@@ -4,6 +4,7 @@ import ComposableArchitecture
 import Models
 import NukeUI
 import SwiftUI
+import GameFeature
 
 // MARK: - ScoresRow
 
@@ -71,7 +72,7 @@ public struct ScoresRow: Reducer {
   }
 
   public enum Action: Equatable {
-    case tapped
+    case tapped(GameInfo)
   }
 
   public var body: some Reducer<State, Action> {
@@ -124,25 +125,28 @@ struct ScoresRowView: View {
   @ObservedObject var viewStore: ViewStoreOf<ScoresRow>
 
   var body: some View {
-    Grid(verticalSpacing: 8) {
-      GridRow {
-        TeamRowView(teamResult: viewStore.homeTeamResult)
-        Text(viewStore.timeString)
-          .gridColumnAlignment(.trailing)
-          .frame(width: 100, alignment: .trailing)
-      }
-
-      GridRow {
-        TeamRowView(teamResult: viewStore.awayTeamResult)
-      }
-      if (viewStore.isExhibition) {
+      Grid(verticalSpacing: 8) {
         GridRow {
-          Text("Exhibition").font(.caption).foregroundColor(Color(uiColor: .lightGray))
-            .gridColumnAlignment(.leading)
-            .padding(.top, 4)
+          TeamRowView(teamResult: viewStore.homeTeamResult)
+          Text(viewStore.timeString)
+            .gridColumnAlignment(.trailing)
+            .frame(width: 100, alignment: .trailing)
         }
+
+        GridRow {
+          TeamRowView(teamResult: viewStore.awayTeamResult)
+        }
+        if (viewStore.isExhibition) {
+          GridRow {
+            Text("Exhibition").font(.caption).foregroundColor(Color(uiColor: .lightGray))
+              .gridColumnAlignment(.leading)
+              .padding(.top, 4)
+          }
+        }
+      }.padding(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
+      .onTapGesture {
+        viewStore.send(.tapped(GameInfo.init(id: viewStore.id, startTime: viewStore.startTime, status: viewStore.status, currentTime: viewStore.currentTime, sport: viewStore.sport, gameResults: [viewStore.homeTeamResult, viewStore.awayTeamResult])))
       }
-    }.padding(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
   }
 
   // MARK: Private

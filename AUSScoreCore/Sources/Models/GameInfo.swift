@@ -2,7 +2,7 @@
 
 import Foundation
 
-public struct GameInfo: Decodable {
+public struct GameInfo: Decodable, Equatable {
   // MARK: Lifecycle
 
   public init(

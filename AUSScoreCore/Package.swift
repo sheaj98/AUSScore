@@ -79,7 +79,8 @@ let package = Package(
         "UserNotificationsClient",
         "Models",
         "UserIdentifier",
-        "SportsFeature"
+        "SportsFeature",
+        "GameFeature"
       ]),
     .target(
       name: "NewsFeature",
@@ -102,7 +103,7 @@ let package = Package(
         .product(name: "NukeUI", package: "Nuke"),
         "AppCommon",
         "AppNotificationsClient",
-        "GameFeature"
+        "GameFeature",
       ]),
     .target(
       name: "Models",
