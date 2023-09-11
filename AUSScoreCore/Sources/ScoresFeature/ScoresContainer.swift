@@ -6,6 +6,7 @@ import ComposableArchitecture
 import DatabaseClient
 import Models
 import SwiftUI
+import GameFeature
 
 // MARK: - ScoresFeature
 
@@ -13,8 +14,6 @@ public struct ScoresFeature: Reducer {
   // MARK: Lifecycle
 
   public init() {}
-
-  // MARK: Public
 
   public struct State: Equatable {
     public var datesWithGames: IdentifiedArrayOf<ScoresList.State>
