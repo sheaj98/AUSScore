@@ -1,10 +1,10 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import ComposableArchitecture
+import GameFeature
 import Models
 import NukeUI
 import SwiftUI
-import GameFeature
 
 // MARK: - ScoresRow
 
@@ -76,8 +76,12 @@ public struct ScoresRow: Reducer {
   }
 
   public var body: some Reducer<State, Action> {
-    Reduce { _, _ in
-      .none
+    Reduce { _, action in
+      switch action {
+      case .tapped(let gameInfo):
+        print(gameInfo)
+        return .none
+      }
     }
   }
 }
@@ -95,8 +99,8 @@ struct TeamRowView: View {
         LazyImage(url: url, resizingMode: .aspectFit)
       } else {
         Image(systemName: "sportscourt.circle")
-        .font(.system(size: 24))
-        .foregroundColor(.primary)
+          .font(.system(size: 24))
+          .foregroundColor(.primary)
       }
     }
     .fontWeight(.semibold)
@@ -125,6 +129,9 @@ struct ScoresRowView: View {
   @ObservedObject var viewStore: ViewStoreOf<ScoresRow>
 
   var body: some View {
+    Button {
+      viewStore.send(.tapped(GameInfo(id: viewStore.id, startTime: viewStore.startTime, status: viewStore.status, currentTime: viewStore.currentTime, sport: viewStore.sport, gameResults: [viewStore.homeTeamResult, viewStore.awayTeamResult])))
+    } label: {
       Grid(verticalSpacing: 8) {
         GridRow {
           TeamRowView(teamResult: viewStore.homeTeamResult)
@@ -136,7 +143,7 @@ struct ScoresRowView: View {
         GridRow {
           TeamRowView(teamResult: viewStore.awayTeamResult)
         }
-        if (viewStore.isExhibition) {
+        if viewStore.isExhibition {
           GridRow {
             Text("Exhibition").font(.caption).foregroundColor(Color(uiColor: .lightGray))
               .gridColumnAlignment(.leading)
@@ -144,9 +151,8 @@ struct ScoresRowView: View {
           }
         }
       }.padding(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
-      .onTapGesture {
-        viewStore.send(.tapped(GameInfo.init(id: viewStore.id, startTime: viewStore.startTime, status: viewStore.status, currentTime: viewStore.currentTime, sport: viewStore.sport, gameResults: [viewStore.homeTeamResult, viewStore.awayTeamResult])))
-      }
+    }
+    .foregroundStyle(.white)
   }
 
   // MARK: Private

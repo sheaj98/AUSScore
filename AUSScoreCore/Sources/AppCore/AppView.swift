@@ -18,8 +18,6 @@ public struct AppReducer: Reducer {
 
   // MARK: Public
 
-  // MARK: Public
-
   public struct Path: Reducer {
     public enum State: Equatable {
       case gameDetails(GameDetails.State)
@@ -48,6 +46,7 @@ public struct AppReducer: Reducer {
     public var tab: Tab
     public var appDelegate: AppDelegateReducer.State
     public var scoresPath = StackState<Path.State>()
+    public var leaguesPath = StackState<Path.State>()
 
     public init(news: NewsFeature.State = .init(), scores: ScoresFeature.State = .init(), sports: LeaguesList.State = .init(), tab: AppReducer.Tab = .news, appDelegate: AppDelegateReducer.State = .init()) {
       self.news = news
@@ -65,6 +64,7 @@ public struct AppReducer: Reducer {
     case selectedTab(Tab)
     case appDelegate(AppDelegateReducer.Action)
     case scoresPath(StackAction<Path.State, Path.Action>)
+    case leaguesPath(StackAction<Path.State, Path.Action>)
   }
 
   public enum Tab {
@@ -94,8 +94,14 @@ public struct AppReducer: Reducer {
       case .selectedTab(let tab):
         state.tab = tab
         return .none
-      case .scores(.scoresList(id: _, action: .gamesSection(id: _, action: .gamesRow(id: _, action: .tapped(let gameInfo))))):
+      case .sports(.delegate(.leagueRowTapped(let sport))):
+        state.leaguesPath.append(Path.State.league(League.State.init(sport: sport)))
+        return .none
+      case .scores(.delegate(.showGameDetails(let gameInfo))):
         state.scoresPath.append(Path.State.gameDetails(GameDetails.State(from: gameInfo)))
+        return .none
+      case .leaguesPath(.element(id: _, action: .league(.scores(.delegate(.showGameDetails(let gameInfo)))))):
+        state.leaguesPath.append(Path.State.gameDetails(GameDetails.State(from: gameInfo)))
         return .none
       case .scoresPath:
         return .none
@@ -104,6 +110,9 @@ public struct AppReducer: Reducer {
       }
     }
     .forEach(\.scoresPath, action: /Action.scoresPath) {
+      Path()
+    }
+    .forEach(\.leaguesPath, action: /Action.leaguesPath) {
       Path()
     }
 
@@ -161,9 +170,18 @@ public struct AppView: View {
         }
         .tag(AppReducer.Tab.scores)
 
-        NavigationView {
+        NavigationStackStore(self.store.scope(state: \.leaguesPath, action: { .leaguesPath($0) }), root: {
           LeaguesListView(store: store.scope(state: \.sports, action: AppReducer.Action.sports))
-        }
+        }, destination: { store in
+          SwitchStore(store) { initialState in
+            switch initialState {
+            case .gameDetails:
+              CaseLet(/AppReducer.Path.State.gameDetails, action: AppReducer.Path.Action.gameDetails, then: GameDetailsView.init(store:))
+            case .league:
+              CaseLet(/AppReducer.Path.State.league, action: AppReducer.Path.Action.league, then: LeagueView.init(store:))
+            }
+          }
+        })
         .tabItem {
           Label("Leagues", systemImage: "trophy")
         }

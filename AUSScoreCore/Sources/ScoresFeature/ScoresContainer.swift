@@ -32,11 +32,17 @@ public struct ScoresFeature: Reducer {
   }
 
   public enum Action: Equatable {
+    
+    public enum DelegateAction: Equatable {
+      case showGameDetails(GameInfo)
+    }
+    
     case selected(Int)
     case scoresList(id: ScoresList.State.ID, action: ScoresList.Action)
     case task
     case dateWithGamesResponse(TaskResult<[ScoresList.State]>)
     case dayDidChange
+    case delegate(DelegateAction)
   }
 
   public var body: some Reducer<State, Action> {
@@ -74,7 +80,9 @@ public struct ScoresFeature: Reducer {
       case .dateWithGamesResponse(.failure(let error)):
         print("Error fetch dates with games \(error)")
         return .none
-      case .scoresList:
+      case .scoresList(id: _, action: .gamesSection(id: _, action: .gamesRow(id: _, action: .tapped(let game)))):
+        return .send(.delegate(.showGameDetails(game)))
+      default:
         return .none
       }
     }.forEach(\.datesWithGames, action: /Action.scoresList(id:action:)) {

@@ -15,25 +15,8 @@ import SwiftUI
 public struct LeaguesList: Reducer {
   public init() {}
 
-  public struct Path: Reducer {
-    public enum State: Equatable {
-      case league(League.State)
-    }
-
-    public enum Action: Equatable {
-      case league(League.Action)
-    }
-
-    public var body: some ReducerOf<Self> {
-      Scope(state: /State.league, action: /Action.league) {
-        League()
-      }
-    }
-  }
-
   public struct State: Equatable {
     public var leagues: IdentifiedArrayOf<SportInfo>
-    public var path = StackState<Path.State>()
 
     public init(leagues: IdentifiedArrayOf<SportInfo> = []) {
       self.leagues = leagues
@@ -41,10 +24,13 @@ public struct LeaguesList: Reducer {
   }
 
   public enum Action: Equatable {
+    public enum DelegateAction: Equatable {
+      case leagueRowTapped(SportInfo)
+    }
+
     case task
     case leaguesResponse(TaskResult<[SportInfo]>)
-    case leagueRowTapped(id: League.State.ID)
-    case path(StackAction<Path.State, Path.Action>)
+    case delegate(DelegateAction)
   }
 
   public var body: some Reducer<State, Action> {
@@ -62,18 +48,9 @@ public struct LeaguesList: Reducer {
       case .leaguesResponse(.failure(let error)):
         print(error)
         return .none
-      case .leagueRowTapped(id: let leagueId):
-        guard let league = state.leagues[id: leagueId] else {
-          return .none
-        }
-        state.path.append(.league(.init(sport: league)))
-        return .none
       default:
         return .none
       }
-    }
-    .forEach(\.path, action: /Action.path) {
-      Path()
     }
   }
 
@@ -93,32 +70,29 @@ public struct LeaguesListView: View {
   @ObservedObject var viewStore: ViewStoreOf<LeaguesList>
 
   public var body: some View {
-    NavigationStackStore(self.store.scope(state: \.path, action: { .path($0) }), root: {
-      VStack(spacing: 0) {
-        Text("Leagues")
-          .font(.headline)
-        List {
-          ForEach(viewStore.leagues) { league in
-            NavigationLink(state: LeaguesList.Path.State.league(.init(sport: league)), label: {
+    VStack(spacing: 0) {
+      Text("Leagues")
+        .font(.headline)
+      List {
+        ForEach(viewStore.leagues) { league in
+          Button(action: {
+            viewStore.send(.delegate(.leagueRowTapped(league)))
+          }) {
+            HStack {
               LeaguesListRowView(league: league)
-            })
-            .listRowBackground(Color(.secondarySystemBackground))
+              Spacer()
+              Image(systemName: "chevron.right")
+            }
+            .padding(6)
+              
           }
+          .listRowBackground(Color(.secondarySystemBackground))
         }
-        .listStyle(.inset)
-        .scrollContentBackground(.hidden)
       }
-      .background(Color(.secondarySystemBackground))
-    }, destination: { state in
-      switch state {
-      case .league:
-        CaseLet(
-          /LeaguesList.Path.State.league,
-          action: LeaguesList.Path.Action.league,
-          then: LeagueView.init(store:)
-        )
-      }
-    })
+      .listStyle(.inset)
+      .scrollContentBackground(.hidden)
+    }
+    .background(Color(.secondarySystemBackground))
 
     .onLoad {
       viewStore.send(.task)

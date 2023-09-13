@@ -70,7 +70,7 @@ public struct League: Reducer {
   }
 }
 
-struct LeagueView: View {
+public struct LeagueView: View {
   private let store: StoreOf<League>
   
   @Environment(\.dismiss) var dismiss
@@ -84,7 +84,7 @@ struct LeagueView: View {
 
   @ObservedObject var viewStore: ViewStoreOf<League>
   
-    var body: some View {
+    public var body: some View {
       SimplePageHeader(
         selected: viewStore.binding(
           get: \.selectedView,
@@ -101,6 +101,7 @@ struct LeagueView: View {
         
         ScoresContainer(store: self.store.scope(state: \.scores, action: League.Action.scores))
           .tag(1)
+          .padding(.top, -16)
         Text("Standings")
           .tag(2)
       }
