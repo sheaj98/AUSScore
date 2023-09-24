@@ -38,7 +38,7 @@ let package = Package(
     .library(name: "UserNotificationsClient", targets: ["UserNotificationsClient"]),
     .library(name: "UserIdentifier", targets: ["UserIdentifier"]),
     .library(name: "AppNotificationsClient", targets: ["AppNotificationsClient"]),
-    .library(name: "SportsFeature", targets: ["SportsFeature"]),
+    .library(name: "LeaguesFeature", targets: ["LeaguesFeature"]),
     .library(name: "GameFeature", targets: ["GameFeature"])
   ],
   dependencies: [
@@ -79,7 +79,7 @@ let package = Package(
         "UserNotificationsClient",
         "Models",
         "UserIdentifier",
-        "SportsFeature",
+        "LeaguesFeature",
         "GameFeature"
       ]),
     .target(
@@ -138,7 +138,7 @@ let package = Package(
     .target(name: "AppNotificationsClient", dependencies: [
       .product(name: "Dependencies", package: "swift-dependencies")
     ]),
-    .target(name: "SportsFeature", dependencies: [
+    .target(name: "LeaguesFeature", dependencies: [
       "Models",
       "DatabaseClient",
       "DatabaseClientLive",
@@ -152,6 +152,7 @@ let package = Package(
       "DatabaseClient",
       "AppCommon",
       .product(name: "NukeUI", package: "Nuke"),
-      .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+      .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      .product(name: "Dependencies", package: "swift-dependencies")
     ])
   ])

@@ -263,7 +263,7 @@ extension DatabaseClient: DependencyKey {
           return Array(Set(startOfDays)).sorted(by: { $0 < $1 })
         }
       },
-      gameStream: { date, sportId in
+      gamesStream: { date, sportId in
         gamesDidChange
           .prepend(())
           .map { [dbWriter] in
@@ -316,7 +316,33 @@ extension DatabaseClient: DependencyKey {
             }
           }
         }
-      })
+      },
+      gameStream: { gameId in
+        gamesDidChange
+          .prepend(())
+          .map { [dbWriter] in
+            dbWriter.readPublisher { db in
+
+              let query = Game
+                .including(
+                  all: Game.gameResults
+                    .including(
+                      required: GameResult.team
+                        .including(required: Team.school)
+                        .including(required: Team.sport)))
+                .including(required: Game.sport)
+                .filter(Column("id") == gameId)
+                .asRequest(of: GameInfo.self)
+
+              return try query.fetchOne(db)!
+            }
+          }
+          .switchToLatest()
+          .eraseToAnyPublisher()
+          .values
+          .eraseToThrowingStream()
+      }
+    )
   }
 
   // MARK: Private

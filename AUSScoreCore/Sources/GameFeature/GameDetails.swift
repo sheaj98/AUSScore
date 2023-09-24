@@ -9,6 +9,8 @@ import Models
 import ComposableArchitecture
 import NukeUI
 import SwiftUI
+import Dependencies
+import DatabaseClient
 
 public struct GameDetails: Reducer {
   
@@ -45,13 +47,13 @@ public struct GameDetails: Reducer {
 
     public let id: String
     public let startTime: Date
-    public let status: GameStatus
-    public let currentTime: String?
+    public var status: GameStatus
+    public var currentTime: String?
     public let sport: Sport
     public let isExhibition: Bool
     public let is4PointGame: Bool
-    public let homeTeamResult: GameResultInfo
-    public let awayTeamResult: GameResultInfo
+    public var homeTeamResult: GameResultInfo
+    public var awayTeamResult: GameResultInfo
 
     public var timeString: String {
       switch status {
@@ -69,13 +71,30 @@ public struct GameDetails: Reducer {
 
   public enum Action: Equatable {
     case tapped
+    case task
+    case gameDetails(GameInfo)
   }
 
   public var body: some Reducer<State, Action> {
-    Reduce { _, _ in
-      .none
+    Reduce { state, action in
+      switch action {
+      case .task:
+        return .run { [id = state.id] send in
+          for try await game in dbClient.gameStream(id) {
+            await send(.gameDetails(game))
+          }
+        }
+      case .gameDetails(let gameInfo):
+        state.currentTime = gameInfo.currentTime
+        state.homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? gameInfo.gameResults.first!
+        state.awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? gameInfo.gameResults.first!
+        return .none
+      default:
+        return .none
+      }
     }
   }
+  @Dependency(\.databaseClient) var dbClient
 }
 
 public struct GameDetailsView: View {
@@ -108,6 +127,7 @@ public struct GameDetailsView: View {
       .navigationTitle("\(self.viewStore.awayTeamResult.team.school.displayName) @ \(self.viewStore.homeTeamResult.team.school.displayName)")
       .toolbarBackground(Color(uiColor: .secondarySystemBackground), for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
+      .toolbarRole(.editor)
   }
 }
 
@@ -129,14 +149,16 @@ public struct TeamRowView: View {
   public var body: some View {
     HStack {
       HStack {
-        if let url = teamResult.team.school.logo {
-          LazyImage(url: url, resizingMode: .aspectFit)
-            .frame(width: 50, height: 50)
-        } else {
-          Image(systemName: "sportscourt.circle")
-            .font(.system(size: 40))
-            .foregroundColor(.primary)
-        }
+        Group {
+          if let url = teamResult.team.school.logo {
+            LazyImage(url: url, resizingMode: .aspectFit)
+          } else {
+            Image(systemName: "sportscourt.circle")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .foregroundColor(.primary)
+          }
+        }.frame(width: 50, height: 50)
         VStack(alignment: .leading) {
           Text(teamResult.team.school.displayName).font(.system(size: 24)).fontWeight(.regular)
           Text("0-0, 1st AUS (WIP)")
@@ -147,7 +169,7 @@ public struct TeamRowView: View {
 
       if let score = teamResult.score {
         Text(score.formatted())
-          .fontWeight(.semibold)
+          .fontWeight(teamResult.outcome == .win ? .medium : .light)
           .font(.system(size: 36))
       }
     }

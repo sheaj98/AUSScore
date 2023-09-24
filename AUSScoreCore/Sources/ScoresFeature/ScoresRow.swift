@@ -64,7 +64,7 @@ public struct ScoresRow: Reducer {
       case .complete:
         return "Final"
       case .inProgress:
-        return currentTime ?? "Upcoming"
+        return currentTime?.replacingOccurrences(of: "half", with: "") ?? "Upcoming"
       case .upcoming:
         return startTime.formatted(date: .omitted, time: .shortened)
       }
@@ -95,13 +95,16 @@ struct TeamRowView: View {
     Label {
       Text(teamResult.team.school.displayName)
     } icon: {
-      if let url = teamResult.team.school.logo {
-        LazyImage(url: url, resizingMode: .aspectFit)
-      } else {
-        Image(systemName: "sportscourt.circle")
-          .font(.system(size: 24))
-          .foregroundColor(.primary)
-      }
+      Group {
+        if let url = teamResult.team.school.logo {
+          LazyImage(url: url, resizingMode: .aspectFit)
+        } else {
+          Image(systemName: "sportscourt.circle")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(.primary)
+        }
+      }.frame(width: 26, height: 26)
     }
     .fontWeight(.semibold)
     .gridColumnAlignment(.leading)
@@ -132,7 +135,7 @@ struct ScoresRowView: View {
     Button {
       viewStore.send(.tapped(GameInfo(id: viewStore.id, startTime: viewStore.startTime, status: viewStore.status, currentTime: viewStore.currentTime, sport: viewStore.sport, gameResults: [viewStore.homeTeamResult, viewStore.awayTeamResult])))
     } label: {
-      Grid(verticalSpacing: 8) {
+      Grid(verticalSpacing: 12) {
         GridRow {
           TeamRowView(teamResult: viewStore.homeTeamResult)
           Text(viewStore.timeString)
@@ -150,7 +153,7 @@ struct ScoresRowView: View {
               .padding(.top, 4)
           }
         }
-      }.padding(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
+      }.padding(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
     }
     .foregroundStyle(.white)
   }

@@ -6,7 +6,7 @@ import Foundation
 import GameFeature
 import NewsFeature
 import ScoresFeature
-import SportsFeature
+import LeaguesFeature
 import SwiftUI
 
 // MARK: - AppReducer

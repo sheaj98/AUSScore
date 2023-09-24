@@ -47,7 +47,7 @@ public struct ScoresList: Reducer {
       switch action {
       case .task:
         return .run { [date = state.selectedDate, sportId = state.sportId] send in
-          for try await games in dbClient.gameStream(date, sportId) {
+          for try await games in dbClient.gamesStream(date, sportId) {
             let gameRows = games.map { ScoresRow.State(from: $0) }
             if sportId != nil {
               if gameRows.isEmpty {

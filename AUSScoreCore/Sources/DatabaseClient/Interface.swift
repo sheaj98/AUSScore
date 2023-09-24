@@ -23,8 +23,9 @@ public struct DatabaseClient {
     newsItemStream: @escaping @Sendable (Int64) -> AsyncThrowingStream<[NewsItem], Error>,
     gamesForDate: @escaping @Sendable (Date) async throws -> [GameInfo],
     datesWithGames: @escaping @Sendable (Int64?) async throws -> [Date],
-    gameStream: @escaping @Sendable (Date, Int64?) -> AsyncThrowingStream<[GameInfo], Error>,
-    syncNewsFeeds: @escaping @Sendable ([NewsFeed]) async throws -> Void
+    gamesStream: @escaping @Sendable (Date, Int64?) -> AsyncThrowingStream<[GameInfo], Error>,
+    syncNewsFeeds: @escaping @Sendable ([NewsFeed]) async throws -> Void,
+    gameStream: @escaping @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>
   ) {
     self.schools = schools
     self.syncSchools = syncSchools
@@ -38,8 +39,9 @@ public struct DatabaseClient {
     self.newsItemStream = newsItemStream
     self.gamesForDate = gamesForDate
     self.datesWithGames = datesWithGames
-    self.gameStream = gameStream
+    self.gamesStream = gamesStream
     self.syncNewsFeeds = syncNewsFeeds
+    self.gameStream = gameStream
   }
 
   // MARK: Public
@@ -56,8 +58,9 @@ public struct DatabaseClient {
   public var newsItemStream: @Sendable (Int64) -> AsyncThrowingStream<[NewsItem], Error>
   public var gamesForDate: @Sendable (Date) async throws -> [GameInfo]
   public var datesWithGames: @Sendable (Int64?) async throws -> [Date]
-  public var gameStream: @Sendable (Date, Int64?) -> AsyncThrowingStream<[GameInfo], Error>
+  public var gamesStream: @Sendable (Date, Int64?) -> AsyncThrowingStream<[GameInfo], Error>
   public var syncNewsFeeds: @Sendable ([NewsFeed]) async throws -> Void
+  public var gameStream: @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>
 }
 
 public extension DependencyValues {
