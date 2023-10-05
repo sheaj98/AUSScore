@@ -86,8 +86,8 @@ public struct GameDetails: Reducer {
         }
       case .gameDetails(let gameInfo):
         state.currentTime = gameInfo.currentTime
-        state.homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? gameInfo.gameResults.first!
-        state.awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? gameInfo.gameResults.first!
+        state.homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? .unknown(isHome: true, gameId: gameInfo.id)
+        state.awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? .unknown(isHome: true, gameId: gameInfo.id)
         return .none
       default:
         return .none

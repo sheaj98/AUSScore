@@ -29,4 +29,8 @@ public extension GameResultInfo {
   static func mock(score: Int?, outcome: TeamOutcome = .tbd, isHome: Bool, team: TeamInfo = .mock(id: 1, school: .stfxMock(), sport: .mock()), gameId: String) -> Self {
     return .init(score: score, outcome: outcome, isHome: isHome, team: team, gameId: gameId)
   }
+  
+  static func unknown(outcome: TeamOutcome = .tbd, isHome: Bool, team: TeamInfo = .init(id: 0, school: .init(id: 0, name: "Unknown", location: "Unknown", logo: nil, displayName: "Unknown"), sport: .mock()), gameId: String) -> Self {
+    return .init(score: nil, outcome: outcome, isHome: isHome, team: team, gameId: gameId)
+  }
 }

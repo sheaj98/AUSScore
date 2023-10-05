@@ -41,8 +41,8 @@ public struct ScoresRow: Reducer {
       sport = gameInfo.sport
       isExhibition = gameInfo.isExhibition
       is4PointGame = gameInfo.is4PointGame
-      homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? gameInfo.gameResults.first!
-      awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? gameInfo.gameResults.first!
+      homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? .unknown(isHome: true, gameId: gameInfo.id)
+      awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? .unknown(isHome: false, gameId: gameInfo.id)
     }
 
     // MARK: Public
