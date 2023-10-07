@@ -32,7 +32,7 @@ public struct GameInfo: Decodable, Equatable {
   public let status: GameStatus
   public let currentTime: String?
   public let sport: Sport
-  public let gameResults: [GameResultInfo]
+  public var gameResults: [GameResultInfo]
   public let isExhibition: Bool
   public let is4PointGame: Bool
 }

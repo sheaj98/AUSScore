@@ -333,8 +333,52 @@ extension DatabaseClient: DependencyKey {
                 .including(required: Game.sport)
                 .filter(Column("id") == gameId)
                 .asRequest(of: GameInfo.self)
+              
+              var game = try query.fetchOne(db)!
+              let team0Record = try GameResult.filter(Column("teamId") == game.gameResults[0].team.id)
+                .joining(required: GameResult.game.filter(Column("isExhibition") == false))
+                .fetchAll(db)
+                .reduce((0,0,0)) { partialResult, gameResult in
+                  let (wins, losses, draw) = partialResult
+                  switch gameResult.outcome {
+                  case .win:
+                    return (wins + 1, losses, draw)
+                  case .loss:
+                    return (wins, losses + 1, draw)
+                  case .draw:
+                    return (wins, losses, draw + 1)
+                  case .tbd:
+                    return (wins, losses, draw)
+                  }
+                  
+                }
+              
+              let team1Record = try GameResult.filter(Column("teamId") == game.gameResults[1].team.id)
+                .joining(required: GameResult.game.filter(Column("isExhibition") == false))
+                .fetchAll(db)
+                .reduce((0,0,0)) { partialResult, gameResult in
+                  let (wins, losses, draw) = partialResult
+                  switch gameResult.outcome {
+                  case .win:
+                    return (wins + 1, losses, draw)
+                  case .loss:
+                    return (wins, losses + 1, draw)
+                  case .draw:
+                    return (wins, losses, draw + 1)
+                  case .tbd:
+                    return (wins, losses, draw)
+                  }
+                  
+                }
+              
+              if !game.isExhibition {
+                game.gameResults[0].team.record = TeamInfo.GameRecord(wins: team0Record.0, losses: team0Record.1, draws: team0Record.2)
+                
+                game.gameResults[1].team.record = TeamInfo.GameRecord(wins: team1Record.0, losses: team1Record.1, draws: team1Record.2)
+              }
 
-              return try query.fetchOne(db)!
+              
+              return game
             }
           }
           .switchToLatest()

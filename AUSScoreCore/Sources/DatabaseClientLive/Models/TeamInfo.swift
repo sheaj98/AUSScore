@@ -4,4 +4,5 @@ import Foundation
 import GRDB
 import Models
 
-extension TeamInfo: FetchableRecord { }
+extension TeamInfo: FetchableRecord {}
+

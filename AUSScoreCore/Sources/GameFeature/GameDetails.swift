@@ -128,6 +128,9 @@ public struct GameDetailsView: View {
       .toolbarBackground(Color(uiColor: .secondarySystemBackground), for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
       .toolbarRole(.editor)
+      .task {
+        viewStore.send(.task)
+      }
   }
 }
 
@@ -161,7 +164,9 @@ public struct TeamRowView: View {
         }.frame(width: 50, height: 50)
         VStack(alignment: .leading) {
           Text(teamResult.team.school.displayName).font(.system(size: 24)).fontWeight(.regular)
-          Text("0-0, 1st AUS (WIP)")
+          if let record = teamResult.team.record {
+            Text("\(record.wins)-\(record.losses)-\(record.draws)")
+          }
         }
       }
 
