@@ -414,6 +414,7 @@ extension DatabaseClient: DependencyKey {
         t.column("location", .text).notNull()
         t.column("logo", .text)
         t.column("displayName", .text).notNull()
+        t.column("isConference", .boolean).defaults(to: false)
       }
     }
 

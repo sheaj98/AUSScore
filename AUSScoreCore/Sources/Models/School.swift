@@ -5,18 +5,20 @@ import Foundation
 // MARK: - School
 
 public struct School: Equatable, Identifiable, Codable {
-  public var id: Int64
-  public var name: String
-  public var location: String
-  public var logo: URL?
-  public var displayName: String
+  public let id: Int64
+  public let name: String
+  public let location: String
+  public let logo: URL?
+  public let displayName: String
+  public let isConference: Bool
 
-  public init(id: Int64, name: String, location: String, logo: URL?, displayName: String) {
+  public init(id: Int64, name: String, location: String, logo: URL?, displayName: String, isConference: Bool) {
     self.id = id
     self.name = name
     self.location = location
     self.logo = logo
     self.displayName = displayName
+    self.isConference = isConference
   }
 }
 
@@ -28,7 +30,8 @@ extension School {
       location: "Antigonish, NS",
       logo: URL(
         string: "https://res.cloudinary.com/dwxvmohwq/image/upload/v1673652450/aus/stfx.png")!,
-      displayName: "StFX")
+      displayName: "StFX",
+    isConference: true)
   }
 
   public static func unbMock() -> Self {
@@ -38,6 +41,7 @@ extension School {
       location: "Fredericton, NB",
       logo: URL(
         string: "https://res.cloudinary.com/dwxvmohwq/image/upload/v1673652450/aus/unb.png")!,
-      displayName: "UNB")
+      displayName: "UNB",
+    isConference: true)
   }
 }

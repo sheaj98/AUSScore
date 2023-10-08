@@ -30,7 +30,7 @@ public extension GameResultInfo {
     return .init(score: score, outcome: outcome, isHome: isHome, team: team, gameId: gameId)
   }
   
-  static func unknown(outcome: TeamOutcome = .tbd, isHome: Bool, team: TeamInfo = .init(id: 0, school: .init(id: 0, name: "Unknown", location: "Unknown", logo: nil, displayName: "Unknown"), sport: .mock(), record: nil), gameId: String) -> Self {
+  static func unknown(outcome: TeamOutcome = .tbd, isHome: Bool, team: TeamInfo = .init(id: 0, school: .init(id: 0, name: "Unknown", location: "Unknown", logo: nil, displayName: "Unknown", isConference: false), sport: .mock(), record: nil), gameId: String) -> Self {
     return .init(score: nil, outcome: outcome, isHome: isHome, team: team, gameId: gameId)
   }
 }
