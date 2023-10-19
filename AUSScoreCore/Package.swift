@@ -39,7 +39,8 @@ let package = Package(
     .library(name: "UserIdentifier", targets: ["UserIdentifier"]),
     .library(name: "AppNotificationsClient", targets: ["AppNotificationsClient"]),
     .library(name: "LeaguesFeature", targets: ["LeaguesFeature"]),
-    .library(name: "GameFeature", targets: ["GameFeature"])
+    .library(name: "GameFeature", targets: ["GameFeature"]),
+    .library(name: "TeamFeature", targets: ["TeamFeature"])
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
@@ -80,7 +81,8 @@ let package = Package(
         "Models",
         "UserIdentifier",
         "LeaguesFeature",
-        "GameFeature"
+        "GameFeature",
+        "TeamFeature"
       ]),
     .target(
       name: "NewsFeature",
@@ -148,6 +150,14 @@ let package = Package(
       .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
     ]),
     .target(name: "GameFeature", dependencies: [
+      "Models",
+      "DatabaseClient",
+      "AppCommon",
+      .product(name: "NukeUI", package: "Nuke"),
+      .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      .product(name: "Dependencies", package: "swift-dependencies")
+    ]),
+    .target(name: "TeamFeature", dependencies: [
       "Models",
       "DatabaseClient",
       "AppCommon",

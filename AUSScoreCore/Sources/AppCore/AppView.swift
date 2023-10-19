@@ -7,6 +7,7 @@ import GameFeature
 import NewsFeature
 import ScoresFeature
 import LeaguesFeature
+import TeamFeature
 import SwiftUI
 
 // MARK: - AppReducer
@@ -22,11 +23,13 @@ public struct AppReducer: Reducer {
     public enum State: Equatable {
       case gameDetails(GameDetails.State)
       case league(League.State)
+      case team(TeamContainerReducer.State)
     }
 
     public enum Action: Equatable {
       case gameDetails(GameDetails.Action)
       case league(League.Action)
+      case team(TeamContainerReducer.Action)
     }
 
     public var body: some ReducerOf<Self> {
@@ -35,6 +38,9 @@ public struct AppReducer: Reducer {
       }
       Scope(state: /State.league, action: /Action.league) {
         League()
+      }
+      Scope(state: /State.team, action: /Action.team) {
+        TeamContainerReducer()
       }
     }
   }
@@ -103,7 +109,17 @@ public struct AppReducer: Reducer {
       case .leaguesPath(.element(id: _, action: .league(.scores(.delegate(.showGameDetails(let gameInfo)))))):
         state.leaguesPath.append(Path.State.gameDetails(GameDetails.State(from: gameInfo)))
         return .none
-      case .scoresPath:
+      case .leaguesPath(.element(id: _, action: .team(.delegate(.showGameDetails(let gameInfo))))):
+        state.leaguesPath.append(Path.State.gameDetails(GameDetails.State(from: gameInfo)))
+        return .none
+      case .leaguesPath(.element(id: _, action: .gameDetails(.delegate(.teamTapped(let team))))):
+        state.leaguesPath.append(Path.State.team(TeamContainerReducer.State(team: team)))
+        return .none
+      case .scoresPath(.element(id: _, action: .gameDetails(.delegate(.teamTapped(let team))))):
+        state.scoresPath.append(Path.State.team(TeamContainerReducer.State(team: team)))
+        return .none
+      case .scoresPath(.element(id: _, action: .team(.delegate(.showGameDetails(let game))))):
+        state.scoresPath.append(Path.State.gameDetails(GameDetails.State(from: game)))
         return .none
       default:
         return .none
@@ -162,7 +178,9 @@ public struct AppView: View {
             case .gameDetails:
               CaseLet(/AppReducer.Path.State.gameDetails, action: AppReducer.Path.Action.gameDetails, then: GameDetailsView.init(store:))
             case .league:
-              Text("League")
+              CaseLet(/AppReducer.Path.State.league, action: AppReducer.Path.Action.league, then: LeagueView.init(store:))
+            case .team:
+              CaseLet(/AppReducer.Path.State.team, action: AppReducer.Path.Action.team, then: TeamContainerView.init(store:))
             }
           }
         }).tabItem {
@@ -179,6 +197,8 @@ public struct AppView: View {
               CaseLet(/AppReducer.Path.State.gameDetails, action: AppReducer.Path.Action.gameDetails, then: GameDetailsView.init(store:))
             case .league:
               CaseLet(/AppReducer.Path.State.league, action: AppReducer.Path.Action.league, then: LeagueView.init(store:))
+            case .team:
+              CaseLet(/AppReducer.Path.State.team, action: AppReducer.Path.Action.team, then: TeamContainerView.init(store:))
             }
           }
         })

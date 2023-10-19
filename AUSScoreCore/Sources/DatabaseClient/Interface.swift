@@ -25,7 +25,8 @@ public struct DatabaseClient {
     datesWithGames: @escaping @Sendable (Int64?) async throws -> [Date],
     gamesStream: @escaping @Sendable (Date, Int64?) -> AsyncThrowingStream<[GameInfo], Error>,
     syncNewsFeeds: @escaping @Sendable ([NewsFeed]) async throws -> Void,
-    gameStream: @escaping @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>
+    gameStream: @escaping @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>,
+    gamesForTeam: @escaping @Sendable (Int64) async throws -> [GameInfo]
   ) {
     self.schools = schools
     self.syncSchools = syncSchools
@@ -42,6 +43,7 @@ public struct DatabaseClient {
     self.gamesStream = gamesStream
     self.syncNewsFeeds = syncNewsFeeds
     self.gameStream = gameStream
+    self.gamesForTeam = gamesForTeam
   }
 
   // MARK: Public
@@ -58,6 +60,7 @@ public struct DatabaseClient {
   public var newsItemStream: @Sendable (Int64) -> AsyncThrowingStream<[NewsItem], Error>
   public var gamesForDate: @Sendable (Date) async throws -> [GameInfo]
   public var datesWithGames: @Sendable (Int64?) async throws -> [Date]
+  public var gamesForTeam: @Sendable (Int64) async throws -> [GameInfo]
   public var gamesStream: @Sendable (Date, Int64?) -> AsyncThrowingStream<[GameInfo], Error>
   public var syncNewsFeeds: @Sendable ([NewsFeed]) async throws -> Void
   public var gameStream: @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>

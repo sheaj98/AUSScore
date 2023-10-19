@@ -70,9 +70,13 @@ public struct GameDetails: Reducer {
   }
 
   public enum Action: Equatable {
+    public enum DelegateAction: Equatable {
+      case teamTapped(TeamInfo)
+    }
     case tapped
     case task
     case gameDetails(GameInfo)
+    case delegate(DelegateAction)
   }
 
   public var body: some Reducer<State, Action> {
@@ -113,18 +117,37 @@ public struct GameDetailsView: View {
       Text(viewStore.timeString).font(.system(size: 14))
       Grid(verticalSpacing: 12) {
         GridRow {
-          TeamRowView(teamResult: viewStore.homeTeamResult)
+          Button(action: { viewStore.send(.delegate(.teamTapped(viewStore.homeTeamResult.team)))}) {
+            TeamRowView(teamResult: viewStore.homeTeamResult)
+          }
+          .disabled(!viewStore.homeTeamResult.team.school.isConference)
+          .foregroundStyle(.white)
         }
         GridRow {
-          TeamRowView(teamResult: viewStore.awayTeamResult)
+          Button(action: { viewStore.send(.delegate(.teamTapped(viewStore.awayTeamResult.team)))}) {
+            TeamRowView(teamResult: viewStore.awayTeamResult)
+          }
+          .disabled(!viewStore.awayTeamResult.team.school.isConference)
+          .foregroundStyle(.white)
         }
       }
       Divider()
       Text("Game Details").font(.title2)
+      KeyValueView(key: "Sport", value: viewStore.sport.name)
       KeyValueView(key: "Location", value: viewStore.homeTeamResult.team.school.location)
       Spacer()
     }.padding()
       .navigationTitle("\(self.viewStore.awayTeamResult.team.school.displayName) @ \(self.viewStore.homeTeamResult.team.school.displayName)")
+      .toolbar(content: {
+        ToolbarItem(placement: .principal) {
+          HStack {
+            if let icon = self.viewStore.sport.icon {
+              Image(systemName: icon)
+            }
+            Text("\(self.viewStore.awayTeamResult.team.school.displayName) @ \(self.viewStore.homeTeamResult.team.school.displayName)")
+          }
+        }
+      })
       .toolbarBackground(Color(uiColor: .secondarySystemBackground), for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
       .toolbarRole(.editor)
@@ -165,7 +188,7 @@ public struct TeamRowView: View {
         VStack(alignment: .leading) {
           Text(teamResult.team.school.displayName).font(.system(size: 24)).fontWeight(.regular)
           if let record = teamResult.team.record {
-            Text("\(record.wins)-\(record.losses)-\(record.draws)")
+            Text(String(describing: record))
           }
         }
       }

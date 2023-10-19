@@ -8,7 +8,7 @@ public struct TeamInfo: Decodable, Equatable {
   public let school: School
   public var record: GameRecord?
   
-  public struct GameRecord: Decodable, Equatable {
+  public struct GameRecord: Decodable, Equatable, CustomStringConvertible {
     public var wins: Int
     public var losses: Int
     public var draws: Int
@@ -16,6 +16,9 @@ public struct TeamInfo: Decodable, Equatable {
       self.wins = wins
       self.losses = losses
       self.draws = draws
+    }
+    public var description: String {
+      "\(wins)-\(losses)-\(draws)"
     }
   }
 

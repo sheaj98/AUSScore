@@ -263,6 +263,7 @@ extension DatabaseClient: DependencyKey {
           return Array(Set(startOfDays)).sorted(by: { $0 < $1 })
         }
       },
+
       gamesStream: { date, sportId in
         gamesDidChange
           .prepend(())
@@ -333,12 +334,12 @@ extension DatabaseClient: DependencyKey {
                 .including(required: Game.sport)
                 .filter(Column("id") == gameId)
                 .asRequest(of: GameInfo.self)
-              
+
               var game = try query.fetchOne(db)!
               let team0Record = try GameResult.filter(Column("teamId") == game.gameResults[0].team.id)
                 .joining(required: GameResult.game.filter(Column("isExhibition") == false))
                 .fetchAll(db)
-                .reduce((0,0,0)) { partialResult, gameResult in
+                .reduce((0, 0, 0)) { partialResult, gameResult in
                   let (wins, losses, draw) = partialResult
                   switch gameResult.outcome {
                   case .win:
@@ -350,13 +351,12 @@ extension DatabaseClient: DependencyKey {
                   case .tbd:
                     return (wins, losses, draw)
                   }
-                  
                 }
-              
+
               let team1Record = try GameResult.filter(Column("teamId") == game.gameResults[1].team.id)
                 .joining(required: GameResult.game.filter(Column("isExhibition") == false))
                 .fetchAll(db)
-                .reduce((0,0,0)) { partialResult, gameResult in
+                .reduce((0, 0, 0)) { partialResult, gameResult in
                   let (wins, losses, draw) = partialResult
                   switch gameResult.outcome {
                   case .win:
@@ -368,16 +368,12 @@ extension DatabaseClient: DependencyKey {
                   case .tbd:
                     return (wins, losses, draw)
                   }
-                  
                 }
-              
-              if !game.isExhibition {
-                game.gameResults[0].team.record = TeamInfo.GameRecord(wins: team0Record.0, losses: team0Record.1, draws: team0Record.2)
-                
-                game.gameResults[1].team.record = TeamInfo.GameRecord(wins: team1Record.0, losses: team1Record.1, draws: team1Record.2)
-              }
 
-              
+              game.gameResults[0].team.record = TeamInfo.GameRecord(wins: team0Record.0, losses: team0Record.1, draws: team0Record.2)
+
+              game.gameResults[1].team.record = TeamInfo.GameRecord(wins: team1Record.0, losses: team1Record.1, draws: team1Record.2)
+
               return game
             }
           }
@@ -385,8 +381,26 @@ extension DatabaseClient: DependencyKey {
           .eraseToAnyPublisher()
           .values
           .eraseToThrowingStream()
-      }
-    )
+      },
+      gamesForTeam: { teamId in
+        try await dbWriter.read { db in
+          let games = try Game
+            .order(Column("startTime").asc)
+            .including(
+              all: Game.gameResults
+                .including(
+                  required: GameResult.team
+                    .including(required: Team.school)
+                    .including(required: Team.sport)))
+            .including(required: Game.sport)
+            .asRequest(of: GameInfo.self)
+            .fetchAll(db)
+
+          return games.filter { game in
+            game.gameResults.contains { $0.team.id == teamId }
+          }
+        }
+      })
   }
 
   // MARK: Private

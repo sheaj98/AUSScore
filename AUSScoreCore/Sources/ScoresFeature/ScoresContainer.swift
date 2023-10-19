@@ -35,6 +35,8 @@ public struct ScoresFeature: Reducer {
     
     public enum DelegateAction: Equatable {
       case showGameDetails(GameInfo)
+      case leagueTapped(SportInfo)
+      case teamTapped(TeamInfo)
     }
     
     case selected(Int)
