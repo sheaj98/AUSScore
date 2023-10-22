@@ -10,13 +10,15 @@ public struct Sport: Identifiable, Codable, Equatable {
   public let gender: Gender
   public let icon: String?
   public let newsfeedID: Int
+  public let winValue: Int
 
-  public init(id: Int64, name: String, gender: Gender, icon: String?, newsfeedID: Int) {
+  public init(id: Int64, name: String, gender: Gender, icon: String?, newsfeedID: Int, winValue: Int = 2) {
     self.id = id
     self.name = name
     self.gender = gender
     self.icon = icon
     self.newsfeedID = newsfeedID
+    self.winValue = winValue
   }
 }
 

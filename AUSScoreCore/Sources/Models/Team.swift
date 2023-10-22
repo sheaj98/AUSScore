@@ -8,11 +8,13 @@ public struct Team: Identifiable, Codable, Equatable {
   public let id: Int64
   public let sportId: Int64
   public let schoolId: Int64
+  public let isConference: Bool
 
-  public init(id: Int64, sportId: Int64, schoolId: Int64) {
+  public init(id: Int64, sportId: Int64, schoolId: Int64, isConference: Bool = false) {
     self.id = id
     self.sportId = sportId
     self.schoolId = schoolId
+    self.isConference = isConference
   }
 }
 

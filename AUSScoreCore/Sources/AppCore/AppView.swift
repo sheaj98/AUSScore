@@ -115,6 +115,9 @@ public struct AppReducer: Reducer {
       case .leaguesPath(.element(id: _, action: .gameDetails(.delegate(.teamTapped(let team))))):
         state.leaguesPath.append(Path.State.team(TeamContainerReducer.State(team: team)))
         return .none
+      case .leaguesPath(.element(id: _, action: .league(.standings(.teamTapped(let teamInfo))))):
+        state.leaguesPath.append(Path.State.team(TeamContainerReducer.State(team: teamInfo)))
+        return .none
       case .scoresPath(.element(id: _, action: .gameDetails(.delegate(.teamTapped(let team))))):
         state.scoresPath.append(Path.State.team(TeamContainerReducer.State(team: team)))
         return .none

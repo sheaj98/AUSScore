@@ -2,11 +2,19 @@
 
 // MARK: - TeamInfo
 
-public struct TeamInfo: Decodable, Equatable {
+public struct TeamInfo: Decodable, Equatable, Identifiable
+{
   public let id: Int64
   public let sport: Sport
   public let school: School
   public var record: GameRecord?
+  public var isConference: Bool
+  public var points: Int? {
+    if let record = record {
+      return record.wins * sport.winValue + record.draws
+    }
+    return nil
+  }
   
   public struct GameRecord: Decodable, Equatable, CustomStringConvertible {
     public var wins: Int
@@ -21,11 +29,12 @@ public struct TeamInfo: Decodable, Equatable {
       "\(wins)-\(losses)-\(draws)"
     }
   }
-
-  public init(id: Int64, school: School, sport: Sport, record: GameRecord?) {
+  
+  public init(id: Int64, school: School, sport: Sport, record: GameRecord?, isConference: Bool = false) {
     self.id = id
     self.school = school
     self.sport = sport
+    self.isConference = isConference
     self.record = record
   }
 }

@@ -120,14 +120,14 @@ public struct GameDetailsView: View {
           Button(action: { viewStore.send(.delegate(.teamTapped(viewStore.homeTeamResult.team)))}) {
             TeamRowView(teamResult: viewStore.homeTeamResult)
           }
-          .disabled(!viewStore.homeTeamResult.team.school.isConference)
+          .disabled(!viewStore.homeTeamResult.team.isConference)
           .foregroundStyle(.white)
         }
         GridRow {
           Button(action: { viewStore.send(.delegate(.teamTapped(viewStore.awayTeamResult.team)))}) {
             TeamRowView(teamResult: viewStore.awayTeamResult)
           }
-          .disabled(!viewStore.awayTeamResult.team.school.isConference)
+          .disabled(!viewStore.awayTeamResult.team.isConference)
           .foregroundStyle(.white)
         }
       }

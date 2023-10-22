@@ -400,6 +400,40 @@ extension DatabaseClient: DependencyKey {
             game.gameResults.contains { $0.team.id == teamId }
           }
         }
+      },
+      teamsForSport: { sportId in
+        try await dbWriter.read { db in
+          var teams = try Team.all()
+            .filter(Column("sportId") == sportId)
+            .filter(Column("isConference") == true)
+            .including(required: Team.sport)
+            .including(required: Team.school)
+            .asRequest(of: TeamInfo.self)
+            .fetchAll(db)
+            .map { team in
+              var newTeam = team
+              let record = try GameResult.filter(Column("teamId") == team.id)
+                .joining(required: GameResult.game.filter(Column("isExhibition") == false))
+                .fetchAll(db)
+                .reduce((0, 0, 0)) { partialResult, gameResult in
+                  let (wins, losses, draw) = partialResult
+                  switch gameResult.outcome {
+                  case .win:
+                    return (wins + 1, losses, draw)
+                  case .loss:
+                    return (wins, losses + 1, draw)
+                  case .draw:
+                    return (wins, losses, draw + 1)
+                  case .tbd:
+                    return (wins, losses, draw)
+                  }
+                }
+              newTeam.record = TeamInfo.GameRecord(wins: record.0, losses: record.1, draws: record.2)
+              return newTeam
+            }
+          
+          return teams;
+        }
       })
   }
 
@@ -428,7 +462,6 @@ extension DatabaseClient: DependencyKey {
         t.column("location", .text).notNull()
         t.column("logo", .text)
         t.column("displayName", .text).notNull()
-        t.column("isConference", .boolean).defaults(to: false)
       }
     }
 
@@ -446,6 +479,7 @@ extension DatabaseClient: DependencyKey {
         t.column("name", .text).notNull()
         t.column("gender", .text).notNull()
         t.column("icon", .text)
+        t.column("winValue", .integer)
 
         t.column("newsFeedId", .integer)
           .notNull()
@@ -457,6 +491,7 @@ extension DatabaseClient: DependencyKey {
     migrator.registerMigration("createTeam") { db in
       try db.create(table: "team") { t in
         t.primaryKey("id", .integer)
+        t.column("isConference", .boolean).defaults(to: false)
         t.column("schoolId", .integer)
           .notNull()
           .indexed()

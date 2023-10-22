@@ -84,8 +84,6 @@ public struct TeamContainerView: View {
           }
           Text(self.viewStore.team.sport.name)
         }
-        
-        
 
         Spacer()
       }

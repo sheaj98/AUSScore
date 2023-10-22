@@ -26,12 +26,14 @@ public struct League: Reducer {
     public var selectedView: Int
     public var news: NewsList.State
     public var scores: ScoresFeature.State
+    public var standings: StandingsReducer.State
     
     public init(sport: SportInfo, selectedView: Int = 0) {
       self.sport = sport
       self.selectedView = selectedView
       self.news = .init(from: sport.newsFeed, index: 0)
       self.scores = ScoresFeature.State.init(sportId: sport.id)
+      self.standings = StandingsReducer.State(sportId: sport.id)
     }
     
     public var id: Sport.ID { self.sport.id }
@@ -42,6 +44,7 @@ public struct League: Reducer {
     case selected(tab: Int)
     case news(NewsList.Action)
     case scores(ScoresFeature.Action)
+    case standings(StandingsReducer.Action)
   }
   
   public var body: some Reducer<State, Action> {
@@ -52,6 +55,10 @@ public struct League: Reducer {
     
     Scope(state: \.scores, action: /Action.scores) {
       ScoresFeature()
+    }
+    
+    Scope(state: \.standings, action: /Action.standings) {
+      StandingsReducer()
     }
     
     Reduce { state, action in
@@ -102,7 +109,7 @@ public struct LeagueView: View {
         ScoresContainer(store: self.store.scope(state: \.scores, action: League.Action.scores))
           .tag(1)
           .padding(.top, -16)
-        Text("Standings")
+        StandingsView(store: self.store.scope(state: \.standings, action: League.Action.standings))
           .tag(2)
       }
       .tabViewStyle(.page(indexDisplayMode: .never))
