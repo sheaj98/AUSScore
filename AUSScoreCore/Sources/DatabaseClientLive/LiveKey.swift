@@ -337,7 +337,7 @@ extension DatabaseClient: DependencyKey {
 
               var game = try query.fetchOne(db)!
               let team0Record = try GameResult.filter(Column("teamId") == game.gameResults[0].team.id)
-                .joining(required: GameResult.game.filter(Column("isExhibition") == false))
+                .joining(required: GameResult.game.filter(Column("isExhibition") == false).filter(Column("isPlayoff") == false))
                 .fetchAll(db)
                 .reduce((0, 0, 0)) { partialResult, gameResult in
                   let (wins, losses, draw) = partialResult
@@ -354,7 +354,7 @@ extension DatabaseClient: DependencyKey {
                 }
 
               let team1Record = try GameResult.filter(Column("teamId") == game.gameResults[1].team.id)
-                .joining(required: GameResult.game.filter(Column("isExhibition") == false))
+                .joining(required: GameResult.game.filter(Column("isExhibition") == false).filter(Column("isPlayoff") == false))
                 .fetchAll(db)
                 .reduce((0, 0, 0)) { partialResult, gameResult in
                   let (wins, losses, draw) = partialResult
@@ -413,7 +413,7 @@ extension DatabaseClient: DependencyKey {
             .map { team in
               var newTeam = team
               let record = try GameResult.filter(Column("teamId") == team.id)
-                .joining(required: GameResult.game.filter(Column("isExhibition") == false))
+                .joining(required: GameResult.game.filter(Column("isExhibition") == false).filter(Column("isPlayoff") == false))
                 .fetchAll(db)
                 .reduce((0, 0, 0)) { partialResult, gameResult in
                   let (wins, losses, draw) = partialResult
@@ -518,6 +518,7 @@ extension DatabaseClient: DependencyKey {
         t.column("currentTime", .text)
         t.column("isExhibition", .boolean)
         t.column("is4PointGame", .boolean)
+        t.column("isPlayoff", .boolean)
 
         t.column("sportId", .integer)
           .notNull()

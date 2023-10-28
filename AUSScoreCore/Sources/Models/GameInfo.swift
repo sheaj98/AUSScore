@@ -13,6 +13,7 @@ public struct GameInfo: Decodable, Equatable, Identifiable {
     sport: Sport,
     isExhibition: Bool = false,
     is4PointGame: Bool = false,
+    isPlayoff: Bool = false,
     gameResults: [GameResultInfo])
   {
     self.id = id
@@ -23,6 +24,7 @@ public struct GameInfo: Decodable, Equatable, Identifiable {
     self.gameResults = gameResults
     self.isExhibition = isExhibition
     self.is4PointGame = is4PointGame
+    self.isPlayoff = isPlayoff
   }
 
   // MARK: Public
@@ -35,6 +37,7 @@ public struct GameInfo: Decodable, Equatable, Identifiable {
   public var gameResults: [GameResultInfo]
   public let isExhibition: Bool
   public let is4PointGame: Bool
+  public let isPlayoff: Bool
 }
 
 public extension GameInfo {
