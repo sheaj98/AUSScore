@@ -13,8 +13,9 @@ public struct Game: Identifiable, Equatable, Codable {
   public let isExhibition: Bool
   public let is4PointGame: Bool
   public let isPlayoff: Bool
+  public let description: String?
 
-  public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sportId: Int, isExhibition: Bool = false, is4PointGame: Bool = false, isPlayoff: Bool = false) {
+  public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sportId: Int, isExhibition: Bool = false, is4PointGame: Bool = false, isPlayoff: Bool = false, description: String? = nil) {
     self.id = id
     self.startTime = startTime
     self.status = status
@@ -23,6 +24,7 @@ public struct Game: Identifiable, Equatable, Codable {
     self.isExhibition = isExhibition
     self.is4PointGame = is4PointGame
     self.isPlayoff = isPlayoff
+    self.description = description
   }
 }
 

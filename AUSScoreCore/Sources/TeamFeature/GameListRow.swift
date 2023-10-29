@@ -137,7 +137,7 @@ struct GameRowView: View {
               .font(.caption).foregroundColor(Color(uiColor: .lightGray))
           }
           if gameInfo.isPlayoff {
-            Text("Playoff")
+            Text(gameInfo.description ?? "Playoff")
               .font(.caption).foregroundColor(Color(uiColor: .lightGray))
           }
         }

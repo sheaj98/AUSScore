@@ -21,6 +21,7 @@ public struct ScoresRow: Reducer {
       isExhibition: Bool = false,
       is4PointGame: Bool = false,
       isPlayoff: Bool = false,
+      description: String? = nil,
       gameResults: [GameResultInfo])
     {
       self.id = id
@@ -31,6 +32,7 @@ public struct ScoresRow: Reducer {
       self.isExhibition = isExhibition
       self.is4PointGame = is4PointGame
       self.isPlayoff = isPlayoff
+      self.description = description
       homeTeamResult = gameResults.first(where: { $0.isHome })!
       awayTeamResult = gameResults.first(where: { !$0.isHome })!
     }
@@ -44,6 +46,7 @@ public struct ScoresRow: Reducer {
       isExhibition = gameInfo.isExhibition
       is4PointGame = gameInfo.is4PointGame
       isPlayoff = gameInfo.isPlayoff
+      description = gameInfo.description
       homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? .unknown(isHome: true, gameId: gameInfo.id)
       awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? .unknown(isHome: false, gameId: gameInfo.id)
     }
@@ -58,6 +61,7 @@ public struct ScoresRow: Reducer {
     public let isExhibition: Bool
     public let is4PointGame: Bool
     public let isPlayoff: Bool
+    public let description: String?
     public let homeTeamResult: GameResultInfo
     public let awayTeamResult: GameResultInfo
 
@@ -159,7 +163,7 @@ struct ScoresRowView: View {
         }
         if viewStore.isPlayoff {
           GridRow {
-            Text("Playoff").font(.caption).foregroundColor(Color(uiColor: .lightGray))
+            Text(viewStore.description ?? "Playoff").font(.caption).foregroundColor(Color(uiColor: .lightGray))
               .gridColumnAlignment(.leading)
               .padding(.top, 4)
           }

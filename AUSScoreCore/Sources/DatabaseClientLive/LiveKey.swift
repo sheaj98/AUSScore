@@ -519,6 +519,7 @@ extension DatabaseClient: DependencyKey {
         t.column("isExhibition", .boolean)
         t.column("is4PointGame", .boolean)
         t.column("isPlayoff", .boolean)
+        t.column("description", .text)
 
         t.column("sportId", .integer)
           .notNull()
