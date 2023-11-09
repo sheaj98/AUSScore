@@ -74,6 +74,7 @@ public struct AppReducer: Reducer {
   }
 
   public enum Tab {
+    case favorites
     case news
     case scores
     case sports
@@ -164,6 +165,14 @@ public struct AppView: View {
         send: AppReducer.Action.selectedTab))
     {
       Group {
+        
+        Text("Favorites")
+          .tabItem({
+            Label("Favorites", systemImage: "star")
+          })
+          .tag(AppReducer.Tab.favorites)
+        
+        
         NewsContainer(store: store.scope(
           state: \.news,
           action: AppReducer.Action.news))

@@ -2,7 +2,7 @@
 
 // MARK: - TeamInfo
 
-public struct TeamInfo: Decodable, Equatable, Identifiable
+public struct TeamInfo: Codable, Equatable, Identifiable
 {
   public let id: Int64
   public let sport: Sport
@@ -16,7 +16,7 @@ public struct TeamInfo: Decodable, Equatable, Identifiable
     return nil
   }
   
-  public struct GameRecord: Decodable, Equatable, CustomStringConvertible {
+  public struct GameRecord: Codable, Equatable, CustomStringConvertible {
     public var wins: Int
     public var losses: Int
     public var draws: Int

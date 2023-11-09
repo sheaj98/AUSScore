@@ -22,6 +22,12 @@ extension DatabaseClient: TestDependencyKey {
     syncNewsFeeds: unimplemented("\(Self.self).syncNewsFeeds"),
     gameStream: unimplemented("\(Self.self).gameStream"),
     gamesForTeam: unimplemented("\(Self.self).gamesForTeam"),
-    teamsForSport: unimplemented("\(Self.self).teamsForSport")
+    teamsForSport: unimplemented("\(Self.self).teamsForSport"),
+    syncUser: unimplemented("\(Self.self).syncUser"),
+    userStream: unimplemented("\(Self.self).userStream"),
+    addFavoriteSport: unimplemented("\(Self.self).addFavoriteTeam"),
+    addFavoriteTeam: unimplemented("\(Self.self).addFavoriteTeam"),
+    deleteFavoriteSport: unimplemented("\(Self.self).deleteFavoriteTeam"),
+    deleteFavoriteTeam: unimplemented("\(Self.self).deleteFavoriteTeam")
   )
 }

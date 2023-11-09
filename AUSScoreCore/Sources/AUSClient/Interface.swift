@@ -19,7 +19,12 @@ public struct AUSClient {
     gamesBySportId: @escaping @Sendable (_ sportId: String) async throws -> [Game],
     bulkFetchGames: @escaping @Sendable (_ gamesBulkDto: GamesBulkDTO) async throws -> [Game],
     gameResults: @escaping @Sendable () async throws -> [GameResult],
-    upsertUser: @escaping @Sendable (_ userRequest: UserRequest) async throws -> Void)
+    upsertUser: @escaping @Sendable (_ userRequest: UserRequest) async throws -> UserResponse,
+    addFavoriteSport: @escaping @Sendable (_ body: AddFavoriteSportRequest, _ user: String) async throws -> Void,
+    addFavoriteTeam: @escaping @Sendable (_ body: AddFavoriteTeamRequest, _ user: String) async throws -> Void,
+    deleteFavoriteSport: @escaping @Sendable (_ sportId: Int64, _ user: String) async throws -> Void,
+    deleteFavoriteTeam: @escaping @Sendable (_ teamId: Int64, _ user: String) async throws -> Void
+  )
   {
     self.newsFeeds = newsFeeds
     self.newsItems = newsItems
@@ -31,6 +36,10 @@ public struct AUSClient {
     self.bulkFetchGames = bulkFetchGames
     self.gameResults = gameResults
     self.upsertUser = upsertUser
+    self.addFavoriteSport = addFavoriteSport
+    self.addFavoriteTeam = addFavoriteTeam
+    self.deleteFavoriteSport = deleteFavoriteSport
+    self.deleteFavoriteTeam = deleteFavoriteTeam
   }
 
   // MARK: Public
@@ -62,9 +71,13 @@ public struct AUSClient {
   
   // MARK: - User
   
-  public var upsertUser: @Sendable (_ user: UserRequest) async throws -> Void
+  public var upsertUser: @Sendable (_ user: UserRequest) async throws -> UserResponse
+  public var addFavoriteSport: @Sendable (_ body: AddFavoriteSportRequest , _ user: String) async throws -> Void
+  public var addFavoriteTeam: @Sendable (_ body: AddFavoriteTeamRequest, _ user: String) async throws -> Void
+  
+  public var deleteFavoriteSport: @Sendable (_ sportId: Int64, _ user: String) async throws -> Void
+  public var deleteFavoriteTeam: @Sendable (_ teamId: Int64, _ user: String) async throws -> Void
 }
-
 extension DependencyValues {
   public var ausClient: AUSClient {
     get { self[AUSClient.self] }

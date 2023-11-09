@@ -25,7 +25,8 @@ public struct SyncLogic: Reducer {
           let token = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
           do {
             let userId = try await userIdentifier.id()
-            try await ausClient.upsertUser(UserRequest(id: userId, deviceId: token))
+            let user = try await ausClient.upsertUser(UserRequest(id: userId, deviceId: token))
+            try await databaseClient.syncUser(user, token)
           } catch {
             print("Failed to update user or device \(error)")
           }

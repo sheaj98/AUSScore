@@ -61,9 +61,26 @@ extension AUSClient: DependencyKey {
         return try await client.send(request).value
       },
       upsertUser: { userRequest in
-        let request = Request(path: "users", method: .post, body: userRequest)
+        let request = Request<UserResponse>(path: "users", method: .post, body: userRequest)
         return try await client.send(request).value
-      })
+      },
+      addFavoriteSport: { body, userId in
+        let request = Request(path: "users/\(userId)/favorite_sports", method: .post, body: body)
+        try await client.send(request)
+      },
+      addFavoriteTeam: { body, userId in
+        let request = Request(path: "users/\(userId)/favorite_teams", method: .post, body: body)
+        try await client.send(request)
+      },
+      deleteFavoriteSport: { sportId, userId in
+        let request = Request(path: "/users/\(userId)/favorite_sports/\(sportId)", method: .delete)
+        try await client.send(request)
+      },
+      deleteFavoriteTeam: { teamId, userId in
+        let request = Request(path: "/users/\(userId)/favorite_teams/\(teamId)", method: .delete)
+        try await client.send(request)
+      }
+    )
   }
 }
 

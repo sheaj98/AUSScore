@@ -32,11 +32,18 @@ extension DatabaseClient: DependencyKey {
     let gamesDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: Game.all(), GameResult.all())
       .publisher(in: dbWriter)
       .map { _ in }
-      .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+      .debounce(for: .milliseconds(1000), scheduler: DispatchQueue.main)
       .share()
       .eraseToAnyPublisher()
 
     let newsItemsDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: NewsItem.all())
+      .publisher(in: dbWriter)
+      .map { _ in }
+      .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+      .share()
+      .eraseToAnyPublisher()
+
+    let favoritesDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: [FavoriteTeam.all(), FavoriteSport.all()])
       .publisher(in: dbWriter)
       .map { _ in }
       .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
@@ -403,7 +410,7 @@ extension DatabaseClient: DependencyKey {
       },
       teamsForSport: { sportId in
         try await dbWriter.read { db in
-          var teams = try Team.all()
+          let teams = try Team.all()
             .filter(Column("sportId") == sportId)
             .filter(Column("isConference") == true)
             .including(required: Team.sport)
@@ -431,10 +438,59 @@ extension DatabaseClient: DependencyKey {
               newTeam.record = TeamInfo.GameRecord(wins: record.0, losses: record.1, draws: record.2)
               return newTeam
             }
-          
-          return teams;
+
+          return teams
         }
-      })
+      }, syncUser: { user, deviceId in
+        try await dbWriter.write { db in
+          if let _ = try? User.find(db, key: user.id) {} else {
+            // Create the user if it doesn't exist
+            try User(id: user.id).insert(db, onConflict: .abort)
+          }
+          try Device(deviceId: deviceId, userId: user.id).insert(db, onConflict: .ignore)
+          try user.favoriteTeams.forEach { teamId in
+            try FavoriteTeam(userId: user.id, teamId: Int64(teamId)).insert(db, onConflict: .ignore)
+          }
+
+          try user.favoriteSports.forEach { sportId in
+            try FavoriteSport(userId: user.id, sportId: Int64(sportId)).insert(db, onConflict: .ignore)
+          }
+        }
+      },
+      userStream: {
+        favoritesDidChange
+          .prepend(())
+          .map { [dbWriter] in
+            dbWriter.readPublisher { db in
+              try User.including(all: User.favoriteSports.including(required: Sport.newsFeed).forKey("favoriteSports")).including(all: User.favoriteTeams.forKey("favoriteTeams")).asRequest(of: UserInfo.self).fetchOne(db)!
+            }
+          }
+          .switchToLatest()
+          .eraseToAnyPublisher()
+          .values
+          .eraseToThrowingStream()
+      },
+      addFavoriteSport: { sportId, userId in
+        try await dbWriter.write { db in
+          try FavoriteSport(userId: userId, sportId: sportId).insert(db)
+        }
+      },
+      addFavoriteTeam: { teamId, userId in
+        try await dbWriter.write { db in
+          try FavoriteTeam(userId: userId, teamId: teamId).insert(db)
+        }
+      },
+      deleteFavoriteSport: { sportId, userId in
+        try await dbWriter.write { db in
+          try FavoriteSport.deleteOne(db, key: ["userId": userId, "sportId": sportId])
+        }
+      },
+      deleteFavoriteTeam: { teamId, userId in
+        try await dbWriter.write { db in
+          try FavoriteTeam.deleteOne(db, key: ["userId": userId, "teamId": teamId])
+        }
+      }
+    )
   }
 
   // MARK: Private
@@ -525,6 +581,52 @@ extension DatabaseClient: DependencyKey {
           .notNull()
           .indexed()
           .references("sport", onDelete: .cascade)
+      }
+    }
+
+    migrator.registerMigration("createUser") { db in
+      try db.create(table: "user") { t in
+        t.primaryKey("id", .text)
+      }
+    }
+
+    migrator.registerMigration("createDevices") { db in
+      try db.create(table: "device") { t in
+        t.primaryKey("deviceId", .text)
+        t.column("userId", .text)
+          .notNull()
+          .indexed()
+          .references("user", onDelete: .cascade)
+      }
+    }
+
+    migrator.registerMigration("createFavoriteTeams") { db in
+      try db.create(table: "favoriteTeam") { t in
+        t.column("teamId", .integer)
+          .notNull()
+          .references("team", onDelete: .cascade)
+
+        t.column("userId", .text)
+          .notNull()
+          .indexed()
+          .references("user", onDelete: .cascade)
+        
+        t.primaryKey(["userId", "teamId"])
+      }
+    }
+
+    migrator.registerMigration("createFavoriteSports") { db in
+      try db.create(table: "favoriteSport") { t in
+        t.column("sportId", .integer)
+          .notNull()
+          .references("sport", onDelete: .cascade)
+
+        t.column("userId", .text)
+          .notNull()
+          .indexed()
+          .references("user", onDelete: .cascade)
+        
+        t.primaryKey(["userId", "sportId"])
       }
     }
 

@@ -27,7 +27,13 @@ public struct DatabaseClient {
     syncNewsFeeds: @escaping @Sendable ([NewsFeed]) async throws -> Void,
     gameStream: @escaping @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>,
     gamesForTeam: @escaping @Sendable (Int64) async throws -> [GameInfo],
-    teamsForSport: @escaping @Sendable (Int64) async throws -> [TeamInfo]
+    teamsForSport: @escaping @Sendable (Int64) async throws -> [TeamInfo],
+    syncUser: @escaping @Sendable (UserResponse, String) async throws -> Void,
+    userStream: @escaping @Sendable () -> AsyncThrowingStream<UserInfo, Error>,
+    addFavoriteSport: @escaping @Sendable (Int64, String) async throws -> Void,
+    addFavoriteTeam: @escaping @Sendable (Int64, String) async throws -> Void,
+    deleteFavoriteSport: @escaping @Sendable (Int64, String) async throws -> Bool,
+    deleteFavoriteTeam: @escaping @Sendable (Int64, String) async throws -> Bool
   ) {
     self.schools = schools
     self.syncSchools = syncSchools
@@ -46,6 +52,12 @@ public struct DatabaseClient {
     self.gameStream = gameStream
     self.gamesForTeam = gamesForTeam
     self.teamsForSport = teamsForSport
+    self.syncUser = syncUser
+    self.userStream = userStream
+    self.addFavoriteSport = addFavoriteSport
+    self.addFavoriteTeam = addFavoriteTeam
+    self.deleteFavoriteSport = deleteFavoriteSport
+    self.deleteFavoriteTeam = deleteFavoriteTeam
   }
 
   // MARK: Public
@@ -67,6 +79,12 @@ public struct DatabaseClient {
   public var syncNewsFeeds: @Sendable ([NewsFeed]) async throws -> Void
   public var gameStream: @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>
   public var teamsForSport: @Sendable (Int64) async throws -> [TeamInfo]
+  public var syncUser: @Sendable (UserResponse, String) async throws -> Void
+  public var userStream: @Sendable () -> AsyncThrowingStream<UserInfo, Error>
+  public var addFavoriteSport: @Sendable (Int64, String) async throws -> Void
+  public var addFavoriteTeam: @Sendable (Int64, String) async throws -> Void
+  public var deleteFavoriteSport: @Sendable (Int64, String) async throws -> Bool
+  public var deleteFavoriteTeam: @Sendable (Int64, String) async throws -> Bool
 }
 
 public extension DependencyValues {

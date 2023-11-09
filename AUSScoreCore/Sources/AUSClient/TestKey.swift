@@ -15,7 +15,12 @@ extension AUSClient: TestDependencyKey {
     gamesBySportId: unimplemented("\(Self.self).gamesBySportId"),
     bulkFetchGames: unimplemented("\(Self.self).bulkFetchGames"),
     gameResults: unimplemented("\(Self.self).gameResults"),
-    upsertUser: unimplemented("\(Self.self).upsertUser"))
+    upsertUser: unimplemented("\(Self.self).upsertUser"),
+    addFavoriteSport: unimplemented("\(Self.self).addFavoriteSport"),
+    addFavoriteTeam: unimplemented("\(Self.self).addFavoriteTeam"),
+    deleteFavoriteSport: unimplemented("\(Self.self).deleteFavoriteSport"),
+    deleteFavoriteTeam: unimplemented("\(Self.self).deleteFavoriteTeamm")
+  )
 
   public static let previewValue = Self(
     newsFeeds: { () in
@@ -46,6 +51,15 @@ extension AUSClient: TestDependencyKey {
       [.mock(teamId: 12, gameId: "abc", isHome: true), .mock(teamId: 13, gameId: "abc123", isHome: false)]
     },
     upsertUser: { _ in
-        return
-    })
+      .init(id: "123")
+    },
+    addFavoriteSport: { _, _ in
+    },
+    addFavoriteTeam: { _, _ in
+    },
+    deleteFavoriteSport: { _, _ in
+    },
+    deleteFavoriteTeam: { _, _ in
+    }
+  )
 }

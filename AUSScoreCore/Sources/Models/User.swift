@@ -2,17 +2,13 @@
 //  File.swift
 //  
 //
-//  Created by Shea Sullivan on 2023-02-20.
+//  Created by Shea Sullivan on 2023-11-02.
 //
 
-public struct User: Codable, Identifiable {
+public struct User: Codable {
   public let id: String
-  public let deviceIds: [String]
-}
-
-extension User {
-  public static func mock() -> Self {
-    return .init(id: "testUserId", deviceIds: ["testDevice1", "testDevice2"])
-  }
   
+  public init(id: String) {
+    self.id = id
+  }
 }
