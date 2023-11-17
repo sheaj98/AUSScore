@@ -12,7 +12,6 @@ extension UserInfo: FetchableRecord { }
 extension User {
   static let favSportPivot = hasMany(FavoriteSport.self)
   static let favoriteSports = hasMany(Sport.self, through: favSportPivot, using: FavoriteSport.sport)
-  static let devices = hasMany(Device.self)
   
   static let favTeamPivot = hasMany(FavoriteTeam.self)
   static let favoriteTeams = hasMany(Team.self, through: favTeamPivot, using: FavoriteTeam.team)
@@ -64,20 +63,5 @@ public struct FavoriteTeam: Codable, FetchableRecord, PersistableRecord {
   
   var user: QueryInterfaceRequest<User> {
     request(for: FavoriteTeam.user)
-  }
-}
-
-public struct Device: Codable, FetchableRecord, PersistableRecord {
-  public let deviceId: String
-  public let userId: String
-  
-  public init(deviceId: String, userId: String) {
-    self.deviceId = deviceId
-    self.userId = userId
-  }
-  
-  static let user = belongsTo(User.self)
-  var user: QueryInterfaceRequest<User> {
-    request(for: Device.user)
   }
 }

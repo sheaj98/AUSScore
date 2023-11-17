@@ -19,6 +19,7 @@ public struct GameListReducer: Reducer {
     public let teamId: Int64
     public var gameRows: [Date: IdentifiedArrayOf<GameInfo>]
     public var loadingState: LoadingState
+    public var lastGameId: String?
     
     public var id: Int64 {
       teamId
@@ -28,6 +29,7 @@ public struct GameListReducer: Reducer {
       self.teamId = teamId
       self.gameRows = gameRows
       self.loadingState = loadingState
+      self.lastGameId = nil
     }
   }
   
@@ -36,6 +38,7 @@ public struct GameListReducer: Reducer {
     case tapped(GameInfo)
     case gameRows(TaskResult<[Date: IdentifiedArrayOf<GameInfo>]>)
     case refreshGames
+    case lastGameId(String?)
   }
   
   public var body: some Reducer<State, Action> {
@@ -43,26 +46,39 @@ public struct GameListReducer: Reducer {
       switch action {
       case .task:
         return .run { [teamId = state.teamId] send in
-          await send(.gameRows(TaskResult {
-            try await refreshGames(teamId: teamId)
-          }))
+          do {
+            let (games, lastGameId) = try await refreshGames(teamId: teamId)
+            await send(.gameRows(.success(games)))
+            await send(.lastGameId(lastGameId))
+          } catch(let err) {
+            await send(.gameRows(.failure(err)))
+          }
         }
+      case .lastGameId(let lastGameId):
+        state.lastGameId = lastGameId
+        return .none
       case .gameRows(.success(let gameSections)):
         state.gameRows = gameSections
         state.loadingState = .loaded
+        return .none
+      case .gameRows(.failure(let error)):
+        print(error)
+        //TODO: Show error toast
         return .none
       case .refreshGames:
         return .none
       default:
         return .none
       }
-    }._printChanges()
+    }
   }
   
   @Dependency(\.databaseClient) var dbClient
   
-  private func refreshGames(teamId: Int64) async throws -> [Date: IdentifiedArrayOf<GameInfo>] {
+  private func refreshGames(teamId: Int64) async throws -> (gameSections: [Date: IdentifiedArrayOf<GameInfo>], lastGameId: String?) {
     let games = try await dbClient.gamesForTeam(teamId)
+    
+    let lastGameId = games.last(where: { $0.startTime < Date().startOfDay })?.id
 
     let gameSections = Dictionary(grouping: games, by: { game in
       let components = Calendar.current.dateComponents([.month, .year], from: game.startTime)
@@ -70,7 +86,7 @@ public struct GameListReducer: Reducer {
     }).mapValues {
       IdentifiedArray(uniqueElements: $0)
     }
-    return gameSections
+    return (gameSections: gameSections, lastGameId: lastGameId)
   }
 }
 
@@ -84,30 +100,40 @@ struct GameListView: View {
   }
   
   var body: some View {
-    List {
-      ForEach(viewStore.gameRows.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-        Section(header: Text(key.formatted(Date.FormatStyle().month(.abbreviated).year())).font(.title2).foregroundStyle(.white).textCase(.none)) {
-          ForEach(value) { game in
-            Button {
-              self.viewStore.send(.tapped(game))
-            } label: {
-              GameRowView(gameInfo: game, teamId: viewStore.teamId)
+    ScrollViewReader { proxy in
+      List {
+        ForEach(viewStore.gameRows.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+          Section(header: Text(key.formatted(Date.FormatStyle().month(.abbreviated).year())).font(.title2).foregroundStyle(.white).textCase(.none)) {
+            ForEach(value) { game in
+              Button {
+                self.viewStore.send(.tapped(game))
+              } label: {
+                GameRowView(gameInfo: game, teamId: viewStore.teamId)
+                  .id(game.id)
+              }
+              .foregroundStyle(.white)
+              .listRowBackground(Color(.secondarySystemBackground))
             }
-            .foregroundStyle(.white)
-            .listRowBackground(Color(.secondarySystemBackground))
           }
         }
       }
-    }
-      
-      .listStyle(.plain)
-      .scrollContentBackground(.hidden)
-      .background(Color(uiColor: .secondarySystemBackground))
-      .refreshable(action: {
-        viewStore.send(.refreshGames)
-      })
-      .onLoad {
-        viewStore.send(.task)
+      .onChange(of: self.viewStore.lastGameId) { _, lastGameId in
+        if let lastGameId = lastGameId {
+          withAnimation {
+            proxy.scrollTo(lastGameId, anchor: .top)
+          }
+          
+        }
       }
+    }
+    .listStyle(.plain)
+    .scrollContentBackground(.hidden)
+    .background(Color(uiColor: .secondarySystemBackground))
+    .refreshable(action: {
+      viewStore.send(.refreshGames)
+    })
+    .onLoad {
+      viewStore.send(.task)
+    }
   }
 }

@@ -19,7 +19,8 @@ extension AUSClient: TestDependencyKey {
     addFavoriteSport: unimplemented("\(Self.self).addFavoriteSport"),
     addFavoriteTeam: unimplemented("\(Self.self).addFavoriteTeam"),
     deleteFavoriteSport: unimplemented("\(Self.self).deleteFavoriteSport"),
-    deleteFavoriteTeam: unimplemented("\(Self.self).deleteFavoriteTeamm")
+    deleteFavoriteTeam: unimplemented("\(Self.self).deleteFavoriteTeamm"),
+    getUser: unimplemented("\(Self.self).getUser")
   )
 
   public static let previewValue = Self(
@@ -60,6 +61,9 @@ extension AUSClient: TestDependencyKey {
     deleteFavoriteSport: { _, _ in
     },
     deleteFavoriteTeam: { _, _ in
+    },
+    getUser: { _ in
+      .init(id: "123")
     }
   )
 }

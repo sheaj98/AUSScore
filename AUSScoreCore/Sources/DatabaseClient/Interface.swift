@@ -28,7 +28,7 @@ public struct DatabaseClient {
     gameStream: @escaping @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>,
     gamesForTeam: @escaping @Sendable (Int64) async throws -> [GameInfo],
     teamsForSport: @escaping @Sendable (Int64) async throws -> [TeamInfo],
-    syncUser: @escaping @Sendable (UserResponse, String) async throws -> Void,
+    syncUser: @escaping @Sendable (UserResponse) async throws -> Void,
     userStream: @escaping @Sendable () -> AsyncThrowingStream<UserInfo, Error>,
     addFavoriteSport: @escaping @Sendable (Int64, String) async throws -> Void,
     addFavoriteTeam: @escaping @Sendable (Int64, String) async throws -> Void,
@@ -79,7 +79,7 @@ public struct DatabaseClient {
   public var syncNewsFeeds: @Sendable ([NewsFeed]) async throws -> Void
   public var gameStream: @Sendable (String) -> AsyncThrowingStream<GameInfo, Error>
   public var teamsForSport: @Sendable (Int64) async throws -> [TeamInfo]
-  public var syncUser: @Sendable (UserResponse, String) async throws -> Void
+  public var syncUser: @Sendable (UserResponse) async throws -> Void
   public var userStream: @Sendable () -> AsyncThrowingStream<UserInfo, Error>
   public var addFavoriteSport: @Sendable (Int64, String) async throws -> Void
   public var addFavoriteTeam: @Sendable (Int64, String) async throws -> Void

@@ -144,7 +144,9 @@ let package = Package(
       "Models",
       "DatabaseClient",
       "DatabaseClientLive",
+      "AUSClient",
       "AppCommon",
+      "UserIdentifier",
       "NewsFeature",
       "ScoresFeature",
       .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -160,7 +162,9 @@ let package = Package(
     .target(name: "TeamFeature", dependencies: [
       "Models",
       "DatabaseClient",
+      "AUSClient",
       "AppCommon",
+      "UserIdentifier",
       .product(name: "NukeUI", package: "Nuke"),
       .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       .product(name: "Dependencies", package: "swift-dependencies")

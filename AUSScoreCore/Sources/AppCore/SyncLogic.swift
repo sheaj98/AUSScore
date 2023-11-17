@@ -25,13 +25,13 @@ public struct SyncLogic: Reducer {
           let token = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
           do {
             let userId = try await userIdentifier.id()
-            let user = try await ausClient.upsertUser(UserRequest(id: userId, deviceId: token))
-            try await databaseClient.syncUser(user, token)
+            let _ = try await ausClient.upsertUser(UserRequest(id: userId, deviceId: token))
           } catch {
             print("Failed to update user or device \(error)")
           }
         }
       case .appDelegate(.didRecieveRemoteNotification(let completionHandler)):
+        //TODO: Move to proper handler
         return syncGames(completionHandler: completionHandler)
       case .scores(.scoresList(_, action: .refreshGames)):
         return syncGames(completionHandler: nil)
@@ -100,9 +100,23 @@ public struct SyncLogic: Reducer {
           }
           try await group.waitForAll()
         }
-
-        let remoteGameResults = try await ausClient.gameResults()
-        try await databaseClient.syncGameResults(remoteGameResults)
+        
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          group.addTask {
+            let remoteGameResults = try await ausClient.gameResults()
+            try await databaseClient.syncGameResults(remoteGameResults)
+          }
+          
+          group.addTask {
+            let userId = try await userIdentifier.id()
+            let user = try await ausClient.getUser(userId)
+            try await databaseClient.syncUser(user)
+          }
+          
+          try await group.waitForAll()
+        }
+        
+       
       } catch {
         print("Syncing failed \(error)")
       }

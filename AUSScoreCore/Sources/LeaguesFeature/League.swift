@@ -1,16 +1,17 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Shea Sullivan on 2023-03-25.
 //
 
-import SwiftUI
+import AppCommon
 import ComposableArchitecture
 import Models
-import AppCommon
 import NewsFeature
 import ScoresFeature
+import SwiftUI
+import UserIdentifier
 
 public struct League: Reducer {
   public init() {}
@@ -29,20 +30,18 @@ public struct League: Reducer {
     public var news: NewsList.State
     public var scores: ScoresFeature.State
     public var standings: StandingsReducer.State
-    public var userId: String?
     
-    public init(sport: SportInfo, selectedView: Int = 0, isFavorite: Bool = false, isUpdatingFavorite: Bool = false, userId: String? = nil) {
+    public init(sport: SportInfo, selectedView: Int = 0, isFavorite: Bool = false, isUpdatingFavorite: Bool = false) {
       self.sport = sport
       self.selectedView = selectedView
       self.news = .init(from: sport.newsFeed, index: 0)
       self.isFavorite = isFavorite
-      self.scores = ScoresFeature.State.init(sportId: sport.id)
+      self.scores = ScoresFeature.State(sportId: sport.id)
       self.standings = StandingsReducer.State(sportId: sport.id)
       self.isUpdatingFavorite = isUpdatingFavorite
-      self.userId = userId
     }
     
-    public var id: Sport.ID { self.sport.id }
+    public var id: Sport.ID { sport.id }
   }
   
   public enum Action: Equatable {
@@ -53,11 +52,9 @@ public struct League: Reducer {
     case news(NewsList.Action)
     case scores(ScoresFeature.Action)
     case standings(StandingsReducer.Action)
-    case user(String)
   }
   
   public var body: some Reducer<State, Action> {
-    
     Scope(state: \.news, action: /Action.news) {
       NewsList()
     }
@@ -71,11 +68,10 @@ public struct League: Reducer {
     }
     
     Reduce { state, action in
-      switch(action) {
+      switch action {
       case .task:
         return .run { [id = state.id] send in
           for try await user in dbClient.userStream() {
-            await send(.user(user.id))
             if user.favoriteSports.contains(where: { $0.id == id }) {
               await send(.toggleIsFavorite(true))
             }
@@ -87,25 +83,21 @@ public struct League: Reducer {
         return .none
       case .updateFavoriteSport(let value):
         state.isUpdatingFavorite = true
-        return .run { [id = state.id, userId = state.userId] send in
+        return .run { [id = state.id] send in
           do {
-            if let userId = userId {
-              if (value) {
-                try await addFavoriteSport(id, for: userId)
-              } else {
-                try await removeFavoriteSport(id, for: userId)
-              }
-              await send(.toggleIsFavorite(value))
+            let userId = try await userIdStore.id()
+            if value {
+              try await addFavoriteSport(id, for: userId)
+            } else {
+              try await removeFavoriteSport(id, for: userId)
             }
-          } catch(let err) {
+            await send(.toggleIsFavorite(value))
+          } catch (let err) {
             print("error saving favorite \(err)")
           }
         }
       case .selected(let tab):
         state.selectedView = tab
-        return .none
-      case .user(let userId):
-        state.userId = userId
         return .none
       case .news:
         return .none
@@ -114,8 +106,10 @@ public struct League: Reducer {
       }
     }
   }
+
   @Dependency(\.databaseClient) var dbClient
   @Dependency(\.ausClient) var ausClient
+  @Dependency(\.userIdentifier) var userIdStore
   
   private func addFavoriteSport(_ sportId: Int64, for userId: String) async throws {
     try await ausClient.addFavoriteSport(AddFavoriteSportRequest(sportId: sportId), userId)
@@ -135,7 +129,7 @@ public struct LeagueView: View {
   
   public init(store: StoreOf<League>) {
     self.store = store
-    viewStore = ViewStore(store, observe: { $0 })
+    self.viewStore = ViewStore(store, observe: { $0 })
   }
 
   // MARK: Internal
@@ -143,54 +137,54 @@ public struct LeagueView: View {
   @ObservedObject var viewStore: ViewStoreOf<League>
   
   public var body: some View {
-      SimplePageHeader(
-        selected: viewStore.binding(
-          get: \.selectedView,
-          send: League.Action.selected),
-        labels: ["NEWS", "SCORES", "STANDINGS"])
+    SimplePageHeader(
+      selected: viewStore.binding(
+        get: \.selectedView,
+        send: League.Action.selected),
+      labels: ["NEWS", "SCORES", "STANDINGS"])
       .padding(.bottom, -8)
 
-      TabView(selection: viewStore.binding(
-        get: \.selectedView,
-        send: League.Action.selected))
-      {
-        NewsListView(store: self.store.scope(state: \.news, action: League.Action.news))
-          .tag(0)
+    TabView(selection: viewStore.binding(
+      get: \.selectedView,
+      send: League.Action.selected))
+    {
+      NewsListView(store: self.store.scope(state: \.news, action: League.Action.news))
+        .tag(0)
         
-        ScoresContainer(store: self.store.scope(state: \.scores, action: League.Action.scores))
-          .tag(1)
-          .padding(.top, -16)
-        StandingsView(store: self.store.scope(state: \.standings, action: League.Action.standings))
-          .tag(2)
-      }
-      .tabViewStyle(.page(indexDisplayMode: .never))
-      .navigationTitle(viewStore.sport.name)
-      .toolbar(content: {
-        ToolbarItem(placement: .topBarTrailing) {
-          Button {
-            viewStore.send(.updateFavoriteSport(!viewStore.isFavorite))
-          } label: {
-            if viewStore.isFavorite {
-              Image(systemName: "star.fill")
-                .foregroundStyle(.yellow)
-            } else {
-              Image(systemName: viewStore.isUpdatingFavorite ? "star.fill" : "star")
-            }
-          }
-          .symbolEffect(.variableColor, value: viewStore.isUpdatingFavorite)
-        }
-      })
-      .toolbarRole(.editor)
-      .onLoad {
-        viewStore.send(.task)
-      }
+      ScoresContainer(store: self.store.scope(state: \.scores, action: League.Action.scores))
+        .tag(1)
+        .padding(.top, -16)
+      StandingsView(store: self.store.scope(state: \.standings, action: League.Action.standings))
+        .tag(2)
     }
+    .tabViewStyle(.page(indexDisplayMode: .never))
+    .navigationTitle(viewStore.sport.name)
+    .toolbar(content: {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button {
+          viewStore.send(.updateFavoriteSport(!viewStore.isFavorite))
+        } label: {
+          if viewStore.isFavorite {
+            Image(systemName: "star.fill")
+              .foregroundStyle(.yellow)
+          } else {
+            Image(systemName: viewStore.isUpdatingFavorite ? "star.fill" : "star")
+          }
+        }
+        .symbolEffect(.variableColor, value: viewStore.isUpdatingFavorite)
+      }
+    })
+    .toolbarRole(.editor)
+    .onLoad {
+      viewStore.send(.task)
+    }
+  }
 }
 
 struct SwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-      LeagueView(store: .item)
-    }
+  static var previews: some View {
+    LeagueView(store: .item)
+  }
 }
 
 extension Store where State == League.State, Action == League.Action {

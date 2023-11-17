@@ -165,14 +165,6 @@ public struct AppView: View {
         send: AppReducer.Action.selectedTab))
     {
       Group {
-        
-        Text("Favorites")
-          .tabItem({
-            Label("Favorites", systemImage: "star")
-          })
-          .tag(AppReducer.Tab.favorites)
-        
-        
         NewsContainer(store: store.scope(
           state: \.news,
           action: AppReducer.Action.news))
@@ -218,6 +210,13 @@ public struct AppView: View {
           Label("Leagues", systemImage: "trophy")
         }
         .tag(AppReducer.Tab.sports)
+        
+        Text("Favorites")
+          .tabItem({
+            Label("Favorites", systemImage: "star")
+          })
+          .tag(AppReducer.Tab.favorites)
+        
       }
       .toolbarColorScheme(.light, for: .bottomBar)
     }

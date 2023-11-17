@@ -43,7 +43,7 @@ extension DatabaseClient: DependencyKey {
       .share()
       .eraseToAnyPublisher()
 
-    let favoritesDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: [FavoriteTeam.all(), FavoriteSport.all()])
+    let userDidChange: AnyPublisher<Void, Error> = DatabaseRegionObservation(tracking: [User.all(), FavoriteTeam.all(), FavoriteSport.all()])
       .publisher(in: dbWriter)
       .map { _ in }
       .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
@@ -441,13 +441,12 @@ extension DatabaseClient: DependencyKey {
 
           return teams
         }
-      }, syncUser: { user, deviceId in
+      }, syncUser: { user in
         try await dbWriter.write { db in
           if let _ = try? User.find(db, key: user.id) {} else {
             // Create the user if it doesn't exist
             try User(id: user.id).insert(db, onConflict: .abort)
           }
-          try Device(deviceId: deviceId, userId: user.id).insert(db, onConflict: .ignore)
           try user.favoriteTeams.forEach { teamId in
             try FavoriteTeam(userId: user.id, teamId: Int64(teamId)).insert(db, onConflict: .ignore)
           }
@@ -458,14 +457,26 @@ extension DatabaseClient: DependencyKey {
         }
       },
       userStream: {
-        favoritesDidChange
+        userDidChange
           .prepend(())
           .map { [dbWriter] in
             dbWriter.readPublisher { db in
-              try User.including(all: User.favoriteSports.including(required: Sport.newsFeed).forKey("favoriteSports")).including(all: User.favoriteTeams.forKey("favoriteTeams")).asRequest(of: UserInfo.self).fetchOne(db)!
+              let user = try User.including(all:
+                User.favoriteSports
+                  .including(required: Sport.newsFeed)
+                  .forKey("favoriteSports"))
+                .including(all: User.favoriteTeams
+                  .including(required: Team.sport)
+                  .including(required: Team.school)
+                  .forKey("favoriteTeams")
+                )
+                .asRequest(of: UserInfo.self)
+                .fetchOne(db)
+              return user
             }
           }
           .switchToLatest()
+          .compactMap { $0 }
           .eraseToAnyPublisher()
           .values
           .eraseToThrowingStream()
@@ -482,15 +493,15 @@ extension DatabaseClient: DependencyKey {
       },
       deleteFavoriteSport: { sportId, userId in
         try await dbWriter.write { db in
-          try FavoriteSport.deleteOne(db, key: ["userId": userId, "sportId": sportId])
+          let res = try FavoriteSport.deleteOne(db, key: ["userId": userId, "sportId": sportId])
+          return res
         }
       },
       deleteFavoriteTeam: { teamId, userId in
         try await dbWriter.write { db in
           try FavoriteTeam.deleteOne(db, key: ["userId": userId, "teamId": teamId])
         }
-      }
-    )
+      })
   }
 
   // MARK: Private
@@ -589,17 +600,7 @@ extension DatabaseClient: DependencyKey {
         t.primaryKey("id", .text)
       }
     }
-
-    migrator.registerMigration("createDevices") { db in
-      try db.create(table: "device") { t in
-        t.primaryKey("deviceId", .text)
-        t.column("userId", .text)
-          .notNull()
-          .indexed()
-          .references("user", onDelete: .cascade)
-      }
-    }
-
+    
     migrator.registerMigration("createFavoriteTeams") { db in
       try db.create(table: "favoriteTeam") { t in
         t.column("teamId", .integer)
@@ -610,7 +611,7 @@ extension DatabaseClient: DependencyKey {
           .notNull()
           .indexed()
           .references("user", onDelete: .cascade)
-        
+
         t.primaryKey(["userId", "teamId"])
       }
     }
@@ -625,7 +626,7 @@ extension DatabaseClient: DependencyKey {
           .notNull()
           .indexed()
           .references("user", onDelete: .cascade)
-        
+
         t.primaryKey(["userId", "sportId"])
       }
     }

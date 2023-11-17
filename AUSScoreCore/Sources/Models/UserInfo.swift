@@ -5,7 +5,7 @@
 //  Created by Shea Sullivan on 2023-11-02.
 //
 
-public struct UserInfo: Codable {
+public struct UserInfo: Codable, Equatable {
   public let id: String
   public let favoriteTeams: [TeamInfo]
   public let favoriteSports: [SportInfo]

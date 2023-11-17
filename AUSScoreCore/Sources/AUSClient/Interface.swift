@@ -23,7 +23,8 @@ public struct AUSClient {
     addFavoriteSport: @escaping @Sendable (_ body: AddFavoriteSportRequest, _ user: String) async throws -> Void,
     addFavoriteTeam: @escaping @Sendable (_ body: AddFavoriteTeamRequest, _ user: String) async throws -> Void,
     deleteFavoriteSport: @escaping @Sendable (_ sportId: Int64, _ user: String) async throws -> Void,
-    deleteFavoriteTeam: @escaping @Sendable (_ teamId: Int64, _ user: String) async throws -> Void
+    deleteFavoriteTeam: @escaping @Sendable (_ teamId: Int64, _ user: String) async throws -> Void,
+    getUser: @escaping @Sendable (_ userId: String) async throws -> UserResponse
   )
   {
     self.newsFeeds = newsFeeds
@@ -40,6 +41,7 @@ public struct AUSClient {
     self.addFavoriteTeam = addFavoriteTeam
     self.deleteFavoriteSport = deleteFavoriteSport
     self.deleteFavoriteTeam = deleteFavoriteTeam
+    self.getUser = getUser
   }
 
   // MARK: Public
@@ -72,6 +74,7 @@ public struct AUSClient {
   // MARK: - User
   
   public var upsertUser: @Sendable (_ user: UserRequest) async throws -> UserResponse
+  public var getUser: @Sendable (_ userId: String) async throws -> UserResponse
   public var addFavoriteSport: @Sendable (_ body: AddFavoriteSportRequest , _ user: String) async throws -> Void
   public var addFavoriteTeam: @Sendable (_ body: AddFavoriteTeamRequest, _ user: String) async throws -> Void
   

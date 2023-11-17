@@ -79,6 +79,10 @@ extension AUSClient: DependencyKey {
       deleteFavoriteTeam: { teamId, userId in
         let request = Request(path: "/users/\(userId)/favorite_teams/\(teamId)", method: .delete)
         try await client.send(request)
+      },
+      getUser: { userId in
+        let request = Request<UserResponse>(path: "/users/\(userId)", method: .get)
+        return try await client.send(request).value
       }
     )
   }
