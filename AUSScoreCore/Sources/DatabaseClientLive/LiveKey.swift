@@ -501,7 +501,22 @@ extension DatabaseClient: DependencyKey {
         try await dbWriter.write { db in
           try FavoriteTeam.deleteOne(db, key: ["userId": userId, "teamId": teamId])
         }
-      })
+      },
+      conferenceSchools: {
+        try await dbWriter.read { db in
+          try School.all().including(all: School.teams
+            .filter(Column("isConference") == true)
+            .including(required: Team.sport)
+            .including(required: Team.school)
+          )
+          .order(Column("displayName"))
+          .asRequest(of: SchoolInfo.self).fetchAll(db)
+          .filter {
+            !$0.teams.isEmpty
+          }
+        }
+      }
+    )
   }
 
   // MARK: Private

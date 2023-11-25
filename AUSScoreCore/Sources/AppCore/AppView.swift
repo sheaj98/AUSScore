@@ -8,6 +8,7 @@ import NewsFeature
 import ScoresFeature
 import LeaguesFeature
 import TeamFeature
+import FavoritesFeature
 import SwiftUI
 
 // MARK: - AppReducer
@@ -49,15 +50,17 @@ public struct AppReducer: Reducer {
     public var news: NewsFeature.State
     public var scores: ScoresFeature.State
     public var sports: LeaguesList.State
+    public var favorites: FavoritesList.State
     public var tab: Tab
     public var appDelegate: AppDelegateReducer.State
     public var scoresPath = StackState<Path.State>()
     public var leaguesPath = StackState<Path.State>()
 
-    public init(news: NewsFeature.State = .init(), scores: ScoresFeature.State = .init(), sports: LeaguesList.State = .init(), tab: AppReducer.Tab = .news, appDelegate: AppDelegateReducer.State = .init()) {
+    public init(news: NewsFeature.State = .init(), scores: ScoresFeature.State = .init(), sports: LeaguesList.State = .init(), tab: AppReducer.Tab = .news, appDelegate: AppDelegateReducer.State = .init(), favorites: FavoritesList.State = .init()) {
       self.news = news
       self.tab = tab
       self.scores = scores
+      self.favorites = favorites
       self.sports = sports
       self.appDelegate = appDelegate
     }
@@ -67,6 +70,7 @@ public struct AppReducer: Reducer {
     case news(NewsFeature.Action)
     case scores(ScoresFeature.Action)
     case sports(LeaguesList.Action)
+    case favorites(FavoritesList.Action)
     case selectedTab(Tab)
     case appDelegate(AppDelegateReducer.Action)
     case scoresPath(StackAction<Path.State, Path.Action>)
@@ -94,6 +98,10 @@ public struct AppReducer: Reducer {
 
     Scope(state: \.sports, action: CasePath(Action.sports)) {
       LeaguesList()
+    }
+    
+    Scope(state: \.favorites, action: CasePath(Action.favorites)) {
+      FavoritesList()
     }
 
     Reduce { state, action in
@@ -211,7 +219,7 @@ public struct AppView: View {
         }
         .tag(AppReducer.Tab.sports)
         
-        Text("Favorites")
+        FavoritesListView(store: store.scope(state: \.favorites, action: AppReducer.Action.favorites))
           .tabItem({
             Label("Favorites", systemImage: "star")
           })

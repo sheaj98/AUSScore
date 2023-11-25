@@ -31,6 +31,8 @@ let package = Package(
     .library(
       name: "AppCommon",
       targets: ["AppCommon"]),
+    .library(name: "BackgroundTask", targets: ["BackgroundTask"]),
+    .library(name: "FavoritesFeature", targets: ["FavoritesFeature"]),
     .library(
       name: "ScoresFeature",
       targets: ["ScoresFeature"]),
@@ -40,7 +42,7 @@ let package = Package(
     .library(name: "AppNotificationsClient", targets: ["AppNotificationsClient"]),
     .library(name: "LeaguesFeature", targets: ["LeaguesFeature"]),
     .library(name: "GameFeature", targets: ["GameFeature"]),
-    .library(name: "TeamFeature", targets: ["TeamFeature"])
+    .library(name: "TeamFeature", targets: ["TeamFeature"]),
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
@@ -82,7 +84,8 @@ let package = Package(
         "UserIdentifier",
         "LeaguesFeature",
         "GameFeature",
-        "TeamFeature"
+        "TeamFeature",
+        "FavoritesFeature"
       ]),
     .target(
       name: "NewsFeature",
@@ -95,6 +98,9 @@ let package = Package(
         .product(name: "NukeUI", package: "Nuke"),
         "AppCommon",
       ]),
+    .target(name: "BackgroundTask", dependencies: [
+      .product(name: "Dependencies", package: "swift-dependencies"),
+    ]),
     .target(
       name: "ScoresFeature",
       dependencies: [
@@ -107,6 +113,15 @@ let package = Package(
         "AppNotificationsClient",
         "GameFeature",
       ]),
+    .target(name: "FavoritesFeature", dependencies: [
+      "Models",
+      "DatabaseClient",
+      "AUSClient",
+      "UserIdentifier",
+      "AppCommon",
+      .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      .product(name: "NukeUI", package: "Nuke"),
+    ]),
     .target(
       name: "Models",
       dependencies: []),
@@ -138,7 +153,7 @@ let package = Package(
       .product(name: "Dependencies", package: "swift-dependencies"),
     ]),
     .target(name: "AppNotificationsClient", dependencies: [
-      .product(name: "Dependencies", package: "swift-dependencies")
+      .product(name: "Dependencies", package: "swift-dependencies"),
     ]),
     .target(name: "LeaguesFeature", dependencies: [
       "Models",
@@ -157,7 +172,7 @@ let package = Package(
       "AppCommon",
       .product(name: "NukeUI", package: "Nuke"),
       .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      .product(name: "Dependencies", package: "swift-dependencies")
+      .product(name: "Dependencies", package: "swift-dependencies"),
     ]),
     .target(name: "TeamFeature", dependencies: [
       "Models",
@@ -167,6 +182,6 @@ let package = Package(
       "UserIdentifier",
       .product(name: "NukeUI", package: "Nuke"),
       .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      .product(name: "Dependencies", package: "swift-dependencies")
-    ])
+      .product(name: "Dependencies", package: "swift-dependencies"),
+    ]),
   ])
