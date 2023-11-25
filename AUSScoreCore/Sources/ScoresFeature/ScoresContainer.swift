@@ -19,11 +19,15 @@ public struct ScoresFeature: Reducer {
     public var datesWithGames: IdentifiedArrayOf<ScoresList.State>
     public var selectedIndex: Int
     public var sportId: Int64?
+    public var favoriteSports: IdentifiedArrayOf<SportInfo>
+    public var favoriteTeams: IdentifiedArrayOf<TeamInfo>
 
-    public init(datesWithGames: IdentifiedArrayOf<ScoresList.State> = [], selectedIndex: Int = 0, sportId: Int64? = nil) {
+    public init(datesWithGames: IdentifiedArrayOf<ScoresList.State> = [], selectedIndex: Int = 0, sportId: Int64? = nil, favoriteSports: IdentifiedArrayOf<SportInfo> = [], favoriteTeams: IdentifiedArrayOf<TeamInfo> = []) {
       self.datesWithGames = datesWithGames
       self.selectedIndex = selectedIndex
       self.sportId = sportId
+      self.favoriteTeams = favoriteTeams
+      self.favoriteSports = favoriteSports
     }
   }
 
@@ -45,6 +49,7 @@ public struct ScoresFeature: Reducer {
     case dateWithGamesResponse(TaskResult<[ScoresList.State]>)
     case dayDidChange
     case delegate(DelegateAction)
+    case userResponse(UserInfo)
   }
 
   public var body: some Reducer<State, Action> {
@@ -66,6 +71,11 @@ public struct ScoresFeature: Reducer {
                 try await refreshDatesWithGames(sportId: sportId)
               }))
             }
+            group.addTask {
+              for try await user in dbClient.userStream() {
+                await send(.userResponse(user))
+              }
+            }
           })
         }
       case .dayDidChange:
@@ -74,6 +84,11 @@ public struct ScoresFeature: Reducer {
             try await refreshDatesWithGames(sportId: sportId)
           }))
         }
+      case .userResponse(let user):
+        state.favoriteSports = IdentifiedArray(uniqueElements: user.favoriteSports)
+        state.favoriteTeams = IdentifiedArray(uniqueElements: user.favoriteTeams)
+        return .none
+
       case .dateWithGamesResponse(.success(let dates)):
         let todayIndex = dates.firstIndex(where: { Calendar.current.isDateInToday($0.selectedDate) }) ?? 0
         state.selectedIndex = todayIndex
@@ -123,6 +138,12 @@ public struct ScoresContainer: View {
 
   public var body: some View {
     VStack(spacing: 0) {
+      if viewStore.sportId == nil {
+        FavoritesBar(favoriteSports: viewStore.favoriteSports.elements) { sport in
+          print("Clicked Sport \(sport.name)")
+          viewStore.send(.delegate(.leagueTapped(sport)))
+        }
+      }
       PageHeader(
         selected: viewStore.binding(get: \.selectedIndex, send: ScoresFeature.Action.selected),
         labels: viewStore.datesWithGames.map { gameList in

@@ -25,12 +25,14 @@ public struct ScoresList: Reducer {
     public var scoreSections: IdentifiedArrayOf<ScoresListSection.State>
     public var loadingState: LoadingState
     public var sportId: Int64?
+    public var favoriteTeams: IdentifiedArrayOf<TeamInfo>
 
-    public init(selectedDate: Date, index: Int, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = [], loadingState: LoadingState = .loading, sportId: Int64?) {
+    public init(selectedDate: Date, index: Int, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = [], loadingState: LoadingState = .loading, sportId: Int64?, favoriteTeams: IdentifiedArrayOf<TeamInfo> = []) {
       self.selectedDate = selectedDate
       self.scoreSections = scoreSections
       self.index = index
       self.loadingState = loadingState
+      self.favoriteTeams = favoriteTeams
       self.sportId = sportId
     }
   }
