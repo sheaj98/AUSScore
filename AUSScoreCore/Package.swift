@@ -51,6 +51,7 @@ let package = Package(
     .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.0.0"),
     .package(url: "https://github.com/groue/SortedDifference", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
+    .package(url: "https://github.com/apple/swift-async-algorithms", from: "0.1.0"),
   ],
   targets: [
     .target(
@@ -112,6 +113,7 @@ let package = Package(
         "AppCommon",
         "AppNotificationsClient",
         "GameFeature",
+        .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
       ]),
     .target(name: "FavoritesFeature", dependencies: [
       "Models",

@@ -5,6 +5,7 @@ import ComposableArchitecture
 import DatabaseClient
 import Models
 import SwiftUI
+import AsyncAlgorithms
 
 // MARK: - ScoresList
 
@@ -49,8 +50,17 @@ public struct ScoresList: Reducer {
       switch action {
       case .task:
         return .run { [date = state.selectedDate, sportId = state.sportId] send in
-          for try await games in dbClient.gamesStream(date, sportId) {
-            let gameRows = games.map { ScoresRow.State(from: $0) }
+          for try await (games, user) in combineLatest(dbClient.gamesStream(date, sportId), dbClient.userStream()) {
+            var gameRows = games.map { ScoresRow.State(from: $0) }
+            let p = gameRows.partition(by: { row in
+              var containsFavTeam = false
+              user.favoriteTeams.forEach { team in
+                if team.id == row.homeTeamResult.team.id || row.awayTeamResult.team.id == team.id {
+                  containsFavTeam = true
+                }
+              }
+              return containsFavTeam
+            })
             if sportId != nil {
               if gameRows.isEmpty {
                 return await send(.scoreSections(sections: []))
@@ -58,11 +68,18 @@ public struct ScoresList: Reducer {
               let scoresSections = ScoresListSection.State(name: date.formatted(Date.FormatStyle().weekday(.abbreviated).month(.abbreviated).day(.defaultDigits)), scoreRows: IdentifiedArray(uniqueElements: gameRows))
               await send(.scoreSections(sections: [scoresSections]))
             } else {
-              let gameSections = Dictionary(grouping: gameRows, by: { $0.sport.name })
+              var gameSections = Dictionary(grouping: gameRows[..<p], by: { $0.sport.name })
                 .map { sportName, mappedGameRows -> ScoresListSection.State in
                   ScoresListSection.State(name: sportName, scoreRows: IdentifiedArray(uniqueElements: mappedGameRows))
                 }
                 .sorted(by: { $0.name < $1.name })
+              if (!gameRows[p...].isEmpty) {
+                gameSections.insert(ScoresListSection.State(name: "Favorites", scoreRows: IdentifiedArray(uniqueElements: gameRows[p...].map({gameRow in
+                    var newRow = gameRow
+                  newRow.containsFavorite = true
+                  return newRow
+                }))), at: 0)
+              }
               await send(.scoreSections(sections: gameSections))
             }
           }

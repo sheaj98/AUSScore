@@ -20,6 +20,7 @@ public struct ScoresRow: Reducer {
       sport: Sport,
       isExhibition: Bool = false,
       is4PointGame: Bool = false,
+      containsFavorite: Bool = false,
       isPlayoff: Bool = false,
       description: String? = nil,
       gameResults: [GameResultInfo])
@@ -29,6 +30,7 @@ public struct ScoresRow: Reducer {
       self.status = status
       self.currentTime = currentTime
       self.sport = sport
+      self.containsFavorite = containsFavorite
       self.isExhibition = isExhibition
       self.is4PointGame = is4PointGame
       self.isPlayoff = isPlayoff
@@ -37,12 +39,13 @@ public struct ScoresRow: Reducer {
       awayTeamResult = gameResults.first(where: { !$0.isHome })!
     }
 
-    public init(from gameInfo: GameInfo) {
+    public init(from gameInfo: GameInfo, containsFavorite: Bool = false) {
       id = gameInfo.id
       startTime = gameInfo.startTime
       status = gameInfo.status
       currentTime = gameInfo.currentTime
       sport = gameInfo.sport
+      self.containsFavorite = containsFavorite
       isExhibition = gameInfo.isExhibition
       is4PointGame = gameInfo.is4PointGame
       isPlayoff = gameInfo.isPlayoff
@@ -59,6 +62,7 @@ public struct ScoresRow: Reducer {
     public let currentTime: String?
     public let sport: Sport
     public let isExhibition: Bool
+    public var containsFavorite: Bool
     public let is4PointGame: Bool
     public let isPlayoff: Bool
     public let description: String?
@@ -153,6 +157,13 @@ struct ScoresRowView: View {
 
         GridRow {
           TeamRowView(teamResult: viewStore.awayTeamResult)
+        }
+        if viewStore.containsFavorite {
+          GridRow {
+            Text(viewStore.sport.name).font(.caption).foregroundColor(Color(uiColor: .lightGray))
+              .gridColumnAlignment(.leading)
+              .padding(.top, 4)
+          }
         }
         if viewStore.isExhibition {
           GridRow {

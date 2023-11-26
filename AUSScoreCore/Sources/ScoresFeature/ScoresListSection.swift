@@ -19,7 +19,6 @@ public struct ScoresListSection: Reducer {
     }
 
     public var name: String
-
     public var scoreRows: IdentifiedArrayOf<ScoresRow.State>
 
     public init(name: String, scoreRows: IdentifiedArrayOf<ScoresRow.State>) {
