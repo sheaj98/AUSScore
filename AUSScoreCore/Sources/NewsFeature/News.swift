@@ -20,12 +20,13 @@ public struct News: Reducer {
   public struct State: Equatable, Identifiable {
     // MARK: Lifecycle
 
-    public init(title: String, link: URL, content: String, imageUrl: URL?, date: Date) {
+    public init(title: String, link: URL, content: String, imageUrl: URL?, date: Date, id: String) {
       self.title = title
       self.link = link
       self.content = content
       self.imageUrl = imageUrl
       self.date = date
+      self.id = id
     }
 
     public init(newsItem: NewsItem) {
@@ -34,6 +35,7 @@ public struct News: Reducer {
       content = newsItem.content
       imageUrl = newsItem.imageUrl
       date = newsItem.date
+      id = newsItem.id
     }
 
     // MARK: Public
@@ -43,10 +45,8 @@ public struct News: Reducer {
     public let content: String
     public var imageUrl: URL?
     public let date: Date
-
-    public var id: String {
-      title
-    }
+    public let id: String
+    
   }
 
   public enum Action: Equatable {
@@ -146,7 +146,7 @@ extension Store where State == News.State, Action == News.Action {
       link: URL(string: "http://www.atlanticuniversitysport.com/sports/mice/2022-23/releases/20221214i5csbw")!,
       content: "Eleven AUS players named as U SPORTS announces men's hockey roster for 2023 FISU Winter World University Games",
       imageUrl: URL(string: "http://www.atlanticuniversitysport.com/sports/mice/2022-23/photos/FISU_MHCK_1040x680-1040x_mp.jpg")!,
-      date: Date())) {
+      date: Date(), id: "testId")) {
         News()
       }
 }
