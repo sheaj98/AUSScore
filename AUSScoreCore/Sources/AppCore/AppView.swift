@@ -75,6 +75,7 @@ public struct AppReducer: Reducer {
     case appDelegate(AppDelegateReducer.Action)
     case scoresPath(StackAction<Path.State, Path.Action>)
     case leaguesPath(StackAction<Path.State, Path.Action>)
+    case clearNavStack(Tab)
   }
 
   public enum Tab {
@@ -107,7 +108,31 @@ public struct AppReducer: Reducer {
     Reduce { state, action in
       switch action {
       case .selectedTab(let tab):
-        state.tab = tab
+        if state.tab == tab {
+          // This is a double tap send clear navStack action
+          return .send(.clearNavStack(tab))
+        } else {
+          state.tab = tab
+          return .none
+        }
+      case .clearNavStack(.scores):
+        if state.scoresPath.isEmpty {
+          let id = state.scores.selectedIndex
+          return .send(.scores(.scoresList(id: id, action: .scrollToTop)))
+        }
+        state.scoresPath.removeAll()
+        return .none
+      case .clearNavStack(.news):
+        let selectedCategory = state.news.newsCategories[state.news.selectIndex]
+        if let _ = selectedCategory.articleView {
+          return .send(.news(.newsCategory(id: selectedCategory.id, action: .dismissArticle)))
+        }
+        return .send(.news(.newsCategory(id: selectedCategory.id, action: .scrollToTop)))
+      case .clearNavStack(.sports):
+        if state.leaguesPath.isEmpty {
+          return .none
+        }
+        state.leaguesPath.removeAll()
         return .none
       case .sports(.delegate(.leagueRowTapped(let sport))):
         state.leaguesPath.append(Path.State.league(League.State.init(sport: sport)))

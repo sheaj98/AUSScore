@@ -1,11 +1,11 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AppCommon
+import AsyncAlgorithms
 import ComposableArchitecture
 import DatabaseClient
 import Models
 import SwiftUI
-import AsyncAlgorithms
 
 // MARK: - ScoresList
 
@@ -17,8 +17,8 @@ public struct ScoresList: Reducer {
   // MARK: Public
 
   public struct State: Equatable, Identifiable {
-    public var id: Date {
-      selectedDate
+    public var id: Int {
+      index
     }
 
     public var selectedDate: Date
@@ -27,6 +27,7 @@ public struct ScoresList: Reducer {
     public var loadingState: LoadingState
     public var sportId: Int64?
     public var favoriteTeams: IdentifiedArrayOf<TeamInfo>
+    public var toggleScrollToTop: Bool = false
 
     public init(selectedDate: Date, index: Int, scoreSections: IdentifiedArrayOf<ScoresListSection.State> = [], loadingState: LoadingState = .loading, sportId: Int64?, favoriteTeams: IdentifiedArrayOf<TeamInfo> = []) {
       self.selectedDate = selectedDate
@@ -43,6 +44,7 @@ public struct ScoresList: Reducer {
     case scoreSections(sections: [ScoresListSection.State])
     case gamesSection(id: ScoresListSection.State.ID, action: ScoresListSection.Action)
     case refreshGames
+    case scrollToTop
   }
 
   public var body: some Reducer<State, Action> {
@@ -73,12 +75,12 @@ public struct ScoresList: Reducer {
                   ScoresListSection.State(name: sportName, scoreRows: IdentifiedArray(uniqueElements: mappedGameRows))
                 }
                 .sorted(by: { $0.name < $1.name })
-              if (!gameRows[p...].isEmpty) {
-                gameSections.insert(ScoresListSection.State(name: "Favorites", scoreRows: IdentifiedArray(uniqueElements: gameRows[p...].map({gameRow in
-                    var newRow = gameRow
+              if !gameRows[p...].isEmpty {
+                gameSections.insert(ScoresListSection.State(name: "Favorites", scoreRows: IdentifiedArray(uniqueElements: gameRows[p...].map { gameRow in
+                  var newRow = gameRow
                   newRow.containsFavorite = true
                   return newRow
-                }))), at: 0)
+                })), at: 0)
               }
               await send(.scoreSections(sections: gameSections))
             }
@@ -96,6 +98,9 @@ public struct ScoresList: Reducer {
         state.scoreSections = IdentifiedArray(uniqueElements: scores)
         return .none
       case .gamesSection:
+        return .none
+      case .scrollToTop:
+        state.toggleScrollToTop.toggle()
         return .none
       default:
         return .none
@@ -121,15 +126,24 @@ public struct ScoresListView: View {
   // MARK: Public
 
   public var body: some View {
-    List {
-      ForEachStore(self.store.scope(state: \.scoreSections, action: ScoresList.Action.gamesSection(id:action:))) {
-        ScoresListSectionView(store: $0)
+    ScrollViewReader { proxy in
+      List {
+        ForEachStore(self.store.scope(state: \.scoreSections, action: ScoresList.Action.gamesSection(id:action:))) {
+          ScoresListSectionView(store: $0)
+        }
       }
-    }
-    .animation(.default, value: viewStore.loadingState)
-    .listStyle(.grouped)
-    .refreshable {
-      await viewStore.send(.refreshGames).finish()
+      .animation(.default, value: viewStore.loadingState)
+      .listStyle(.grouped)
+      .refreshable {
+        await viewStore.send(.refreshGames).finish()
+      }
+      .onChange(of: viewStore.toggleScrollToTop) { oldValue, newValue in
+        withAnimation {
+          if let fistItem = viewStore.scoreSections.first {
+            proxy.scrollTo(fistItem.id, anchor: .bottom)
+          }
+        }
+      }
     }
     .task {
       await viewStore.send(.task).finish()

@@ -48,7 +48,8 @@ public struct NewsItem: Equatable, Identifiable, Codable {
 
 public extension NewsItem {
   static func mock(
-    title: String,
+    id: String = "testId",
+    title: String = "This is a test title",
     link: URL = URL(string: "http://www.atlanticuniversitysport.com/sports/wice/2022-23/releases/20221213i6o7s1")!,
     content: String = "Five AUS players named as U SPORTS announces roster for 2023 FISU Winter World University Games.",
     imageUrl: URL =
@@ -56,6 +57,8 @@ public extension NewsItem {
     date: Date = .now)
     -> Self
   {
-    .init(id: "testId", title: title, link: link, content: content, imageUrl: imageUrl, date: date)
+    .init(id: id, title: title, link: link, content: content, imageUrl: imageUrl, date: date)
   }
+  
+  static let placeholderItems = [NewsItem.mock(id: "1"), NewsItem.mock(id: "2"), NewsItem.mock(id: "3"), NewsItem.mock(id: "4"), NewsItem.mock(id: "5"), NewsItem.mock(id: "6"), NewsItem.mock(id: "7"), NewsItem.mock(id: "8"), NewsItem.mock(id: "9"), NewsItem.mock(id: "10")]
 }

@@ -67,6 +67,7 @@ struct ScoresListSectionView: View {
         .textCase(.none)
         .foregroundColor(.primary)
     }
+    .id(viewStore.id)
   }
 
   // MARK: Private

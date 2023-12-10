@@ -24,8 +24,9 @@ public struct NewsList: Reducer {
       self.index = index
       self.displayName = newsFeed.displayName
       self.newsItems = []
-      self.loadingState = .loaded
+      self.loadingState = .loading
       self.articleView = nil
+      self.toggleScrollToTop = false
     }
 
     public init(
@@ -34,7 +35,7 @@ public struct NewsList: Reducer {
       url: String,
       displayName: String,
       newsItems: IdentifiedArrayOf<News.State> = [],
-      loadingState: LoadingState = .loaded,
+      loadingState: LoadingState = .loading,
       articleView: ArticleFeature.State? = nil)
     {
       self.id = id
@@ -43,6 +44,7 @@ public struct NewsList: Reducer {
       self.newsItems = newsItems
       self.loadingState = loadingState
       self.articleView = articleView
+      self.toggleScrollToTop = false
     }
 
     // MARK: Public
@@ -52,6 +54,7 @@ public struct NewsList: Reducer {
     public var displayName: String
     public var newsItems: IdentifiedArrayOf<News.State>
     public var loadingState: LoadingState
+    public var toggleScrollToTop: Bool
     @PresentationState public var articleView: ArticleFeature.State?
   }
 
@@ -62,12 +65,15 @@ public struct NewsList: Reducer {
     case refresh
     case article(PresentationAction<ArticleFeature.Action>)
     case dismissArticle
+    case scrollToTop
   }
 
   public var body: some Reducer<State, Action> {
     Reduce<State, Action> { state, action in
       switch action {
       case .task:
+        state.loadingState = .loading
+        state.newsItems = IdentifiedArray(uniqueElements: NewsItem.placeholderItems.map({ News.State(newsItem: $0) }))
         return .merge(
           .run { [id = state.id] _ in
             try await syncNewsItems(id: id)
@@ -84,11 +90,15 @@ public struct NewsList: Reducer {
             await send(.newsItemResponse(.failure(error)))
           })
       case .refresh:
+        state.loadingState = .loading
         return .run { [id = state.id] _ in
           try await syncNewsItems(id: id)
         }
       case .newsItemResponse(.success(let items)):
-        state.newsItems = IdentifiedArray(uniqueElements: items)
+        if (!items.isEmpty) {
+          state.newsItems = IdentifiedArray(uniqueElements: items)
+          state.loadingState = .loaded
+        }
         return .none
       case .newsItemResponse(.failure(let error)):
         print("Could not fetch news items \(error.localizedDescription)")
@@ -101,13 +111,16 @@ public struct NewsList: Reducer {
       case .dismissArticle:
         state.articleView = nil
         return .none
+      case .scrollToTop:
+        state.toggleScrollToTop.toggle()
+        return .none
       default:
         return .none
       }
     }
     .ifLet(\.$articleView, action: /Action.article) {
       ArticleFeature()
-    }
+    }._printChanges()
   }
 
   func syncNewsItems(id: Int64) async throws {
@@ -134,10 +147,14 @@ public struct NewsListView: View {
   public struct ViewState: Equatable {
     public let loadingState: LoadingState
     public let index: Int
+    public let toggleScrolltoTop: Bool
+    public let firstNewsItem: News.State.ID?
 
     public init(state: NewsList.State) {
       self.loadingState = state.loadingState
       self.index = state.index
+      self.toggleScrolltoTop = state.toggleScrollToTop
+      self.firstNewsItem = state.newsItems.first?.id
     }
   }
 
@@ -147,24 +164,32 @@ public struct NewsListView: View {
   @Environment(\.colorScheme) var colorScheme
 
   public var body: some View {
-    ScrollView {
-      LazyVStack(spacing: 15) {
-        ForEachStore(self.store.scope(state: \.newsItems, action: NewsList.Action.newsItem(id:action:))) {
-          NewsView(store: $0)
+    ScrollViewReader { proxy in
+      ScrollView {
+        LazyVStack(spacing: 15) {
+          ForEachStore(self.store.scope(state: \.newsItems, action: NewsList.Action.newsItem(id:action:))) {
+            NewsView(store: $0)
+              .redacted(reason: viewStore.loadingState == .loading ? .placeholder : [])
+          }
+        }
+        .padding()
+      }
+      .refreshable(action: {
+        await viewStore.send(.refresh).finish()
+      })
+      .dynamicTypeSize(...DynamicTypeSize.xLarge)
+      .background(Color(uiColor: .systemGroupedBackground))
+      .onChange(of: viewStore.toggleScrolltoTop) { oldValue, newValue in
+        withAnimation {
+          proxy.scrollTo(viewStore.firstNewsItem, anchor: .bottom)
         }
       }
-      .padding()
     }
-    .refreshable(action: {
-      await viewStore.send(.refresh).finish()
-    })
-    .dynamicTypeSize(...DynamicTypeSize.xLarge)
-    .background(Color(uiColor: .systemGroupedBackground))
-    .task {
+
+    .onAppear {
       viewStore.send(.task)
     }
     .tag(viewStore.index)
-    .emptyPlaceholder(loadingState: viewStore.loadingState)
     .sheet(
       store: self.store.scope(state: \.$articleView, action: { .article($0) })
     ) { store in

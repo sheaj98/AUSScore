@@ -106,12 +106,12 @@ public struct NewsView: View {
                  .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
 
              }
-          }
+          }.unredacted()
         }
       }
       .aspectRatio(639/470, contentMode: .fit)
     }
-
+    .id(viewStore.id)
     .background(Color(uiColor: colorScheme == .light ? .systemBackground : .secondarySystemBackground))
     .cornerRadius(8)
     .contentShape(RoundedRectangle(cornerRadius: 8))

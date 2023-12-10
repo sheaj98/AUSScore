@@ -131,6 +131,9 @@ struct ArticleView: UIViewRepresentable {
 
     let webView = WKWebView(frame: .zero, configuration: configuration)
     webView.navigationDelegate = context.coordinator
+    
+    webView.isOpaque = false
+    webView.backgroundColor = UIColor(named: "secondarySystemBackground")
     return webView
   }
 
