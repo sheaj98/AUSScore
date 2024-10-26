@@ -37,6 +37,14 @@ public struct TeamInfo: Codable, Equatable, Identifiable
     self.isConference = isConference
     self.record = record
   }
+ 
+  enum CodingKeys: String, CodingKey {
+    case id
+    case sport
+    case school
+    case record
+    case isConference = "is_conference"
+  }
 }
 
 extension TeamInfo {

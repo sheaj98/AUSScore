@@ -84,7 +84,7 @@ extension DatabaseClient: DependencyKey {
       sports: {
         try await dbWriter.read { db in
           try Sport.all().order(Column("name"))
-            .including(optional: Sport.newsFeed)
+            .including(optional: Sport.newsfeed)
             .asRequest(of: SportInfo.self)
             .fetchAll(db)
         }
@@ -177,7 +177,7 @@ extension DatabaseClient: DependencyKey {
       syncGameResults: { gameResults in
         try dbWriter.write { db in
           var localGames = try GameResult.all()
-            .order(Column("gameId"), Column("teamId"))
+            .order(Column("game_id"), Column("team_id"))
             .fetchAll(db)
 
           localGames = localGames.sorted(by: { $0.id < $1.id })
@@ -230,7 +230,7 @@ extension DatabaseClient: DependencyKey {
           .prepend(())
           .map { [dbWriter] in
             dbWriter.readPublisher { db in
-              try NewsItem.joining(required: NewsItem.newsFeeds.filter(Column("id") == newsFeedId)).order(Column("isoDate").desc).fetchAll(db)
+              try NewsItem.joining(required: NewsItem.newsFeeds.filter(Column("id") == newsFeedId)).order(Column("date").desc).fetchAll(db)
             }
           }
           .switchToLatest()
@@ -249,7 +249,7 @@ extension DatabaseClient: DependencyKey {
                     .including(required: Team.school)
                     .including(required: Team.sport)))
             .including(required: Game.sport)
-            .filter((selectedDate.startOfDay...selectedDate.endOfDay).contains(Column("startTime")))
+            .filter((selectedDate.startOfDay...selectedDate.endOfDay).contains(Column("start_time")))
             .asRequest(of: GameInfo.self)
             .fetchAll(db)
         }
@@ -257,11 +257,11 @@ extension DatabaseClient: DependencyKey {
       datesWithGames: { sportId in
         try await dbWriter.read { db in
           var query = Game
-            .select(Column("startTime"), as: Date.self)
+            .select(Column("start_time"), as: Date.self)
             .distinct()
 
           if let sportId = sportId {
-            query = query.filter(Column("sportId") == sportId)
+            query = query.filter(Column("sport_id") == sportId)
           }
 
           let dates = try query.fetchAll(db)
@@ -287,11 +287,11 @@ extension DatabaseClient: DependencyKey {
                         .including(required: Team.school)
                         .including(required: Team.sport)))
                 .including(required: Game.sport)
-                .filter((start...end).contains(Column("startTime")))
+                .filter((start...end).contains(Column("start_time")))
                 .asRequest(of: GameInfo.self)
 
               if let sportId = sportId {
-                query = query.filter(Column("sportId") == sportId)
+                query = query.filter(Column("sport_id") == sportId)
               }
 
               return try query.fetchAll(db)
@@ -343,8 +343,8 @@ extension DatabaseClient: DependencyKey {
                 .asRequest(of: GameInfo.self)
 
               var game = try query.fetchOne(db)!
-              let team0Record = try GameResult.filter(Column("teamId") == game.gameResults[0].team.id)
-                .joining(required: GameResult.game.filter(Column("isExhibition") == false).filter(Column("isPlayoff") == false))
+              let team0Record = try GameResult.filter(Column("team_id") == game.gameResults[0].team.id)
+                .joining(required: GameResult.game.filter(Column("is_exhibition") == false).filter(Column("is_playoffs") == false))
                 .fetchAll(db)
                 .reduce((0, 0, 0)) { partialResult, gameResult in
                   let (wins, losses, draw) = partialResult
@@ -360,8 +360,8 @@ extension DatabaseClient: DependencyKey {
                   }
                 }
 
-              let team1Record = try GameResult.filter(Column("teamId") == game.gameResults[1].team.id)
-                .joining(required: GameResult.game.filter(Column("isExhibition") == false).filter(Column("isPlayoff") == false))
+              let team1Record = try GameResult.filter(Column("team_id") == game.gameResults[1].team.id)
+                .joining(required: GameResult.game.filter(Column("is_exhibition") == false).filter(Column("is_playoffs") == false))
                 .fetchAll(db)
                 .reduce((0, 0, 0)) { partialResult, gameResult in
                   let (wins, losses, draw) = partialResult
@@ -392,7 +392,7 @@ extension DatabaseClient: DependencyKey {
       gamesForTeam: { teamId in
         try await dbWriter.read { db in
           let games = try Game
-            .order(Column("startTime").asc)
+            .order(Column("start_time").asc)
             .including(
               all: Game.gameResults
                 .including(
@@ -411,16 +411,16 @@ extension DatabaseClient: DependencyKey {
       teamsForSport: { sportId in
         try await dbWriter.read { db in
           let teams = try Team.all()
-            .filter(Column("sportId") == sportId)
-            .filter(Column("isConference") == true)
+            .filter(Column("sport_id") == sportId)
+            .filter(Column("is_conference") == true)
             .including(required: Team.sport)
             .including(required: Team.school)
             .asRequest(of: TeamInfo.self)
             .fetchAll(db)
             .map { team in
               var newTeam = team
-              let record = try GameResult.filter(Column("teamId") == team.id)
-                .joining(required: GameResult.game.filter(Column("isExhibition") == false).filter(Column("isPlayoff") == false))
+              let record = try GameResult.filter(Column("team_id") == team.id)
+                .joining(required: GameResult.game.filter(Column("is_exhibition") == false).filter(Column("is_playoffs") == false))
                 .fetchAll(db)
                 .reduce((0, 0, 0)) { partialResult, gameResult in
                   let (wins, losses, draw) = partialResult
@@ -463,12 +463,12 @@ extension DatabaseClient: DependencyKey {
             dbWriter.readPublisher { db in
               let user = try User.including(all:
                 User.favoriteSports
-                  .including(required: Sport.newsFeed)
-                  .forKey("favoriteSports"))
+                  .including(required: Sport.newsfeed)
+                  .forKey("favorite_sports"))
                 .including(all: User.favoriteTeams
                   .including(required: Team.sport)
                   .including(required: Team.school)
-                  .forKey("favoriteTeams")
+                  .forKey("favorite_teams")
                 )
                 .asRequest(of: UserInfo.self)
                 .fetchOne(db)
@@ -493,23 +493,23 @@ extension DatabaseClient: DependencyKey {
       },
       deleteFavoriteSport: { sportId, userId in
         try await dbWriter.write { db in
-          let res = try FavoriteSport.deleteOne(db, key: ["userId": userId, "sportId": sportId])
+          let res = try FavoriteSport.deleteOne(db, key: ["user_id": userId, "sport_id": sportId])
           return res
         }
       },
       deleteFavoriteTeam: { teamId, userId in
         try await dbWriter.write { db in
-          try FavoriteTeam.deleteOne(db, key: ["userId": userId, "teamId": teamId])
+          try FavoriteTeam.deleteOne(db, key: ["user_id": userId, "team_id": teamId])
         }
       },
       conferenceSchools: {
         try await dbWriter.read { db in
           try School.all().including(all: School.teams
-            .filter(Column("isConference") == true)
+            .filter(Column("is_conference") == true)
             .including(required: Team.sport)
             .including(required: Team.school)
           )
-          .order(Column("displayName"))
+          .order(Column("display_name"))
           .asRequest(of: SchoolInfo.self).fetchAll(db)
           .filter {
             !$0.teams.isEmpty
@@ -537,20 +537,20 @@ extension DatabaseClient: DependencyKey {
     migrator.eraseDatabaseOnSchemaChange = true
     #endif
 
-    migrator.registerMigration("createSchool") { db in
+    migrator.registerMigration("create_school") { db in
       try db.create(table: "school") { t in
         t.primaryKey("id", .integer)
         t.column("name", .text).notNull()
         t.column("location", .text).notNull()
         t.column("logo", .text)
-        t.column("displayName", .text).notNull()
+        t.column("display_name", .text).notNull()
       }
     }
 
-    migrator.registerMigration("createNewsFeed") { db in
-      try db.create(table: "newsFeed", body: { t in
+    migrator.registerMigration("create_newsfeed") { db in
+      try db.create(table: "newsfeed", body: { t in
         t.primaryKey("id", .integer)
-        t.column("displayName", .text)
+        t.column("display_name", .text)
         t.column("url", .text)
       })
     }
@@ -561,130 +561,129 @@ extension DatabaseClient: DependencyKey {
         t.column("name", .text).notNull()
         t.column("gender", .text).notNull()
         t.column("icon", .text)
-        t.column("winValue", .integer)
+        t.column("win_value", .integer)
 
-        t.column("newsFeedId", .integer)
+        t.column("newsfeed_id", .integer)
           .notNull()
           .indexed()
-          .references("newsFeed")
+          .references("newsfeed")
       }
     }
 
-    migrator.registerMigration("createTeam") { db in
+    migrator.registerMigration("create_team") { db in
       try db.create(table: "team") { t in
         t.primaryKey("id", .integer)
-        t.column("isConference", .boolean).defaults(to: false)
-        t.column("schoolId", .integer)
+        t.column("is_conference", .boolean).defaults(to: false)
+        t.column("school_id", .integer)
           .notNull()
           .indexed()
           .references("school", onDelete: .cascade)
 
-        t.column("sportId", .integer)
+        t.column("sport_id", .integer)
           .notNull()
           .indexed()
           .references("sport", onDelete: .cascade)
       }
     }
 
-    migrator.registerMigration("createGame") { db in
+    migrator.registerMigration("create_game") { db in
       try db.create(table: "game") { t in
         t.primaryKey("id", .text)
 
-        t.column("startTime", .datetime)
+        t.column("start_time", .datetime)
           .notNull()
           .indexed()
 
         t.column("status", .text)
           .notNull()
 
-        t.column("currentTime", .text)
-        t.column("isExhibition", .boolean)
-        t.column("is4PointGame", .boolean)
-        t.column("isPlayoff", .boolean)
+        t.column("current_time", .text)
+        t.column("is_exhibition", .boolean)
+        t.column("is_playoffs", .boolean)
         t.column("description", .text)
 
-        t.column("sportId", .integer)
+        t.column("sport_id", .integer)
           .notNull()
           .indexed()
           .references("sport", onDelete: .cascade)
       }
     }
 
-    migrator.registerMigration("createUser") { db in
+    migrator.registerMigration("create_user") { db in
       try db.create(table: "user") { t in
         t.primaryKey("id", .text)
       }
     }
     
-    migrator.registerMigration("createFavoriteTeams") { db in
-      try db.create(table: "favoriteTeam") { t in
-        t.column("teamId", .integer)
+    migrator.registerMigration("create_favorite_teams") { db in
+      try db.create(table: "favorite_team") { t in
+        t.column("team_id", .integer)
           .notNull()
           .references("team", onDelete: .cascade)
 
-        t.column("userId", .text)
+        t.column("user_id", .text)
           .notNull()
           .indexed()
           .references("user", onDelete: .cascade)
 
-        t.primaryKey(["userId", "teamId"])
+        t.primaryKey(["user_id", "team_id"])
       }
     }
 
-    migrator.registerMigration("createFavoriteSports") { db in
-      try db.create(table: "favoriteSport") { t in
-        t.column("sportId", .integer)
+    migrator.registerMigration("create_favorite_sports") { db in
+      try db.create(table: "favorite_sport") { t in
+        t.column("sport_id", .integer)
           .notNull()
           .references("sport", onDelete: .cascade)
 
-        t.column("userId", .text)
+        t.column("user_id", .text)
           .notNull()
           .indexed()
           .references("user", onDelete: .cascade)
 
-        t.primaryKey(["userId", "sportId"])
+        t.primaryKey(["user_id", "sport_id"])
       }
     }
 
-    migrator.registerMigration("createGameResult") { db in
-      try db.create(table: "gameResult") { t in
+    migrator.registerMigration("create_game_result") { db in
+      try db.create(table: "game_result") { t in
         t.column("score", .integer)
         t.column("outcome", .text)
-        t.column("isHome", .boolean)
-        t.column("teamId", .integer)
+        t.column("is_home", .boolean)
+        t.column("team_id", .integer)
           .notNull()
           .indexed()
           .references("team", onDelete: .cascade)
-        t.column("gameId", .text)
+        t.column("game_id", .text)
           .notNull()
           .indexed()
           .references("game", onDelete: .cascade)
 
-        t.primaryKey(["gameId", "teamId"])
+        t.primaryKey(["game_id", "team_id"])
       }
     }
 
-    migrator.registerMigration("createNewsItems") { db in
-      try db.create(table: "newsItem", body: { t in
+    migrator.registerMigration("create_news_items") { db in
+      try db.create(table: "news_item", body: { t in
         t.column("title", .text)
         t.column("link", .text)
         t.column("content", .text)
-        t.column("imageUrl", .text)
-        t.column("isoDate", .datetime)
+        t.column("image_url", .text)
+        t.column("date", .datetime)
         t.primaryKey("id", .text)
       })
     }
 
-    migrator.registerMigration("createNewsItemCategories") { db in
-      try db.create(table: "newsFeedCategory", body: { t in
-        t.column("newsFeedId", .integer)
+    migrator.registerMigration("create_news_item_categories") { db in
+      try db.create(table: "newsfeed_category", body: { t in
+        t.column("newsfeed_id", .integer)
           .notNull()
           .indexed()
-          .references("newsFeed", onDelete: .cascade)
-        t.column("newsItemId", .text)
+          .references("newsfeed", onDelete: .cascade)
+        t.column("news_item_id", .text)
           .notNull()
           .indexed()
-          .references("newsItem", onDelete: .cascade)
+          .references("news_item", onDelete: .cascade)
       })
     }
 

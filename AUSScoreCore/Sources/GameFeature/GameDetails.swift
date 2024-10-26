@@ -26,19 +26,17 @@ public struct GameDetails: Reducer {
       currentTime = gameInfo.currentTime
       sport = gameInfo.sport
       isExhibition = gameInfo.isExhibition
-      is4PointGame = gameInfo.is4PointGame
       homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? gameInfo.gameResults.first!
       awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? gameInfo.gameResults.first!
     }
     
-    public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sport: Sport, isExhibition: Bool, is4PointGame: Bool, homeTeamResult: GameResultInfo, awayTeamResult: GameResultInfo) {
+    public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sport: Sport, isExhibition: Bool, homeTeamResult: GameResultInfo, awayTeamResult: GameResultInfo) {
       self.id = id
       self.startTime = startTime
       self.status = status
       self.currentTime = currentTime
       self.sport = sport
       self.isExhibition = isExhibition
-      self.is4PointGame = is4PointGame
       self.homeTeamResult = homeTeamResult
       self.awayTeamResult = awayTeamResult
     }
@@ -51,7 +49,6 @@ public struct GameDetails: Reducer {
     public var currentTime: String?
     public let sport: Sport
     public let isExhibition: Bool
-    public let is4PointGame: Bool
     public var homeTeamResult: GameResultInfo
     public var awayTeamResult: GameResultInfo
 

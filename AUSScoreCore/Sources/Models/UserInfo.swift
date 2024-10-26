@@ -15,4 +15,10 @@ public struct UserInfo: Codable, Equatable {
     self.favoriteTeams = favoriteTeams
     self.favoriteSports = favoriteSports
   }
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case favoriteTeams = "favorite_teams"
+    case favoriteSports = "favorite_sports"
+  }
 }

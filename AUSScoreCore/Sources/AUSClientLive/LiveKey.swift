@@ -17,9 +17,9 @@ extension AUSClient: DependencyKey {
 
   private static func live() -> Self {
     let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601TimeZone)
+    decoder.dateDecodingStrategy = .iso8601
 
-    let client = APIClient(baseURL: URL(string: "https://nhs80qwzwd.execute-api.us-east-1.amazonaws.com")) {
+    let client = APIClient(baseURL: URL(string: "https://aus.shoz.dev/v1")) {
       $0.decoder = decoder
     }
 
@@ -29,8 +29,8 @@ extension AUSClient: DependencyKey {
         return try await client.send(request).value
       },
       newsItems: { newsFeedId in
-        let request = Request<NewsItems>(path: "newsfeeds/\(newsFeedId)/items")
-        return try await client.send(request).value.items
+        let request = Request<[NewsItem]>(path: "newsfeeds/\(newsFeedId)/parse")
+        return try await client.send(request).value
       },
       schools: {
         let request = Request<[School]>(path: "schools")

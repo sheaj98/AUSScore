@@ -10,6 +10,14 @@ public struct School: Equatable, Identifiable, Codable {
   public let location: String
   public let logo: URL?
   public let displayName: String
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case name
+    case location
+    case logo
+    case displayName = "display_name"
+  }
 
   public init(id: Int64, name: String, location: String, logo: URL?, displayName: String) {
     self.id = id

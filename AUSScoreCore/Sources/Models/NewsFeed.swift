@@ -8,6 +8,12 @@ public struct NewsFeed: Equatable, Identifiable, Codable {
   public let id: Int64
   public let displayName: String
   public let url: String
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case displayName = "display_name"
+    case url
+  }
 
   public init(id: Int64, displayName: String, url: String) {
     self.id = id

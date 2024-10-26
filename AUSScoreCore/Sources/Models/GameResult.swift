@@ -26,6 +26,14 @@ public struct GameResult: Identifiable, Codable, Equatable {
   public var id: String {
     "\(gameId)+\(teamId)"
   }
+  
+  enum CodingKeys: String, CodingKey {
+    case score
+    case outcome
+    case isHome = "is_home"
+    case teamId = "team_id"
+    case gameId = "game_id"
+  }
 
   // MARK: Internal
 

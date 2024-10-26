@@ -23,7 +23,6 @@ struct GameRowReducer: Reducer {
       currentTime: String?,
       sport: Sport,
       isExhibition: Bool = false,
-      is4PointGame: Bool = false,
       gameResults: [GameResultInfo],
       teamId: Int64
     ) {
@@ -33,7 +32,6 @@ struct GameRowReducer: Reducer {
       self.currentTime = currentTime
       self.sport = sport
       self.isExhibition = isExhibition
-      self.is4PointGame = is4PointGame
       selectedTeamResult = gameResults.first(where: { $0.team.id == teamId }) ?? .unknown(isHome: true, gameId: id)
       opponentTeamResult = gameResults.first(where: { $0.team.id != teamId }) ?? .unknown(isHome: false, gameId: id)
     }
@@ -45,7 +43,6 @@ struct GameRowReducer: Reducer {
       currentTime = gameInfo.currentTime
       sport = gameInfo.sport
       isExhibition = gameInfo.isExhibition
-      is4PointGame = gameInfo.is4PointGame
       selectedTeamResult = gameInfo.gameResults.first(where: { $0.team.id == teamId }) ?? .unknown(isHome: true, gameId: gameInfo.id)
       opponentTeamResult = gameInfo.gameResults.first(where: { $0.team.id != teamId }) ?? .unknown(isHome: false, gameId: gameInfo.id)
     }
@@ -58,7 +55,6 @@ struct GameRowReducer: Reducer {
     public let currentTime: String?
     public let sport: Sport
     public let isExhibition: Bool
-    public let is4PointGame: Bool
     public let selectedTeamResult: GameResultInfo
     public let opponentTeamResult: GameResultInfo
 

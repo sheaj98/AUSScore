@@ -8,6 +8,9 @@ import Models
 extension GameResult: FetchableRecord, PersistableRecord { }
 
 extension GameResult {
+  public static var databaseTableName: String {
+    "game_result"
+  }
   static let game = belongsTo(Game.self)
   static let team = belongsTo(Team.self)
 

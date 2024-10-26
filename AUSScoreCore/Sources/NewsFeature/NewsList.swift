@@ -78,7 +78,7 @@ public struct NewsList: Reducer {
           .run { [id = state.id] _ in
             try await syncNewsItems(id: id)
           } catch: { error, _ in
-            print(error)
+            print("Error syncing news items \(error)")
           },
 
           .run { [id = state.id] send in

@@ -16,6 +16,13 @@ public struct Team: Identifiable, Codable, Equatable {
     self.schoolId = schoolId
     self.isConference = isConference
   }
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case sportId = "sport_id"
+    case schoolId = "school_id"
+    case isConference = "is_conference"
+  }
 }
 
 extension Team {

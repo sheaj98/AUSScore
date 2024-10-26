@@ -11,6 +11,9 @@ import Models
 extension NewsFeed: FetchableRecord, PersistableRecord {}
 
 extension NewsFeed {
+  public static var databaseTableName: String {
+    "newsfeed"
+  }
   static let newsFeedCategories = hasMany(NewsFeedCategory.self)
 
   static let newsItems = hasMany(NewsItem.self, through: newsFeedCategories, using: NewsFeedCategory.newsItem)

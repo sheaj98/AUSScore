@@ -12,7 +12,6 @@ public struct GameInfo: Decodable, Equatable, Identifiable {
     currentTime: String?,
     sport: Sport,
     isExhibition: Bool = false,
-    is4PointGame: Bool = false,
     isPlayoff: Bool = false,
     description: String? = nil,
     gameResults: [GameResultInfo])
@@ -24,7 +23,6 @@ public struct GameInfo: Decodable, Equatable, Identifiable {
     self.sport = sport
     self.gameResults = gameResults
     self.isExhibition = isExhibition
-    self.is4PointGame = is4PointGame
     self.isPlayoff = isPlayoff
     self.description = description
   }
@@ -38,9 +36,20 @@ public struct GameInfo: Decodable, Equatable, Identifiable {
   public let sport: Sport
   public var gameResults: [GameResultInfo]
   public let isExhibition: Bool
-  public let is4PointGame: Bool
   public let isPlayoff: Bool
   public let description: String?
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case startTime = "start_time"
+    case status
+    case currentTime = "current_time"
+    case sport
+    case gameResults = "game_results"
+    case isExhibition = "is_exhibition"
+    case isPlayoff = "is_playoffs"
+    case description
+  }
 }
 
 public extension GameInfo {

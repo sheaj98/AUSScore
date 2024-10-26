@@ -19,7 +19,6 @@ public struct ScoresRow: Reducer {
       currentTime: String?,
       sport: Sport,
       isExhibition: Bool = false,
-      is4PointGame: Bool = false,
       containsFavorite: Bool = false,
       isPlayoff: Bool = false,
       description: String? = nil,
@@ -32,7 +31,6 @@ public struct ScoresRow: Reducer {
       self.sport = sport
       self.containsFavorite = containsFavorite
       self.isExhibition = isExhibition
-      self.is4PointGame = is4PointGame
       self.isPlayoff = isPlayoff
       self.description = description
       homeTeamResult = gameResults.first(where: { $0.isHome })!
@@ -47,7 +45,6 @@ public struct ScoresRow: Reducer {
       sport = gameInfo.sport
       self.containsFavorite = containsFavorite
       isExhibition = gameInfo.isExhibition
-      is4PointGame = gameInfo.is4PointGame
       isPlayoff = gameInfo.isPlayoff
       description = gameInfo.description
       homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? .unknown(isHome: true, gameId: gameInfo.id)
@@ -63,7 +60,6 @@ public struct ScoresRow: Reducer {
     public let sport: Sport
     public let isExhibition: Bool
     public var containsFavorite: Bool
-    public let is4PointGame: Bool
     public let isPlayoff: Bool
     public let description: String?
     public let homeTeamResult: GameResultInfo
@@ -122,7 +118,7 @@ struct TeamRowView: View {
     .gridColumnAlignment(.leading)
     Spacer()
 
-    if let score = teamResult.score {
+    if let score = teamResult.score, teamResult.outcome != .tbd {
       Text(score.formatted())
         .fontWeight(.semibold)
     }

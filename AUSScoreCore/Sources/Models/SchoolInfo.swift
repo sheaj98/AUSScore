@@ -23,6 +23,15 @@ public struct SchoolInfo: Equatable, Identifiable, Codable {
     self.displayName = displayName
     self.teams = teams
   }
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case name
+    case location
+    case logo
+    case displayName = "display_name"
+    case teams
+  }
 }
 
 extension SchoolInfo {

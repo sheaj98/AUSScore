@@ -22,6 +22,13 @@ public struct GameResultInfo: Decodable, Equatable {
   public let gameId: String
 
   // MARK: Internal
+  enum CodingKeys: String, CodingKey {
+    case score
+    case outcome
+    case isHome = "is_home"
+    case team
+    case gameId = "game_id"
+  }
 
 }
 

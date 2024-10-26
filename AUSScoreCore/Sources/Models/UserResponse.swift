@@ -11,6 +11,13 @@ public struct UserResponse: Codable, Identifiable {
   public let favoriteSports: [Int]
   public let favoriteTeams: [Int]
   
+  enum CodingKeys: String, CodingKey {
+    case id
+    case deviceIds = "device_ids"
+    case favoriteSports = "favorite_sport_ids"
+    case favoriteTeams = "favorite_team_ids"
+  }
+  
   public init(id: String, deviceIds: [String] = [], favoriteSports: [Int] = [], favoriteTeams: [Int] = []) {
     self.id = id
     self.deviceIds = deviceIds

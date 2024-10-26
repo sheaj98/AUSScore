@@ -11,6 +11,10 @@ public struct AddFavoriteSportRequest: Codable {
   public init(sportId: Int64) {
     self.sportId = sportId
   }
+  
+  enum CodingKeys: String, CodingKey {
+    case sportId = "sport_id"
+  }
 }
 
 public struct AddFavoriteTeamRequest: Codable {
@@ -18,5 +22,9 @@ public struct AddFavoriteTeamRequest: Codable {
   
   public init(teamId: Int64) {
     self.teamId = teamId
+  }
+  
+  enum CodingKeys: String, CodingKey {
+    case teamId = "team_id"
   }
 }

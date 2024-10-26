@@ -34,7 +34,7 @@ public struct League: Reducer {
     public init(sport: SportInfo, selectedView: Int = 0, isFavorite: Bool = false, isUpdatingFavorite: Bool = false) {
       self.sport = sport
       self.selectedView = selectedView
-      self.news = .init(from: sport.newsFeed, index: 0)
+      self.news = .init(from: sport.newsfeed, index: 0)
       self.isFavorite = isFavorite
       self.scores = ScoresFeature.State(sportId: sport.id)
       self.standings = StandingsReducer.State(sportId: sport.id)

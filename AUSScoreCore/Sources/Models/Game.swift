@@ -11,18 +11,27 @@ public struct Game: Identifiable, Equatable, Codable {
   public let currentTime: String?
   public let sportId: Int
   public let isExhibition: Bool
-  public let is4PointGame: Bool
   public let isPlayoff: Bool
   public let description: String?
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case startTime = "start_time"
+    case status
+    case currentTime = "current_time"
+    case sportId = "sport_id"
+    case isExhibition = "is_exhibition"
+    case isPlayoff = "is_playoffs"
+    case description
+  }
 
-  public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sportId: Int, isExhibition: Bool = false, is4PointGame: Bool = false, isPlayoff: Bool = false, description: String? = nil) {
+  public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sportId: Int, isExhibition: Bool = false, isPlayoff: Bool = false, description: String? = nil) {
     self.id = id
     self.startTime = startTime
     self.status = status
     self.currentTime = currentTime
     self.sportId = sportId
     self.isExhibition = isExhibition
-    self.is4PointGame = is4PointGame
     self.isPlayoff = isPlayoff
     self.description = description
   }
@@ -31,7 +40,7 @@ public struct Game: Identifiable, Equatable, Codable {
 // MARK: - GameStatus
 
 public enum GameStatus: String, Codable {
-  case complete = "COMPLETE"
+  case complete = "COMPLETED"
   case inProgress = "IN_PROGRESS"
   case cancelled = "CANCELLED"
   case upcoming = "UPCOMING"

@@ -20,13 +20,22 @@ public struct Sport: Identifiable, Codable, Equatable {
     self.newsfeedID = newsfeedID
     self.winValue = winValue
   }
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case name
+    case gender
+    case icon
+    case newsfeedID = "newsfeed_id"
+    case winValue = "win_value"
+  }
 }
 
 // MARK: - Gender
 
 public enum Gender: String, Codable {
-  case male = "MALE"
-  case female = "FEMALE"
+  case male = "M"
+  case female = "F"
 }
 
 extension Sport {

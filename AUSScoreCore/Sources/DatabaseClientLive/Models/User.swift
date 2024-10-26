@@ -28,6 +28,15 @@ public struct FavoriteSport: Codable, FetchableRecord, PersistableRecord {
   public let userId: String
   public let sportId: Int64
   
+  enum CodingKeys: String, CodingKey {
+    case userId = "user_id"
+    case sportId = "sport_id"
+  }
+  
+  public static var databaseTableName: String {
+    "favorite_sport"
+  }
+  
   public init(userId: String, sportId: Int64) {
     self.userId = userId
     self.sportId = sportId
@@ -49,9 +58,18 @@ public struct FavoriteTeam: Codable, FetchableRecord, PersistableRecord {
   public let userId: String
   public let teamId: Int64
   
+  enum CodingKeys: String, CodingKey {
+    case userId = "user_id"
+    case teamId = "team_id"
+  }
+  
   public init(userId: String, teamId: Int64) {
     self.userId = userId
     self.teamId = teamId
+  }
+  
+  public static var databaseTableName: String {
+    "favorite_team"
   }
   
   static let user = belongsTo(User.self)

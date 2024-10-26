@@ -46,6 +46,7 @@ public struct LeaguesList: Reducer {
         state.leagues = IdentifiedArray(uniqueElements: sports)
         return .none
       case .leaguesResponse(.failure(let error)):
+        print("Error getting sports" + error.localizedDescription)
         print(error)
         return .none
       default:

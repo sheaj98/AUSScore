@@ -11,6 +11,11 @@ public struct NewsFeedCategory: Identifiable, Codable, Equatable {
     self.newsItemId = newsItemId
   }
   
+  enum CodingKeys: String, CodingKey {
+    case newsFeedId = "newsfeed_id"
+    case newsItemId = "news_item_id"
+  }
+  
   public var id: String {
     return "\(newsFeedId)+\(newsItemId)"
   }
