@@ -597,7 +597,7 @@ extension DatabaseClient: DependencyKey {
         t.column("status", .text)
           .notNull()
 
-        t.column("current_time", .text)
+        t.column("game_time", .text)
         t.column("is_exhibition", .boolean)
         t.column("is_playoffs", .boolean)
         t.column("description", .text)

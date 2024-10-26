@@ -16,7 +16,7 @@ public struct ScoresRow: Reducer {
       id: String,
       startTime: Date,
       status: GameStatus,
-      currentTime: String?,
+      gameTime: String?,
       sport: Sport,
       isExhibition: Bool = false,
       containsFavorite: Bool = false,
@@ -27,7 +27,7 @@ public struct ScoresRow: Reducer {
       self.id = id
       self.startTime = startTime
       self.status = status
-      self.currentTime = currentTime
+      self.gameTime = gameTime
       self.sport = sport
       self.containsFavorite = containsFavorite
       self.isExhibition = isExhibition
@@ -41,7 +41,7 @@ public struct ScoresRow: Reducer {
       id = gameInfo.id
       startTime = gameInfo.startTime
       status = gameInfo.status
-      currentTime = gameInfo.currentTime
+      gameTime = gameInfo.gameTime
       sport = gameInfo.sport
       self.containsFavorite = containsFavorite
       isExhibition = gameInfo.isExhibition
@@ -56,7 +56,7 @@ public struct ScoresRow: Reducer {
     public let id: String
     public let startTime: Date
     public let status: GameStatus
-    public let currentTime: String?
+    public let gameTime: String?
     public let sport: Sport
     public let isExhibition: Bool
     public var containsFavorite: Bool
@@ -72,7 +72,7 @@ public struct ScoresRow: Reducer {
       case .complete:
         return "Final"
       case .inProgress:
-        return currentTime?.replacingOccurrences(of: "half", with: "") ?? "Upcoming"
+        return gameTime?.replacingOccurrences(of: "half", with: "") ?? "Upcoming"
       case .upcoming:
         return startTime.formatted(date: .omitted, time: .shortened)
       }
@@ -98,6 +98,7 @@ public struct ScoresRow: Reducer {
 
 struct TeamRowView: View {
   let teamResult: GameResultInfo
+  let gameStatus: GameStatus
 
   var body: some View {
     Label {
@@ -118,7 +119,7 @@ struct TeamRowView: View {
     .gridColumnAlignment(.leading)
     Spacer()
 
-    if let score = teamResult.score, teamResult.outcome != .tbd {
+    if let score = teamResult.score, gameStatus != .upcoming {
       Text(score.formatted())
         .fontWeight(.semibold)
     }
@@ -141,18 +142,18 @@ struct ScoresRowView: View {
 
   var body: some View {
     Button {
-      viewStore.send(.tapped(GameInfo(id: viewStore.id, startTime: viewStore.startTime, status: viewStore.status, currentTime: viewStore.currentTime, sport: viewStore.sport, gameResults: [viewStore.homeTeamResult, viewStore.awayTeamResult])))
+      viewStore.send(.tapped(GameInfo(id: viewStore.id, startTime: viewStore.startTime, status: viewStore.status, gameTime: viewStore.gameTime, sport: viewStore.sport, gameResults: [viewStore.homeTeamResult, viewStore.awayTeamResult])))
     } label: {
       Grid(verticalSpacing: 12) {
         GridRow {
-          TeamRowView(teamResult: viewStore.homeTeamResult)
+          TeamRowView(teamResult: viewStore.homeTeamResult, gameStatus: viewStore.status)
           Text(viewStore.timeString)
             .gridColumnAlignment(.trailing)
             .frame(width: 100, alignment: .trailing)
         }
 
         GridRow {
-          TeamRowView(teamResult: viewStore.awayTeamResult)
+          TeamRowView(teamResult: viewStore.awayTeamResult, gameStatus: viewStore.status)
         }
         if viewStore.containsFavorite {
           GridRow {

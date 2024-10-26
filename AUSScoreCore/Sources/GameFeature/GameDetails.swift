@@ -23,18 +23,18 @@ public struct GameDetails: Reducer {
       id = gameInfo.id
       startTime = gameInfo.startTime
       status = gameInfo.status
-      currentTime = gameInfo.currentTime
+      gameTime = gameInfo.gameTime
       sport = gameInfo.sport
       isExhibition = gameInfo.isExhibition
       homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? gameInfo.gameResults.first!
       awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? gameInfo.gameResults.first!
     }
     
-    public init(id: String, startTime: Date, status: GameStatus, currentTime: String?, sport: Sport, isExhibition: Bool, homeTeamResult: GameResultInfo, awayTeamResult: GameResultInfo) {
+    public init(id: String, startTime: Date, status: GameStatus, gameTime: String?, sport: Sport, isExhibition: Bool, homeTeamResult: GameResultInfo, awayTeamResult: GameResultInfo) {
       self.id = id
       self.startTime = startTime
       self.status = status
-      self.currentTime = currentTime
+      self.gameTime = gameTime
       self.sport = sport
       self.isExhibition = isExhibition
       self.homeTeamResult = homeTeamResult
@@ -46,7 +46,7 @@ public struct GameDetails: Reducer {
     public let id: String
     public let startTime: Date
     public var status: GameStatus
-    public var currentTime: String?
+    public var gameTime: String?
     public let sport: Sport
     public let isExhibition: Bool
     public var homeTeamResult: GameResultInfo
@@ -59,7 +59,7 @@ public struct GameDetails: Reducer {
       case .complete:
         return "Final"
       case .inProgress:
-        return currentTime ?? "Upcoming"
+        return gameTime ?? "Upcoming"
       default:
         return startTime.formatted(date: .abbreviated, time: .shortened)
       }
@@ -86,7 +86,7 @@ public struct GameDetails: Reducer {
           }
         }
       case .gameDetails(let gameInfo):
-        state.currentTime = gameInfo.currentTime
+        state.gameTime = gameInfo.gameTime
         state.homeTeamResult = gameInfo.gameResults.first(where: { $0.isHome }) ?? .unknown(isHome: true, gameId: gameInfo.id)
         state.awayTeamResult = gameInfo.gameResults.first(where: { !$0.isHome }) ?? .unknown(isHome: true, gameId: gameInfo.id)
         return .none

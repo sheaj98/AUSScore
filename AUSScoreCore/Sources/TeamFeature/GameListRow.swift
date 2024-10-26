@@ -20,7 +20,7 @@ struct GameRowReducer: Reducer {
       id: String,
       startTime: Date,
       status: GameStatus,
-      currentTime: String?,
+      gameTime: String?,
       sport: Sport,
       isExhibition: Bool = false,
       gameResults: [GameResultInfo],
@@ -29,7 +29,7 @@ struct GameRowReducer: Reducer {
       self.id = id
       self.startTime = startTime
       self.status = status
-      self.currentTime = currentTime
+      self.gameTime = gameTime
       self.sport = sport
       self.isExhibition = isExhibition
       selectedTeamResult = gameResults.first(where: { $0.team.id == teamId }) ?? .unknown(isHome: true, gameId: id)
@@ -40,7 +40,7 @@ struct GameRowReducer: Reducer {
       id = gameInfo.id
       startTime = gameInfo.startTime
       status = gameInfo.status
-      currentTime = gameInfo.currentTime
+      gameTime = gameInfo.gameTime
       sport = gameInfo.sport
       isExhibition = gameInfo.isExhibition
       selectedTeamResult = gameInfo.gameResults.first(where: { $0.team.id == teamId }) ?? .unknown(isHome: true, gameId: gameInfo.id)
@@ -52,7 +52,7 @@ struct GameRowReducer: Reducer {
     public let id: String
     public let startTime: Date
     public let status: GameStatus
-    public let currentTime: String?
+    public let gameTime: String?
     public let sport: Sport
     public let isExhibition: Bool
     public let selectedTeamResult: GameResultInfo
@@ -65,7 +65,7 @@ struct GameRowReducer: Reducer {
       case .complete:
         return "Final"
       case .inProgress:
-        return currentTime?.replacingOccurrences(of: "half", with: "") ?? "Upcoming"
+        return gameTime?.replacingOccurrences(of: "half", with: "") ?? "Upcoming"
       case .upcoming:
         return startTime.formatted(date: .omitted, time: .shortened)
       }
