@@ -13,7 +13,7 @@ extension DependencyValues {
   // MARK: Private
   private enum UserIdentifierKey: DependencyKey {
     static let liveValue = UserIdentifier.live
-    static let testValue = UserIdentifier.unimplemented
+    static let testValue = UserIdentifier.testKey
   }
 }
 
@@ -37,6 +37,6 @@ extension UserIdentifier {
 
 // MARK: - Mock
 extension UserIdentifier {
-  public static let unimplemented = Self(
-    id: XCTUnimplemented("\(Self.self).id"))
+  public static let testKey = Self(
+    id: unimplemented("\(Self.self).id"))
 }

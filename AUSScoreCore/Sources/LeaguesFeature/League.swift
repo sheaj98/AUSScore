@@ -13,7 +13,8 @@ import ScoresFeature
 import SwiftUI
 import UserIdentifier
 
-public struct League: Reducer {
+@Reducer
+public struct League {
   public init() {}
   
   public enum Tab: Int {
@@ -55,15 +56,15 @@ public struct League: Reducer {
   }
   
   public var body: some Reducer<State, Action> {
-    Scope(state: \.news, action: /Action.news) {
+    Scope(state: \.news, action: \.news) {
       NewsList()
     }
     
-    Scope(state: \.scores, action: /Action.scores) {
+    Scope(state: \.scores, action: \.scores) {
       ScoresFeature()
     }
     
-    Scope(state: \.standings, action: /Action.standings) {
+    Scope(state: \.standings, action: \.standings) {
       StandingsReducer()
     }
     
@@ -148,13 +149,13 @@ public struct LeagueView: View {
       get: \.selectedView,
       send: League.Action.selected))
     {
-      NewsListView(store: self.store.scope(state: \.news, action: League.Action.news))
+      NewsListView(store: self.store.scope(state: \.news, action: \.news))
         .tag(0)
         
-      ScoresContainer(store: self.store.scope(state: \.scores, action: League.Action.scores))
+      ScoresContainer(store: self.store.scope(state: \.scores, action: \.scores))
         .tag(1)
         .padding(.top, -16)
-      StandingsView(store: self.store.scope(state: \.standings, action: League.Action.standings))
+      StandingsView(store: self.store.scope(state: \.standings, action: \.standings))
         .tag(2)
     }
     .tabViewStyle(.page(indexDisplayMode: .never))

@@ -8,8 +8,8 @@ import Models
 import SwiftUI
 
 // MARK: - NewsList
-
-public struct NewsList: Reducer {
+@Reducer
+public struct NewsList {
   // MARK: Lifecycle
 
   public init() {}
@@ -61,7 +61,7 @@ public struct NewsList: Reducer {
   public enum Action: Equatable {
     case task
     case newsItemResponse(TaskResult<[News.State]>)
-    case newsItem(id: News.State.ID, action: News.Action)
+    case newsItems(IdentifiedActionOf<News>)
     case refresh
     case article(PresentationAction<ArticleFeature.Action>)
     case dismissArticle
@@ -104,7 +104,7 @@ public struct NewsList: Reducer {
         print("Could not fetch news items \(error.localizedDescription)")
         state.loadingState = .empty("Something unexpected occured")
         return .none
-      case .newsItem(let id, action: .tapped):
+      case .newsItems(.element(let id, action: .tapped)):
         guard let news = state.newsItems[id: id] else { return .none }
         state.articleView = ArticleFeature.State(url: news.link)
         return .none
@@ -118,7 +118,7 @@ public struct NewsList: Reducer {
         return .none
       }
     }
-    .ifLet(\.$articleView, action: /Action.article) {
+    .ifLet(\.$articleView, action: \.article) {
       ArticleFeature()
     }._printChanges()
   }
@@ -167,7 +167,7 @@ public struct NewsListView: View {
     ScrollViewReader { proxy in
       ScrollView {
         LazyVStack(spacing: 15) {
-          ForEachStore(self.store.scope(state: \.newsItems, action: NewsList.Action.newsItem(id:action:))) {
+          ForEachStore(self.store.scope(state: \.newsItems, action: \.newsItems)) {
             NewsView(store: $0)
               .redacted(reason: viewStore.loadingState == .loading ? .placeholder : [])
           }
@@ -191,7 +191,7 @@ public struct NewsListView: View {
     }
     .tag(viewStore.index)
     .sheet(
-      store: self.store.scope(state: \.$articleView, action: { .article($0) })
+      store: self.store.scope(state: \.$articleView, action: \.article)
     ) { store in
       NavigationStack {
         ArticleView(store: store)

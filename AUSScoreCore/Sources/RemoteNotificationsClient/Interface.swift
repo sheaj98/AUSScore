@@ -14,7 +14,7 @@ extension DependencyValues {
 
   private enum RemoteNotificationsClientKey: DependencyKey {
     static let liveValue = RemoteNotificationsClient.live
-    static let testValue = RemoteNotificationsClient.unimplemented
+    static let testValue = RemoteNotificationsClient.unimplementedTests
     static let previewValue = RemoteNotificationsClient.noop
   }
 }

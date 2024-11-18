@@ -20,6 +20,8 @@ public struct SyncLogic: Reducer {
       switch action {
       case .appDelegate(.didFinishLaunching):
         return syncAll()
+      case .appDelegate(.appDidBecomeActive):
+        return syncGames(completionHandler: nil)
       case .appDelegate(.didRegisterForRemoteNotifications(.success(let tokenData))):
         return .run { _ in
           let token = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
@@ -33,7 +35,7 @@ public struct SyncLogic: Reducer {
       case .appDelegate(.didRecieveRemoteNotification(let completionHandler)):
         //TODO: Move to proper handler
         return syncGames(completionHandler: completionHandler)
-      case .scores(.scoresList(_, action: .refreshGames)):
+      case .scores(.scoresLists(.element(_, action: .refreshGames))):
         return syncGames(completionHandler: nil)
       default:
         return .none

@@ -16,17 +16,17 @@ extension UserNotificationClient: TestDependencyKey {
   public static let previewValue = Self.noop
 
   public static let testValue: UserNotificationClient = Self(
-    add: XCTUnimplemented("\(Self.self).add"),
-    delegate: XCTUnimplemented("\(Self.self).delegate", placeholder: .finished),
-    getNotificationSettings: XCTUnimplemented(
+    add: unimplemented("\(Self.self).add"),
+    delegate: unimplemented("\(Self.self).delegate", placeholder: .finished),
+    getNotificationSettings: unimplemented(
       "\(Self.self).getNotificationSettings",
       placeholder: Notification.Settings(authorizationStatus: .notDetermined)),
-    removeDeliveredNotificationsWithIdentifiers: XCTUnimplemented(
+    removeDeliveredNotificationsWithIdentifiers: unimplemented(
       "\(Self.self).removeDeliveredNotificationsWithIdentifiers"),
-    removePendingNotificationRequestsWithIdentifiers: XCTUnimplemented(
+    removePendingNotificationRequestsWithIdentifiers: unimplemented(
       "\(Self.self).removePendingNotificationRequestsWithIdentifiers"),
-    removeAll: XCTUnimplemented("\(Self.self).removeAll"),
-    requestAuthorization: XCTUnimplemented("\(Self.self).requestAuthorization"))
+    removeAll: unimplemented("\(Self.self).removeAll"),
+    requestAuthorization: unimplemented("\(Self.self).requestAuthorization"))
 }
 
 extension UserNotificationClient {

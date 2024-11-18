@@ -5,9 +5,9 @@ import UIKit
 @available(iOSApplicationExtension, unavailable)
 extension RemoteNotificationsClient {
   public static let live = Self(
-    isRegistered: { await UIApplication.shared.isRegisteredForRemoteNotifications },
+    isRegistered: { UIApplication.shared.isRegisteredForRemoteNotifications },
     register: {
-      await UIApplication.shared.registerForRemoteNotifications()
+      UIApplication.shared.registerForRemoteNotifications()
     },
-    unregister: { await UIApplication.shared.unregisterForRemoteNotifications() })
+    unregister: { UIApplication.shared.unregisterForRemoteNotifications() })
 }

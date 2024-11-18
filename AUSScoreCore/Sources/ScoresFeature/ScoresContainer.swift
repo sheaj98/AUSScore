@@ -1,7 +1,6 @@
 // Copyright © 2023 Shea Sullivan. All rights reserved.
 
 import AppCommon
-import AppNotificationsClient
 import ComposableArchitecture
 import DatabaseClient
 import Models
@@ -10,7 +9,8 @@ import GameFeature
 
 // MARK: - ScoresFeature
 
-public struct ScoresFeature: Reducer {
+@Reducer
+public struct ScoresFeature {
   // MARK: Lifecycle
 
   public init() {}
@@ -44,7 +44,7 @@ public struct ScoresFeature: Reducer {
     }
     
     case selected(Int)
-    case scoresList(id: ScoresList.State.ID, action: ScoresList.Action)
+    case scoresLists(IdentifiedActionOf<ScoresList>)
     case task
     case dateWithGamesResponse(TaskResult<[ScoresList.State]>)
     case dayDidChange
@@ -59,25 +59,27 @@ public struct ScoresFeature: Reducer {
         state.selectedIndex = index
         return .none
       case .task:
-        return .run { [sportId = state.sportId] send in
-          await withThrowingTaskGroup(of: Void.self, body: { group in
-            group.addTask {
-              for await _ in appNotificationsClient.didChangeDay() {
-                await send(.dayDidChange)
+        return .merge(
+          .publisher {
+            NotificationCenter.default.publisher(for: .NSCalendarDayChanged)
+              .map { _ in .dayDidChange}
+          },
+          .run { [sportId = state.sportId] send in
+            await withThrowingTaskGroup(of: Void.self, body: { group in
+              group.addTask {
+                await send(.dateWithGamesResponse(TaskResult {
+                  try await refreshDatesWithGames(sportId: sportId)
+                }))
               }
-            }
-            group.addTask {
-              await send(.dateWithGamesResponse(TaskResult {
-                try await refreshDatesWithGames(sportId: sportId)
-              }))
-            }
-            group.addTask {
-              for try await user in dbClient.userStream() {
-                await send(.userResponse(user))
+              group.addTask {
+                for try await user in dbClient.userStream() {
+                  await send(.userResponse(user))
+                }
               }
-            }
-          })
-        }
+            })
+          }
+        )
+        
       case .dayDidChange:
         return .run { [sportId = state.sportId] send in
           await send(.dateWithGamesResponse(TaskResult {
@@ -97,12 +99,12 @@ public struct ScoresFeature: Reducer {
       case .dateWithGamesResponse(.failure(let error)):
         print("Error fetch dates with games \(error)")
         return .none
-      case .scoresList(id: _, action: .gamesSection(id: _, action: .gamesRow(id: _, action: .tapped(let game)))):
+      case .scoresLists(.element(id: _, action: .gamesSections(.element(id: _, action: .gamesRows(.element(id: _, action: .tapped(let game))))))):
         return .send(.delegate(.showGameDetails(game)))
       default:
         return .none
       }
-    }.forEach(\.datesWithGames, action: /Action.scoresList(id:action:)) {
+    }.forEach(\.datesWithGames, action: \.scoresLists) {
       ScoresList()
     }
   }
@@ -110,7 +112,6 @@ public struct ScoresFeature: Reducer {
   // MARK: Internal
 
   @Dependency(\.databaseClient) var dbClient
-  @Dependency(\.appNotificationsClient) var appNotificationsClient
 
   private func refreshDatesWithGames(sportId: Int64?) async throws -> [ScoresList.State] {
     var dates = try await dbClient.datesWithGames(sportId)
@@ -155,7 +156,7 @@ public struct ScoresContainer: View {
 
       TabView(selection: viewStore.binding(get: \.selectedIndex, send: ScoresFeature.Action.selected)) {
         ForEachStore(
-          self.store.scope(state: \.datesWithGames, action: ScoresFeature.Action.scoresList(id:action:)))
+          self.store.scope(state: \.datesWithGames, action: \.scoresLists))
         { store in
           ScoresListView(store: store)
         }

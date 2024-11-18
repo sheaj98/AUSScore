@@ -9,7 +9,8 @@ import SwiftUI
 
 // MARK: - ScoresList
 
-public struct ScoresList: Reducer {
+@Reducer
+public struct ScoresList {
   // MARK: Lifecycle
 
   public init() {}
@@ -42,7 +43,7 @@ public struct ScoresList: Reducer {
   public enum Action: Equatable {
     case task
     case scoreSections(sections: [ScoresListSection.State])
-    case gamesSection(id: ScoresListSection.State.ID, action: ScoresListSection.Action)
+    case gamesSections(IdentifiedActionOf<ScoresListSection>)
     case refreshGames
     case scrollToTop
   }
@@ -97,7 +98,7 @@ public struct ScoresList: Reducer {
         }
         state.scoreSections = IdentifiedArray(uniqueElements: scores)
         return .none
-      case .gamesSection:
+      case .gamesSections:
         return .none
       case .scrollToTop:
         state.toggleScrollToTop.toggle()
@@ -128,7 +129,7 @@ public struct ScoresListView: View {
   public var body: some View {
     ScrollViewReader { proxy in
       List {
-        ForEachStore(self.store.scope(state: \.scoreSections, action: ScoresList.Action.gamesSection(id:action:))) {
+        ForEachStore(self.store.scope(state: \.scoreSections, action: \.gamesSections)) {
           ScoresListSectionView(store: $0)
         }
       }

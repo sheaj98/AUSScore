@@ -39,16 +39,15 @@ let package = Package(
     .library(name: "RemoteNotificationsClient", targets: ["RemoteNotificationsClient"]),
     .library(name: "UserNotificationsClient", targets: ["UserNotificationsClient"]),
     .library(name: "UserIdentifier", targets: ["UserIdentifier"]),
-    .library(name: "AppNotificationsClient", targets: ["AppNotificationsClient"]),
     .library(name: "LeaguesFeature", targets: ["LeaguesFeature"]),
     .library(name: "GameFeature", targets: ["GameFeature"]),
     .library(name: "TeamFeature", targets: ["TeamFeature"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.15.0"),
     .package(url: "https://github.com/kean/Nuke", from: "11.4.0"),
     .package(url: "https://github.com/kean/Get", from: "2.1.0"),
-    .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.0.0"),
+    .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.29.3"),
     .package(url: "https://github.com/groue/SortedDifference", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
     .package(url: "https://github.com/apple/swift-async-algorithms", from: "0.1.0"),
@@ -111,7 +110,6 @@ let package = Package(
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "NukeUI", package: "Nuke"),
         "AppCommon",
-        "AppNotificationsClient",
         "GameFeature",
         .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
       ]),
@@ -152,9 +150,6 @@ let package = Package(
       .product(name: "Dependencies", package: "swift-dependencies"),
     ]),
     .target(name: "UserIdentifier", dependencies: [
-      .product(name: "Dependencies", package: "swift-dependencies"),
-    ]),
-    .target(name: "AppNotificationsClient", dependencies: [
       .product(name: "Dependencies", package: "swift-dependencies"),
     ]),
     .target(name: "LeaguesFeature", dependencies: [

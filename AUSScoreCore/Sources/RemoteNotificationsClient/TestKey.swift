@@ -12,8 +12,8 @@ extension RemoteNotificationsClient {
 }
 
 extension RemoteNotificationsClient {
-  public static let unimplemented = Self(
-    isRegistered: XCTUnimplemented("\(Self.self).isRegistered", placeholder: false),
-    register: XCTUnimplemented("\(Self.self).register"),
-    unregister: XCTUnimplemented("\(Self.self).unregister"))
+  public static let unimplementedTests = Self(
+    isRegistered: unimplemented("\(Self.self).isRegistered", placeholder: false),
+    register: unimplemented("\(Self.self).register"),
+    unregister: unimplemented("\(Self.self).unregister"))
 }

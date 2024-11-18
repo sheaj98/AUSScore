@@ -5,8 +5,8 @@ import Models
 import SwiftUI
 
 // MARK: - ScoresListSection
-
-public struct ScoresListSection: Reducer {
+@Reducer
+public struct ScoresListSection {
   // MARK: Lifecycle
 
   public init() { }
@@ -28,13 +28,13 @@ public struct ScoresListSection: Reducer {
   }
 
   public enum Action: Equatable {
-    case gamesRow(id: ScoresRow.State.ID, action: ScoresRow.Action)
+    case gamesRows(IdentifiedActionOf<ScoresRow>)
   }
 
   public var body: some Reducer<State, Action> {
     Reduce { _, action in
       switch action {
-      case .gamesRow(let id, action: .tapped):
+      case .gamesRows(.element(let id, action: .tapped)):
         print("Tapped scoresrow with id: \(id)")
         return .none
       }
@@ -58,7 +58,7 @@ struct ScoresListSectionView: View {
 
   var body: some View {
     Section {
-      ForEachStore(self.store.scope(state: \.scoreRows, action: ScoresListSection.Action.gamesRow(id:action:))) {
+      ForEachStore(self.store.scope(state: \.scoreRows, action: \.gamesRows)) {
         ScoresRowView(store: $0)
       }
     } header: {

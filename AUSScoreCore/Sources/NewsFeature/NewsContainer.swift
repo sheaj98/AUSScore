@@ -10,7 +10,8 @@ import SwiftUI
 
 // MARK: - NewsFeature
 
-public struct NewsFeature: Reducer {
+@Reducer
+public struct NewsFeature {
   // MARK: Lifecycle
 
   public init() { }
@@ -36,7 +37,7 @@ public struct NewsFeature: Reducer {
 
   public enum Action: Equatable {
     case selected(Int)
-    case newsCategory(id: NewsList.State.ID, action: NewsList.Action)
+    case newsCategories(IdentifiedActionOf<NewsList>)
     case task
     case newsFeedResponse(TaskResult<[NewsList.State]>)
   }
@@ -62,13 +63,13 @@ public struct NewsFeature: Reducer {
       case .newsFeedResponse(.failure(let error)):
         print("Could not fetch news feeds \(error.localizedDescription)")
         return .none
-      case .newsCategory:
+      case .newsCategories:
         return .none
       }
     }
     .forEach(
       \.newsCategories,
-      action: /Action.newsCategory(id:action:))
+       action: \.newsCategories)
     {
       NewsList()
     }
@@ -106,7 +107,7 @@ public struct NewsContainer: View {
         ForEachStore(
           self.store.scope(
             state: \.newsCategories,
-            action: NewsFeature.Action.newsCategory(id:action:)),
+            action: \.newsCategories),
           content: NewsListView.init(store:))
       }
       .tabViewStyle(.page(indexDisplayMode: .never))

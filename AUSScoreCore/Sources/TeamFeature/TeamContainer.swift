@@ -13,7 +13,8 @@ import Models
 import NukeUI
 import SwiftUI
 
-public struct TeamContainerReducer: Reducer {
+@Reducer
+public struct TeamContainerReducer {
   public init() {}
 
   public struct State: Equatable {
@@ -46,7 +47,7 @@ public struct TeamContainerReducer: Reducer {
     
     Scope(
       state: \.gameList,
-      action: /Action.gameList)
+      action: \.gameList)
     {
       GameListReducer()
     }
@@ -148,7 +149,7 @@ public struct TeamContainerView: View {
       }
       .padding()
       .background(Color(uiColor: .tertiarySystemBackground))
-      GameListView(store: self.store.scope(state: \.gameList, action: TeamContainerReducer.Action.gameList))
+      GameListView(store: self.store.scope(state: \.gameList, action: \.gameList))
     }
     .background(Color(uiColor: .secondarySystemBackground))
     .toolbarRole(.editor)

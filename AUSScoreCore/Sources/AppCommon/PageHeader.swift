@@ -49,11 +49,11 @@ public struct PageHeader: View {
         .coordinateSpace(name: "container")
         .overlay(underline, alignment: .bottomLeading)
         .animation(.default, value: width)
-        .onChange(of: selected, perform: { value in
+        .onChange(of: selected, initial: true) { value, _ in
           withAnimation {
             scrollProxy.scrollTo(value, anchor: .center)
           }
-        })
+        }
         .onAppear(perform: {
           withAnimation {
             // probably should be only first time
@@ -86,11 +86,11 @@ public struct PageHeader: View {
             self.width = geometry.size.width
           }
         })
-        .onChange(of: isSelected, perform: { _ in
+        .onChange(of: isSelected, initial: false) { _, _ in
           guard isSelected == index else { return }
           self.offset = geometry.frame(in: .named("container")).minX
           self.width = geometry.size.width
-        })
+        }
       }
     }
   }

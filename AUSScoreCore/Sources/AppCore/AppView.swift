@@ -12,15 +12,16 @@ import FavoritesFeature
 import SwiftUI
 
 // MARK: - AppReducer
-
-public struct AppReducer: Reducer {
+@Reducer
+public struct AppReducer {
   // MARK: Lifecycle
 
   public init() {}
 
   // MARK: Public
 
-  public struct Path: Reducer {
+  @Reducer
+  public struct Path {
     public enum State: Equatable {
       case gameDetails(GameDetails.State)
       case league(League.State)
@@ -34,13 +35,13 @@ public struct AppReducer: Reducer {
     }
 
     public var body: some ReducerOf<Self> {
-      Scope(state: /State.gameDetails, action: /Action.gameDetails) {
+      Scope(state: \.gameDetails, action: \.gameDetails) {
         GameDetails()
       }
-      Scope(state: /State.league, action: /Action.league) {
+      Scope(state: \.league, action: \.league) {
         League()
       }
-      Scope(state: /State.team, action: /Action.team) {
+      Scope(state: \.team, action: \.team) {
         TeamContainerReducer()
       }
     }
@@ -88,20 +89,20 @@ public struct AppReducer: Reducer {
   public var body: some Reducer<State, Action> {
     Scope(
       state: \.news,
-      action: CasePath(Action.news))
+      action: \.news)
     {
       NewsFeature()
     }
 
-    Scope(state: \.scores, action: CasePath(Action.scores)) {
+    Scope(state: \.scores, action: \.scores) {
       ScoresFeature()
     }
 
-    Scope(state: \.sports, action: CasePath(Action.sports)) {
+    Scope(state: \.sports, action: \.sports) {
       LeaguesList()
     }
     
-    Scope(state: \.favorites, action: CasePath(Action.favorites)) {
+    Scope(state: \.favorites, action: \.favorites) {
       FavoritesList()
     }
 
@@ -118,16 +119,16 @@ public struct AppReducer: Reducer {
       case .clearNavStack(.scores):
         if state.scoresPath.isEmpty {
           let id = state.scores.selectedIndex
-          return .send(.scores(.scoresList(id: id, action: .scrollToTop)))
+          return .send(.scores(.scoresLists(.element(id: id, action: .scrollToTop))))
         }
         state.scoresPath.removeAll()
         return .none
       case .clearNavStack(.news):
         let selectedCategory = state.news.newsCategories[state.news.selectIndex]
         if let _ = selectedCategory.articleView {
-          return .send(.news(.newsCategory(id: selectedCategory.id, action: .dismissArticle)))
+          return .send(.news(.newsCategories(.element(id: selectedCategory.id, action: .dismissArticle))))
         }
-        return .send(.news(.newsCategory(id: selectedCategory.id, action: .scrollToTop)))
+        return .send(.news(.newsCategories(.element(id: selectedCategory.id, action: .scrollToTop))))
       case .clearNavStack(.sports):
         if state.leaguesPath.isEmpty {
           return .none
@@ -171,17 +172,17 @@ public struct AppReducer: Reducer {
         return .none
       }
     }
-    .forEach(\.scoresPath, action: /Action.scoresPath) {
+    .forEach(\.scoresPath, action: \.scoresPath) {
       Path()
     }
-    .forEach(\.leaguesPath, action: /Action.leaguesPath) {
+    .forEach(\.leaguesPath, action: \.leaguesPath) {
       Path()
     }
 
     SyncLogic()
     Scope(
       state: \.appDelegate,
-      action: /Action.appDelegate)
+      action: \.appDelegate)
     {
       AppDelegateReducer()
     }
@@ -209,15 +210,15 @@ public struct AppView: View {
       Group {
         NewsContainer(store: store.scope(
           state: \.news,
-          action: AppReducer.Action.news))
+          action: \.news))
           .tabItem {
             Label("News", systemImage: "newspaper")
           }
           .tag(AppReducer.Tab.news)
         
 
-        NavigationStackStore(self.store.scope(state: \.scoresPath, action: { .scoresPath($0) }), root: {
-          ScoresContainer(store: store.scope(state: \.scores, action: AppReducer.Action.scores))
+        NavigationStackStore(self.store.scope(state: \.scoresPath, action: \.scoresPath), root: {
+          ScoresContainer(store: store.scope(state: \.scores, action: \.scores))
         }, destination: { store in
           SwitchStore(store) { initialState in
             switch initialState {
@@ -234,8 +235,8 @@ public struct AppView: View {
         }
         .tag(AppReducer.Tab.scores)
 
-        NavigationStackStore(self.store.scope(state: \.leaguesPath, action: { .leaguesPath($0) }), root: {
-          LeaguesListView(store: store.scope(state: \.sports, action: AppReducer.Action.sports))
+        NavigationStackStore(self.store.scope(state: \.leaguesPath, action: \.leaguesPath), root: {
+          LeaguesListView(store: store.scope(state: \.sports, action: \.sports))
         }, destination: { store in
           SwitchStore(store) { initialState in
             switch initialState {
@@ -253,7 +254,7 @@ public struct AppView: View {
         }
         .tag(AppReducer.Tab.sports)
         
-        FavoritesListView(store: store.scope(state: \.favorites, action: AppReducer.Action.favorites))
+        FavoritesListView(store: store.scope(state: \.favorites, action: \.favorites))
           .tabItem({
             Label("Favorites", systemImage: "star")
           })
