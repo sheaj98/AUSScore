@@ -29,6 +29,7 @@ extension DatabaseClient: TestDependencyKey {
     addFavoriteTeam: unimplemented("\(Self.self).addFavoriteTeam"),
     deleteFavoriteSport: unimplemented("\(Self.self).deleteFavoriteTeam"),
     deleteFavoriteTeam: unimplemented("\(Self.self).deleteFavoriteTeam"),
-    conferenceSchools: unimplemented("\(Self.self).conferenceSchools")
+    conferenceSchools: unimplemented("\(Self.self).conferenceSchools"),
+    resetLocalDB: unimplemented("\(Self.self).resetLocalDB")
   )
 }

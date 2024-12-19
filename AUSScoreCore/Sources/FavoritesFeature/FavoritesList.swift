@@ -14,7 +14,8 @@ import Models
 import SwiftUI
 import UserIdentifier
 
-public struct FavoritesList: Reducer {
+@Reducer
+public struct FavoritesList {
   public init() {}
   
   public struct State: Equatable {
@@ -31,6 +32,7 @@ public struct FavoritesList: Reducer {
   
   public enum Action {
     case task
+    case resetDb
     case userResponse(UserInfo)
     case schools(TaskResult<[SchoolInfo]>)
     case addFavoriteTeam(TeamInfo)
@@ -123,6 +125,8 @@ public struct FavoritesList: Reducer {
         // TODO: Add error toast
         print("error getting schools \(err.localizedDescription)")
         return .none
+      default:
+        return .none
       }
     }
   }
@@ -195,7 +199,14 @@ public struct FavoritesListView: View {
           )
         }
       } header: {
-        Text("Schools")
+        Text("Favorites")
+      }
+      Section {
+        Button("Clear local cache") {
+          viewStore.send(.resetDb)
+        }
+      } header: {
+        Text("Settings")
       }
     }
     .headerProminence(.increased)

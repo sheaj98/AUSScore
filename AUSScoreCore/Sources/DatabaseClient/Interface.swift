@@ -34,7 +34,8 @@ public struct DatabaseClient {
     addFavoriteTeam: @escaping @Sendable (Int64, String) async throws -> Void,
     deleteFavoriteSport: @escaping @Sendable (Int64, String) async throws -> Bool,
     deleteFavoriteTeam: @escaping @Sendable (Int64, String) async throws -> Bool,
-    conferenceSchools: @escaping @Sendable () async throws -> [SchoolInfo]
+    conferenceSchools: @escaping @Sendable () async throws -> [SchoolInfo],
+    resetLocalDB: @escaping @Sendable () async throws -> Void
   ) {
     self.schools = schools
     self.syncSchools = syncSchools
@@ -60,6 +61,7 @@ public struct DatabaseClient {
     self.deleteFavoriteSport = deleteFavoriteSport
     self.deleteFavoriteTeam = deleteFavoriteTeam
     self.conferenceSchools = conferenceSchools
+    self.resetLocalDB = resetLocalDB
   }
 
   // MARK: Public
@@ -88,6 +90,7 @@ public struct DatabaseClient {
   public var deleteFavoriteSport: @Sendable (Int64, String) async throws -> Bool
   public var deleteFavoriteTeam: @Sendable (Int64, String) async throws -> Bool
   public var conferenceSchools: @Sendable () async throws -> [SchoolInfo]
+  public var resetLocalDB: @Sendable () async throws -> Void
 }
 
 public extension DependencyValues {

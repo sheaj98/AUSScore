@@ -256,7 +256,7 @@ public struct AppView: View {
         
         FavoritesListView(store: store.scope(state: \.favorites, action: \.favorites))
           .tabItem({
-            Label("Favorites", systemImage: "star")
+            Label("Settings", systemImage: "gear")
           })
           .tag(AppReducer.Tab.favorites)
         

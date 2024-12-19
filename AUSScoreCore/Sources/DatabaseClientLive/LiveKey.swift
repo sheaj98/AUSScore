@@ -515,10 +515,13 @@ extension DatabaseClient: DependencyKey {
             !$0.teams.isEmpty
           }
         }
+      },
+      resetLocalDB: {
+        try await dbWriter.erase()
+        try Self.registerMigrations(for: dbWriter)
       }
     )
   }
-
   // MARK: Private
 
   private static func createDatabase() throws -> DatabasePool {

@@ -37,6 +37,14 @@ public struct SyncLogic: Reducer {
         return syncGames(completionHandler: completionHandler)
       case .scores(.scoresLists(.element(_, action: .refreshGames))):
         return syncGames(completionHandler: nil)
+      case .favorites(.resetDb):
+        return .concatenate([.run { _ in
+          do {
+            try await databaseClient.resetLocalDB()
+          } catch {
+            print("Failed to reset local db \(error)")
+          }
+        }, syncAll()])
       default:
         return .none
       }
